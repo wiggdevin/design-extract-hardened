@@ -35,5 +35,5 @@ export async function checkRateBlob(key, options = {}) {
   if (process.env.NODE_ENV === 'production') {
     return { allowed: false, remaining: 0, resetAt: Date.now() + 60000, persistent: false };
   }
-  return { ...checkRate(key, options), persistent: false };
+  return { ...checkRate(`local-quota:${key}`, options), persistent: false };
 }

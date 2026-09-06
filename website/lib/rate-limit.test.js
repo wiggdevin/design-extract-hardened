@@ -1,6 +1,6 @@
 import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { checkRate, _resetRateLimit } from './rate-limit.js';
+import { checkRate, checkRateBlob, _resetRateLimit } from './rate-limit.js';
 
 beforeEach(() => _resetRateLimit());
 
@@ -52,4 +52,20 @@ test('resetAt advances with the first-seen time', () => {
   const { resetAt: a } = checkRate(key, { limit: 3, windowMs: 60000 });
   const { resetAt: b } = checkRate(key, { limit: 3, windowMs: 60000 });
   assert.equal(a, b);
+});
+
+test('local two-stage quota counts each extraction once per limiter', async () => {
+  const old = process.env.NODE_ENV;
+  process.env.NODE_ENV = 'development';
+  try {
+    for (let i = 0; i < 2; i++) {
+      assert.equal(checkRate('extract:local', { limit: 2 }).allowed, true);
+      assert.equal((await checkRateBlob('extract:local', { limit: 2 })).allowed, true);
+    }
+    assert.equal(checkRate('extract:local', { limit: 2 }).allowed, false);
+    assert.equal((await checkRateBlob('extract:local', { limit: 2 })).allowed, false);
+  } finally {
+    if (old === undefined) delete process.env.NODE_ENV;
+    else process.env.NODE_ENV = old;
+  }
 });
