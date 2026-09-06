@@ -34,7 +34,7 @@
     {
       "name": "copy-cli",
       "title": "Copy CLI Command For URL",
-      "description": "Copy `npx designlang <url>` to your clipboard.",
+      "description": "Copy `designlang <url>` to your clipboard.",
       "mode": "no-view",
       "arguments": [
         {

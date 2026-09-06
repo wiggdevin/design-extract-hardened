@@ -4,7 +4,7 @@ Three commands:
 
 - **Extract Design From URL** — runs `designlang <url>` and opens the output folder.
 - **Score Website Design** — shows the 7-category design-system score in a Raycast detail view.
-- **Copy CLI Command For URL** — `npx designlang <url>` → clipboard.
+- **Copy CLI Command For URL** — `designlang <url>` → clipboard.
 
 ## Requirements
 
