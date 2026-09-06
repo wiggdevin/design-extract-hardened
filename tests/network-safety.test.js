@@ -51,11 +51,24 @@ test('URL validation rejects credentials and special-purpose IP literals', async
   const documentationV4 = await validateResolvedTargetUrl('https://192.0.2.1/');
   const documentationV6 = await validateResolvedTargetUrl('https://[2001:db8::1]/');
   const teredoV6 = await validateResolvedTargetUrl('https://[2001::1]/');
+  const specialV4 = await Promise.all([
+    '192.31.196.1',
+    '192.52.193.1',
+    '192.175.48.1',
+  ].map((address) => validateResolvedTargetUrl(`https://${address}/`)));
+  const specialV6 = await Promise.all([
+    '[::ffff:8.8.8.8]',
+    '[64:ff9b::808:808]',
+    '[2002:0808:0808::1]',
+    '[2620:4f:8000::1]',
+  ].map((address) => validateResolvedTargetUrl(`https://${address}/`)));
 
   assert.equal(credentials.ok, false);
   assert.equal(documentationV4.ok, false);
   assert.equal(documentationV6.ok, false);
   assert.equal(teredoV6.ok, false);
+  assert.ok(specialV4.every((result) => result.ok === false));
+  assert.ok(specialV6.every((result) => result.ok === false));
 });
 
 test('resolved target pins one of the validated public addresses', async () => {
@@ -161,4 +174,6 @@ test('crawler uses the safe proxy and rejects remote browser endpoints', () => {
   assert.match(source, /proxy:\s*\{\s*server:\s*safeProxy\.url\s*\}/);
   assert.match(source, /--force-webrtc-ip-handling-policy=disable_non_proxied_udp/);
   assert.match(source, /NETWORK_OVERRIDE_FLAGS/);
+  assert.match(source, /--proxy-auto-detect/);
+  assert.match(source, /--proxy-pac-url/);
 });

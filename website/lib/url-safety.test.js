@@ -151,9 +151,9 @@ test('allows public IPv6 (Cloudflare DNS)', () => {
   assert.equal(r.ok, true);
 });
 
-test('allows IPv4-mapped public IPv4 ::ffff:8.8.8.8', () => {
+test('rejects IPv4-mapped public IPv4 ::ffff:8.8.8.8 as special-use IPv6', () => {
   const r = validateTargetUrl('http://[::ffff:8.8.8.8]');
-  assert.equal(r.ok, true);
+  assert.equal(r.ok, false);
 });
 
 test('rejects empty string', () => {

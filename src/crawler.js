@@ -9,7 +9,9 @@ const MAX_ELEMENTS = 5000;
 const NETWORK_OVERRIDE_FLAGS = [
   '--host-resolver-rules',
   '--no-proxy-server',
+  '--proxy-auto-detect',
   '--proxy-bypass-list',
+  '--proxy-pac-url',
   '--proxy-server',
 ];
 

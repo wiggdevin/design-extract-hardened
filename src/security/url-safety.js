@@ -35,8 +35,11 @@ function isPublicIPv4(address) {
   if (a === 169 && b === 254) return false;
   if (a === 172 && b >= 16 && b <= 31) return false;
   if (a === 192 && b === 0 && (c === 0 || c === 2)) return false;
+  if (a === 192 && b === 31 && c === 196) return false;
+  if (a === 192 && b === 52 && c === 193) return false;
   if (a === 192 && b === 88 && c === 99) return false;
   if (a === 192 && b === 168) return false;
+  if (a === 192 && b === 175 && c === 48) return false;
   if (a === 198 && (b === 18 || b === 19)) return false;
   if (a === 198 && b === 51 && c === 100) return false;
   if (a === 203 && b === 0 && c === 113) return false;
@@ -67,32 +70,27 @@ function expandIPv6(address) {
   return parts.map((part) => Number.parseInt(part, 16));
 }
 
-function embeddedIPv4(parts) {
+function isEmbeddedIPv4Range(parts) {
   const leadingZeroes = (end) => parts.slice(0, end).every((part) => part === 0);
   const isMapped = leadingZeroes(5) && parts[5] === 0xffff;
   const isCompatible = leadingZeroes(6);
   const isNat64 = parts[0] === 0x64 && parts[1] === 0xff9b && parts.slice(2, 6).every((part) => part === 0);
-  if (!isMapped && !isCompatible && !isNat64) return null;
-  return `${parts[6] >> 8}.${parts[6] & 0xff}.${parts[7] >> 8}.${parts[7] & 0xff}`;
+  return isMapped || isCompatible || isNat64;
 }
 
 function isPublicIPv6(address) {
   const parts = expandIPv6(address);
   if (!parts) return false;
 
-  const embedded = embeddedIPv4(parts);
-  if (embedded) return isPublicIPv4(embedded);
-
-  if (parts[0] === 0x2002) {
-    const embedded6to4 = `${parts[1] >> 8}.${parts[1] & 0xff}.${parts[2] >> 8}.${parts[2] & 0xff}`;
-    return isPublicIPv4(embedded6to4);
-  }
+  if (isEmbeddedIPv4Range(parts)) return false;
+  if (parts[0] === 0x2002) return false;
 
   if (parts[0] < 0x2000 || parts[0] > 0x3fff) return false;
   // IANA special-purpose IPv6 ranges that sit inside 2000::/3 but are not
   // generally reachable. Be conservative: extraction does not need them.
   if (parts[0] === 0x2001 && parts[1] <= 0x01ff) return false;
   if (parts[0] === 0x2001 && parts[1] === 0x0db8) return false;
+  if (parts[0] === 0x2620 && parts[1] === 0x004f && parts[2] === 0x8000) return false;
   if ((parts[0] & 0xfff0) === 0x3ff0) return false;
   return true;
 }
