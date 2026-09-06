@@ -4,7 +4,9 @@
 
 This local `hardened` branch is reviewed independently of upstream releases.
 The September 2026 continuation report is in [docs/security-hardening/README.md](docs/security-hardening/README.md).
-No changes in that report have been pushed or published.
+The report records the original local audit. The subsequent public fork is
+https://github.com/wiggdevin/design-extract-hardened; publication does not certify
+the unverified production/container paths.
 
 ### Allowed data flows
 

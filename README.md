@@ -1,4 +1,17 @@
-> **Local hardened branch:** use the checked-out source, not an upstream npm download. Public cache/reel persistence, LLM exports, the review bot and VS Code integration are disabled. Production extraction fails closed pending a private quota backend. Read [SECURITY.md](SECURITY.md) and the [verification report](docs/security-hardening/README.md) before running. The feature descriptions below include upstream capabilities that are disabled here.
+> **Hardened public fork:** [wiggdevin/design-extract-hardened](https://github.com/wiggdevin/design-extract-hardened), derived from [Manavarya09/design-extract](https://github.com/Manavarya09/design-extract) under the original MIT license. Use this checkout; the upstream npm package does not contain these hardening changes. Public persistence, LLM exports, the external bot and VS Code integration are disabled. See [SECURITY.md](SECURITY.md) for limits.
+
+## Run this fork locally
+
+Use Node.js 22.12 or newer (tested with 22.22.3):
+
+```bash
+npm ci --ignore-scripts --omit=optional
+cd website
+npm ci --ignore-scripts
+npm run dev -- --hostname 127.0.0.1 --port 3210
+```
+
+Open http://127.0.0.1:3210. Chromium installation, if needed, is a separate reviewed step documented in SECURITY.md. The historical security report remains in `docs/security-hardening/`; later runtime/publication evidence is recorded separately. The upstream feature descriptions below include disabled capabilities.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/Manavarya09/design-extract/main/website/public/logo-specimen.svg" alt="designlang — reads a website the way a developer reads a stylesheet" width="900">

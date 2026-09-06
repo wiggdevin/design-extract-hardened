@@ -2,9 +2,9 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [main]
+    branches: [hardened]
   pull_request:
-    branches: [main]
+    branches: [hardened]
   schedule:
     # Re-scan weekly in case new rules land even without code changes.
     - cron: "27 6 * * 1"
