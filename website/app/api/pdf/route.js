@@ -48,7 +48,7 @@ export async function POST(request) {
         'cache-control': 'no-store',
       },
     });
-  } catch (e) {
-    return err(500, `pdf render failed: ${e.message}`);
+  } catch {
+    return err(500, 'PDF could not be rendered. Please retry or download the brand HTML.');
   }
 }

@@ -55,9 +55,7 @@ export default function ShareExtractionButton({ url, hash, summary, files }) {
         : await fetch(pdfUrl);
       const type = res.headers.get('content-type') || '';
       if (!res.ok || !type.includes('application/pdf')) {
-        let msg = `PDF unavailable (${res.status})`;
-        try { const j = await res.json(); if (j?.error) msg = j.error; } catch { /* not json */ }
-        throw new Error(msg);
+        throw new Error('PDF unavailable. Please retry or download the brand HTML.');
       }
       const blob = await res.blob();
       const objUrl = URL.createObjectURL(blob);
@@ -68,9 +66,8 @@ export default function ShareExtractionButton({ url, hash, summary, files }) {
       a.click();
       a.remove();
       URL.revokeObjectURL(objUrl);
-    } catch (e) {
-      setPdfError(e?.message || 'Download failed');
-      setTimeout(() => setPdfError(null), 4000);
+    } catch {
+      setPdfError('PDF unavailable. Please retry or download the brand HTML.');
     } finally {
       setPdfBusy(false);
     }
@@ -80,9 +77,10 @@ export default function ShareExtractionButton({ url, hash, summary, files }) {
     <div className="share-row">
       {canPdf && (
         <button type="button" onClick={downloadPdf} disabled={pdfBusy} className="btn btn-primary btn-sm">
-          {pdfBusy ? 'Rendering PDF…' : pdfError ? pdfError : 'Download brand PDF'}
+          {pdfBusy ? 'Rendering PDF…' : 'Download brand PDF'}
         </button>
       )}
+      {pdfError && <p role="alert" style={{ flexBasis: '100%' }}>{pdfError}</p>}
       {agentBody && (
         <button type="button" className="btn btn-ghost btn-sm" onClick={copyAgent}>
           {done === 'agent' ? `Copied ${(agentBody.length / 1024).toFixed(1)}KB!` : 'Copy agent prompt'}

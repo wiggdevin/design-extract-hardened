@@ -6,55 +6,27 @@
 // already holds — no Blob round-trip — so a just-finished extraction
 // can never fail with "extraction not found".
 
+import { chromium } from 'playwright';
 import { getBrowserOptions, openBrowser } from './browser.js';
 
-// Subresource allowlist for the untrusted POST path. The brand book is
-// self-contained inline CSS plus Google Fonts, so we allow only data:
-// URIs and the two font hosts and abort everything else — client-supplied
-// HTML can't be used to fetch internal or arbitrary URLs (SSRF).
-const FONT_HOSTS = new Set(['fonts.googleapis.com', 'fonts.gstatic.com']);
-function isAllowedSubresource(url) {
-  if (url.startsWith('data:')) return true;
-  try { return FONT_HOSTS.has(new URL(url).hostname); } catch { return false; }
-}
-
 function footerTemplate(host) {
-  return `<div style="font-family: -apple-system, sans-serif; font-size: 9px; color: #888; width: 100%; padding: 0 18mm; display: flex; justify-content: space-between;"><span>designlang · ${host} brand guidelines</span><span><span class="pageNumber"></span> of <span class="totalPages"></span></span></div>`;
+  return `<div style="font-family: -apple-system, sans-serif; font-size: 9px; color: #888; width: 100%; padding: 0 18mm; display: flex; justify-content: space-between;"><span>designlang · ${String(host).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))} brand guidelines</span><span><span class="pageNumber"></span> of <span class="totalPages"></span></span></div>`;
 }
 
-// Render brand-book HTML to a PDF Buffer. `trusted` (server-generated
-// HTML from the cache) renders as-is; untrusted client HTML gets the
-// subresource allowlist above.
-export async function renderBrandPdf(html, host, { trusted = false } = {}) {
-  const { chromium } = await import('playwright-core');
+// Render all HTML offline with page scripts disabled, including cached content.
+export async function renderBrandPdf(html, host) {
   const opts = await getBrowserOptions();
   const browser = await openBrowser(chromium, opts);
 
   try {
-    const page = await browser.newPage();
-    // Bound every operation so a slow font CDN or remote browser can never
-    // hang the function into a platform 504 — we'd rather render unstyled
-    // than time out.
+    const page = await browser.newPage({ javaScriptEnabled: false, serviceWorkers: 'block' });
+    await page.context().setOffline(true);
+    await page.route('**/*', route => route.abort());
+    // Bound rendering operations; errors propagate to the endpoint.
     page.setDefaultTimeout(20000);
     page.setDefaultNavigationTimeout(20000);
-    if (!trusted) {
-      await page.route('**', (route) => {
-        const url = route.request().url();
-        return isAllowedSubresource(url) ? route.continue() : route.abort();
-      });
-    }
-    // 'networkidle' waits for the network to fall quiet, which stalls on a
-    // slow Google Fonts response (and behaves badly with request
-    // interception). 'load' fires once the document + its resources have
-    // loaded; we then give web fonts a *bounded* chance to settle so the
-    // PDF still looks right without ever blocking on a slow CDN.
-    await page.setContent(html, { waitUntil: 'load' }).catch(() => {});
-    await page
-      .evaluate(() => Promise.race([
-        (document.fonts && document.fonts.ready) || Promise.resolve(),
-        new Promise((r) => setTimeout(r, 2500)),
-      ]))
-      .catch(() => {});
+    // Inline styles and data images still render; remote fonts use local fallbacks.
+    await page.setContent(html, { waitUntil: 'load' });
     return await page.pdf({
       format: 'a4',
       printBackground: true,
