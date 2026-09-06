@@ -1,3 +1,5 @@
+> **Local hardened branch:** use the checked-out source, not an upstream npm download. Public cache/reel persistence, LLM exports, the review bot and VS Code integration are disabled. Production extraction fails closed pending a private quota backend. Read [SECURITY.md](SECURITY.md) and the [verification report](docs/security-hardening/README.md) before running. The feature descriptions below include upstream capabilities that are disabled here.
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/Manavarya09/design-extract/main/website/public/logo-specimen.svg" alt="designlang — reads a website the way a developer reads a stylesheet" width="900">
 </p>

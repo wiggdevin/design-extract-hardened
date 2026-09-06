@@ -1,3 +1,5 @@
+> Hardened fork: public persistence, LLM classification and VS Code integration are disabled. Upstream installation examples below do not fetch the unpublished hardening changes. See the source repository SECURITY.md.
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/Manavarya09/design-extract/main/website/public/logo-specimen.svg" alt="designlang — reads a website the way a developer reads a stylesheet" width="900">
 </p>

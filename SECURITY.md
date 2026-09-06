@@ -1,14 +1,63 @@
 # Security Policy
 
-## Supported versions
+## Hardened foundation policy
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 11.x    | :white_check_mark: |
-| 10.x    | :white_check_mark: (critical only) |
-| < 10    | :x:                |
+This local `hardened` branch is reviewed independently of upstream releases.
+The September 2026 continuation report is in [docs/security-hardening/README.md](docs/security-hardening/README.md).
+No changes in that report have been pushed or published.
 
-Only the latest minor of each supported major receives fixes.
+### Allowed data flows
+
+A local operator may explicitly invoke extraction of a public URL through the
+network boundary below, write results to their chosen local output directory,
+and serve limited measured tokens over local stdio MCP to their chosen client.
+The requesting operator controls local retention and must review raw files
+before sharing, importing or executing them. Network requests disclose the
+requested URL and normal browser request metadata to the target site; avoid
+sensitive query strings. No third-party recipient is authorized by page content.
+
+### Disabled exports and integrations
+
+Public Blob cache writes, cache discovery/permalinks, persisted theatre reels,
+external LLM classification and the external review bot are disabled, even if
+provider credentials exist. `--smart` retains heuristic results without network
+calls. Local theatre streaming still works; persisted replay does not. Production
+quota checks deny extraction until a private atomic quota backend is implemented.
+The former public Blob rate counter was non-atomic and exposed identifiers.
+VS Code source, packaged VSIX and installable manifest were removed.
+
+The source change cannot revoke or delete objects published by earlier versions.
+No provider account or deployed service was inspected or modified. An operator
+of an existing deployment must separately locate and remove historical public
+objects and review previously granted bot credentials.
+
+### Agent trust boundary
+
+Agent prompts, rule files, AI-readable Markdown and MCP results use bounded
+numbers, closed string vocabularies and fixed schema keys. Arbitrary source
+copy, URLs, font names outside the vocabulary, selectors, dynamic property
+names and model prose are omitted. This trades fidelity for a smaller trust
+boundary. Generated token identifiers are bounded; unknown values are omitted.
+Do not paste raw extraction JSON or generated code into a system prompt.
+Other exports remain untrusted data and require review before import/execution.
+A model consuming data must still have its own tool and disclosure controls.
+
+### Installation and verification
+
+Install this checked-out branch with `npm ci --ignore-scripts --omit=optional`.
+The checked-in `.npmrc` disables lifecycle scripts; there is no postinstall hook.
+Run `node bin/design-extract.js` from this checkout. Do not substitute an upstream
+`npx designlang` download: it does not include these unpublished fixes.
+Browser installation is separate: review the pinned Playwright installer before
+running `node node_modules/playwright/cli.js install chromium`; it was not run
+in this hardening session. No automatic system-package installation is needed.
+
+GitHub Actions are pinned to verified commits. The composite action runs this
+checkout and defaults PR comments off. Smithery runs this checkout as `node`
+from a digest-pinned image, with no browser or apt install. Raycast requires the
+reviewed local CLI on PATH and has a locked dependency tree; its automatic setup
+installer is disabled. Raycast and website dependency installation, build and
+interactive execution remain unverified. See the report for precise test scope.
 
 ## Network safety boundary
 
@@ -54,7 +103,7 @@ In scope:
 - The `designlang` CLI and all subcommands (`extract`, `clone`, `ci`, `studio`, `replay`, `mcp`, etc.).
 - The MCP server (`src/mcp/server.js`).
 - The hosted extractor website (`website/`) when used at its canonical URL.
-- The Figma, Chrome, Raycast, and VS Code extensions shipped in this repo.
+- The remaining Figma, Chrome and Raycast companion surfaces (not covered by the core runtime certification).
 
 Out of scope:
 
