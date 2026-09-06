@@ -72,5 +72,13 @@
     "dev": "ray develop",
     "lint": "ray lint",
     "publish": "ray publish"
+  },
+  "overrides": {
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "9.0.7"
+    },
+    "@raycast/api": {
+      "esbuild": "0.28.1"
+    }
   }
 }

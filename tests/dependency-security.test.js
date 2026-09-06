@@ -31,3 +31,12 @@ test('Smithery uses a pinned image, checked-in code and non-root runtime', () =>
  assert.match(docker,/ENTRYPOINT \["node", "\/app\/bin\/design-extract.js", "mcp"\]/);
  assert.ok(docker.indexOf('USER node')<docker.indexOf('RUN npm ci'));
 });
+
+test('Raycast locks patched minimatch and esbuild without automatic npx execution', () => {
+ const lock=JSON.parse(read('raycast-extension/package-lock.json'));
+ for(const [path,pkg] of Object.entries(lock.packages)) {
+  if(path.endsWith('/minimatch') && pkg.version.startsWith('9.')) assert.equal(pkg.version,'9.0.7');
+  if(path.endsWith('/esbuild')) assert.equal(pkg.version,'0.28.1');
+ }
+ for(const path of ['extract.tsx','score.tsx','copy-cli.tsx']) assert.doesNotMatch(read('raycast-extension/src/'+path),/\bnpx\b/);
+});
