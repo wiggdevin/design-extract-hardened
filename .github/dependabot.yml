@@ -1,6 +1,6 @@
 version: 2
 updates:
-  # npm dependencies — group low-risk bumps so auto-merge handles them in one PR.
+  # Dependency PRs are suggestions only; review, verify provenance and test before merging.
   - package-ecosystem: npm
     directory: "/"
     schedule:

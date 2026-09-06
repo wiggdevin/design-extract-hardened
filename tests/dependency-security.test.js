@@ -42,3 +42,9 @@ test('Raycast locks patched minimatch and esbuild without automatic npx executio
  }
  for(const path of ['extract.tsx','score.tsx','copy-cli.tsx']) assert.doesNotMatch(read('raycast-extension/src/'+path),/\bnpx\b/);
 });
+
+test('dependency automation cannot merge unreviewed changes', () => {
+ const workflow=read('.github/workflows/dependabot-auto-merge.yml');
+ assert.doesNotMatch(workflow,/pull_request_target|gh pr merge|contents: write|pull-requests: write/);
+ assert.match(workflow,/permissions: \{\}/);
+});
