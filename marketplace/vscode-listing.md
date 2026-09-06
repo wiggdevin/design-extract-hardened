@@ -1,3 +1,5 @@
+> Hardened fork: VS Code integration and packaged VSIX removed. Do not publish the historical extension instructions below.
+
 # VS Code Marketplace — designlang listing
 
 ## Display name

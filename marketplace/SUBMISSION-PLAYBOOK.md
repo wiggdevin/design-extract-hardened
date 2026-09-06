@@ -1,3 +1,5 @@
+> Hardened fork: VS Code integration and packaged VSIX removed. Do not publish the historical extension instructions below.
+
 # designlang — Distribution Submission Playbook
 
 Submit each marketplace below. All listing copy + manifests are pre-written.

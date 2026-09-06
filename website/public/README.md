@@ -238,7 +238,6 @@ designlang ships surfaces beyond the CLI:
 | Surface | Path | Description |
 |---------|------|-------------|
 | **CLI** | `npx designlang <url>` | Main entry point. |
-| **VS Code extension** | [`vscode-extension/`](vscode-extension/) | "Extract design from URL" command + auto-inject into workspace. |
 | **Raycast extension** | [`raycast-extension/`](raycast-extension/) | Extract, score, and "copy CLI command" from Raycast. |
 | **Figma plugin** | [`figma-plugin/`](figma-plugin/) | Paste a URL inside Figma, get a full Variables collection. |
 | **GitHub Action** | [`github-action/`](github-action/) | "Design regression guard" — diffs tokens on every PR and comments. |
