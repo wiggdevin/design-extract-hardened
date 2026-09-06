@@ -43,3 +43,8 @@ test('MCP omits page text and arbitrary token keys', async () => {
  }
  assert.ok(resources.read('designlang://tokens/primitive').text.includes('#123456'));
 });
+test('MCP retains generated numeric token identifiers and DTCG types', () => {
+ const tokens={primitive:{spacing:{s0:{$type:'dimension',$value:'4px'}},radius:{r0:{$type:'dimension',$value:'8px'}},fontFamily:{f0:{$type:'fontFamily',$value:'Inter'}}}};
+ const body=JSON.parse(buildResources({design:{},tokens}).read('designlang://tokens/primitive').text);
+ assert.deepEqual(body,tokens.primitive);
+});
