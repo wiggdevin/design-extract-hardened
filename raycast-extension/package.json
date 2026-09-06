@@ -2,12 +2,22 @@
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "designlang",
   "title": "Designlang",
-  "description": "Extract design tokens from any website — colors, typography, spacing, shadows, shadcn/Tailwind/Figma outputs.",
+  "description": "Extract design tokens from any website \u2014 colors, typography, spacing, shadows, shadcn/Tailwind/Figma outputs.",
   "icon": "icon.png",
   "author": "masyv",
   "license": "MIT",
-  "categories": ["Design Tools", "Developer Tools"],
-  "keywords": ["design", "tokens", "css", "tailwind", "figma", "shadcn"],
+  "categories": [
+    "Design Tools",
+    "Developer Tools"
+  ],
+  "keywords": [
+    "design",
+    "tokens",
+    "css",
+    "tailwind",
+    "figma",
+    "shadcn"
+  ],
   "commands": [
     {
       "name": "extract",
@@ -18,7 +28,7 @@
     {
       "name": "score",
       "title": "Score Website Design",
-      "description": "Rate a site's design-system quality (7 categories, A–F).",
+      "description": "Rate a site's design-system quality (7 categories, A\u2013F).",
       "mode": "view"
     },
     {
@@ -47,15 +57,15 @@
     }
   ],
   "dependencies": {
-    "@raycast/api": "^1.80.0"
+    "@raycast/api": "1.104.25"
   },
   "devDependencies": {
-    "@raycast/eslint-config": "^1.0.0",
-    "@types/node": "^20.0.0",
-    "@types/react": "^18.3.0",
-    "eslint": "^8.57.0",
-    "prettier": "^3.3.0",
-    "typescript": "^5.5.0"
+    "@raycast/eslint-config": "1.0.11",
+    "@types/node": "20.19.43",
+    "@types/react": "18.3.31",
+    "eslint": "8.57.1",
+    "prettier": "3.9.6",
+    "typescript": "5.9.3"
   },
   "scripts": {
     "build": "ray build -e dist",
