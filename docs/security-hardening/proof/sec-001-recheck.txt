@@ -1,0 +1,279 @@
+$ node --test tests/network-safety.test.js website/lib/url-safety.test.js
+TAP version 13
+# (node:65108) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/lib/browser.js is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: resolved URL validation accepts an entirely public answer set
+ok 1 - resolved URL validation accepts an entirely public answer set
+  ---
+  duration_ms: 4.511666
+  type: 'test'
+  ...
+# Subtest: resolved URL validation rejects a hostname resolving to loopback
+ok 2 - resolved URL validation rejects a hostname resolving to loopback
+  ---
+  duration_ms: 0.350667
+  type: 'test'
+  ...
+# Subtest: resolved URL validation rejects mixed public and private DNS answers
+ok 3 - resolved URL validation rejects mixed public and private DNS answers
+  ---
+  duration_ms: 0.119583
+  type: 'test'
+  ...
+# Subtest: URL validation rejects credentials and special-purpose IP literals
+ok 4 - URL validation rejects credentials and special-purpose IP literals
+  ---
+  duration_ms: 0.873917
+  type: 'test'
+  ...
+# Subtest: resolved target pins one of the validated public addresses
+ok 5 - resolved target pins one of the validated public addresses
+  ---
+  duration_ms: 0.138875
+  type: 'test'
+  ...
+# Subtest: safe proxy blocks HTTP requests whose DNS answer is private
+ok 6 - safe proxy blocks HTTP requests whose DNS answer is private
+  ---
+  duration_ms: 9.791459
+  type: 'test'
+  ...
+# Subtest: safe proxy blocks HTTPS CONNECT tunnels whose DNS answer is private
+ok 7 - safe proxy blocks HTTPS CONNECT tunnels whose DNS answer is private
+  ---
+  duration_ms: 2.180542
+  type: 'test'
+  ...
+# Subtest: hosted extraction routes resolve DNS before cache or extraction
+ok 8 - hosted extraction routes resolve DNS before cache or extraction
+  ---
+  duration_ms: 0.491458
+  type: 'test'
+  ...
+# Subtest: hosted browser selection ignores Browserless configuration
+ok 9 - hosted browser selection ignores Browserless configuration
+  ---
+  duration_ms: 0.650542
+  type: 'test'
+  ...
+# Subtest: shared browser helper rejects an explicit remote endpoint
+ok 10 - shared browser helper rejects an explicit remote endpoint
+  ---
+  duration_ms: 0.528166
+  type: 'test'
+  ...
+# Subtest: crawler uses the safe proxy and rejects remote browser endpoints
+ok 11 - crawler uses the safe proxy and rejects remote browser endpoints
+  ---
+  duration_ms: 0.391833
+  type: 'test'
+  ...
+# (node:65109) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/lib/url-safety.test.js is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: accepts https URL
+ok 12 - accepts https URL
+  ---
+  duration_ms: 3.252791
+  type: 'test'
+  ...
+# Subtest: accepts http URL on port 80
+ok 13 - accepts http URL on port 80
+  ---
+  duration_ms: 1.428208
+  type: 'test'
+  ...
+# Subtest: normalizes bare hostname to https
+ok 14 - normalizes bare hostname to https
+  ---
+  duration_ms: 0.0735
+  type: 'test'
+  ...
+# Subtest: rejects localhost
+ok 15 - rejects localhost
+  ---
+  duration_ms: 0.06075
+  type: 'test'
+  ...
+# Subtest: rejects *.local hostnames
+ok 16 - rejects *.local hostnames
+  ---
+  duration_ms: 0.509125
+  type: 'test'
+  ...
+# Subtest: rejects *.localhost hostnames
+ok 17 - rejects *.localhost hostnames
+  ---
+  duration_ms: 0.053375
+  type: 'test'
+  ...
+# Subtest: rejects 127.0.0.1
+ok 18 - rejects 127.0.0.1
+  ---
+  duration_ms: 0.265084
+  type: 'test'
+  ...
+# Subtest: rejects 10.x private range
+ok 19 - rejects 10.x private range
+  ---
+  duration_ms: 0.136208
+  type: 'test'
+  ...
+# Subtest: rejects 192.168.x private range
+ok 20 - rejects 192.168.x private range
+  ---
+  duration_ms: 0.330333
+  type: 'test'
+  ...
+# Subtest: rejects 172.16–31.x private range
+ok 21 - rejects 172.16–31.x private range
+  ---
+  duration_ms: 0.336333
+  type: 'test'
+  ...
+# Subtest: allows 172.15.x (outside private range)
+ok 22 - allows 172.15.x (outside private range)
+  ---
+  duration_ms: 0.111917
+  type: 'test'
+  ...
+# Subtest: rejects 169.254.x link-local
+ok 23 - rejects 169.254.x link-local
+  ---
+  duration_ms: 0.045333
+  type: 'test'
+  ...
+# Subtest: rejects file:// scheme
+ok 24 - rejects file:// scheme
+  ---
+  duration_ms: 0.033042
+  type: 'test'
+  ...
+# Subtest: rejects javascript: scheme
+ok 25 - rejects javascript: scheme
+  ---
+  duration_ms: 0.029625
+  type: 'test'
+  ...
+# Subtest: rejects non-80/443 port
+ok 26 - rejects non-80/443 port
+  ---
+  duration_ms: 0.036708
+  type: 'test'
+  ...
+# Subtest: rejects port 3000
+ok 27 - rejects port 3000
+  ---
+  duration_ms: 0.033459
+  type: 'test'
+  ...
+# Subtest: rejects IPv6 loopback ::1
+ok 28 - rejects IPv6 loopback ::1
+  ---
+  duration_ms: 0.270708
+  type: 'test'
+  ...
+# Subtest: rejects IPv6 [::1]:3000
+ok 29 - rejects IPv6 [::1]:3000
+  ---
+  duration_ms: 0.034875
+  type: 'test'
+  ...
+# Subtest: rejects IPv6 unique-local fc00::
+ok 30 - rejects IPv6 unique-local fc00::
+  ---
+  duration_ms: 0.128833
+  type: 'test'
+  ...
+# Subtest: rejects IPv6 link-local fe80::
+ok 31 - rejects IPv6 link-local fe80::
+  ---
+  duration_ms: 0.039458
+  type: 'test'
+  ...
+# Subtest: rejects IPv4-mapped IPv6 loopback ::ffff:127.0.0.1
+ok 32 - rejects IPv4-mapped IPv6 loopback ::ffff:127.0.0.1
+  ---
+  duration_ms: 0.042167
+  type: 'test'
+  ...
+# Subtest: rejects IPv4-mapped IPv6 in hex-piece form ::ffff:7f00:1
+ok 33 - rejects IPv4-mapped IPv6 in hex-piece form ::ffff:7f00:1
+  ---
+  duration_ms: 0.03725
+  type: 'test'
+  ...
+# Subtest: rejects IPv4-mapped IPv6 cloud metadata ::ffff:169.254.169.254
+ok 34 - rejects IPv4-mapped IPv6 cloud metadata ::ffff:169.254.169.254
+  ---
+  duration_ms: 0.084834
+  type: 'test'
+  ...
+# Subtest: rejects IPv4-mapped IPv6 RFC1918 ::ffff:10.0.0.1
+ok 35 - rejects IPv4-mapped IPv6 RFC1918 ::ffff:10.0.0.1
+  ---
+  duration_ms: 0.044791
+  type: 'test'
+  ...
+# Subtest: rejects IPv4-compatible IPv6 ::127.0.0.1
+ok 36 - rejects IPv4-compatible IPv6 ::127.0.0.1
+  ---
+  duration_ms: 0.038167
+  type: 'test'
+  ...
+# Subtest: rejects NAT64 64:ff9b:: with private IPv4 tail
+ok 37 - rejects NAT64 64:ff9b:: with private IPv4 tail
+  ---
+  duration_ms: 0.043584
+  type: 'test'
+  ...
+# Subtest: rejects fully expanded IPv4-mapped 0:0:0:0:0:ffff:7f00:1
+ok 38 - rejects fully expanded IPv4-mapped 0:0:0:0:0:ffff:7f00:1
+  ---
+  duration_ms: 0.034583
+  type: 'test'
+  ...
+# Subtest: allows public IPv6 (Google DNS)
+ok 39 - allows public IPv6 (Google DNS)
+  ---
+  duration_ms: 0.035667
+  type: 'test'
+  ...
+# Subtest: allows public IPv6 (Cloudflare DNS)
+ok 40 - allows public IPv6 (Cloudflare DNS)
+  ---
+  duration_ms: 0.033416
+  type: 'test'
+  ...
+# Subtest: rejects IPv4-mapped public IPv4 ::ffff:8.8.8.8 as special-use IPv6
+ok 41 - rejects IPv4-mapped public IPv4 ::ffff:8.8.8.8 as special-use IPv6
+  ---
+  duration_ms: 0.032709
+  type: 'test'
+  ...
+# Subtest: rejects empty string
+ok 42 - rejects empty string
+  ---
+  duration_ms: 0.029042
+  type: 'test'
+  ...
+# Subtest: rejects garbage
+ok 43 - rejects garbage
+  ---
+  duration_ms: 0.043458
+  type: 'test'
+  ...
+1..43
+# tests 43
+# suites 0
+# pass 43
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 79.338917
+
+EXIT_CODE=0

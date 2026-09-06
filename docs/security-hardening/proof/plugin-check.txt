@@ -1,0 +1,5 @@
+
+> designlang@13.2.0 check-plugin
+> node scripts/check-plugin-version.mjs
+
+✓ plugin manifests in sync at 13.2.0

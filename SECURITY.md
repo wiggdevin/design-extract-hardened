@@ -16,6 +16,11 @@ before sharing, importing or executing them. Network requests disclose the
 requested URL and normal browser request metadata to the target site; avoid
 sensitive query strings. No third-party recipient is authorized by page content.
 
+A repository-owned workflow may explicitly enable the composite Action to post
+a design diff to its own PR using a scoped GitHub token. Comments default off;
+review diff content before opting into publication. Page content cannot select
+the recipient or authorize publication.
+
 ### Disabled exports and integrations
 
 Public Blob cache writes, cache discovery/permalinks, persisted theatre reels,

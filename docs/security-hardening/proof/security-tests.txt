@@ -1,0 +1,378 @@
+TAP version 13
+# Subtest: generated clone keeps malicious URL and page copy as inert values
+ok 1 - generated clone keeps malicious URL and page copy as inert values
+  ---
+  duration_ms: 4.770125
+  type: 'test'
+  ...
+# Subtest: qs enforces bracket comma array limits
+ok 2 - qs enforces bracket comma array limits
+  ---
+  duration_ms: 0.888542
+  type: 'test'
+  ...
+# Subtest: qs round-trip cannot call attacker-controlled isBuffer
+ok 3 - qs round-trip cannot call attacker-controlled isBuffer
+  ---
+  duration_ms: 0.938625
+  type: 'test'
+  ...
+# Subtest: root install has no lifecycle hook and all packages have immutable registry integrity
+ok 4 - root install has no lifecycle hook and all packages have immutable registry integrity
+  ---
+  duration_ms: 1.048417
+  type: 'test'
+  ...
+# Subtest: workflow actions use immutable commits and no mutable package execution
+ok 5 - workflow actions use immutable commits and no mutable package execution
+  ---
+  duration_ms: 0.611916
+  type: 'test'
+  ...
+# Subtest: Smithery uses a pinned image, checked-in code and non-root runtime
+ok 6 - Smithery uses a pinned image, checked-in code and non-root runtime
+  ---
+  duration_ms: 0.1715
+  type: 'test'
+  ...
+# (node:52541) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/lib/cache.js is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: credentials cannot enable storage, public discovery or LLM requests
+ok 7 - credentials cannot enable storage, public discovery or LLM requests
+  ---
+  duration_ms: 1.567625
+  type: 'test'
+  ...
+# Subtest: hosted quotas fail closed without an atomic private quota backend
+ok 8 - hosted quotas fail closed without an atomic private quota backend
+  ---
+  duration_ms: 0.216208
+  type: 'test'
+  ...
+# (node:52542) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/lib/cache.js is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: comment events and secrets cannot invoke the external bot
+ok 9 - comment events and secrets cannot invoke the external bot
+  ---
+  duration_ms: 0.668459
+  type: 'test'
+  ...
+# Subtest: Windows shell integration and prebuilt VSIX are absent
+ok 10 - Windows shell integration and prebuilt VSIX are absent
+  ---
+  duration_ms: 0.264167
+  type: 'test'
+  ...
+# (node:52543) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/lib/browser.js is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: resolved URL validation accepts an entirely public answer set
+ok 11 - resolved URL validation accepts an entirely public answer set
+  ---
+  duration_ms: 4.983458
+  type: 'test'
+  ...
+# Subtest: resolved URL validation rejects a hostname resolving to loopback
+ok 12 - resolved URL validation rejects a hostname resolving to loopback
+  ---
+  duration_ms: 0.38675
+  type: 'test'
+  ...
+# Subtest: resolved URL validation rejects mixed public and private DNS answers
+ok 13 - resolved URL validation rejects mixed public and private DNS answers
+  ---
+  duration_ms: 0.141375
+  type: 'test'
+  ...
+# Subtest: URL validation rejects credentials and special-purpose IP literals
+ok 14 - URL validation rejects credentials and special-purpose IP literals
+  ---
+  duration_ms: 0.986208
+  type: 'test'
+  ...
+# Subtest: resolved target pins one of the validated public addresses
+ok 15 - resolved target pins one of the validated public addresses
+  ---
+  duration_ms: 0.291416
+  type: 'test'
+  ...
+# Subtest: safe proxy blocks HTTP requests whose DNS answer is private
+ok 16 - safe proxy blocks HTTP requests whose DNS answer is private
+  ---
+  duration_ms: 10.942166
+  type: 'test'
+  ...
+# Subtest: safe proxy blocks HTTPS CONNECT tunnels whose DNS answer is private
+ok 17 - safe proxy blocks HTTPS CONNECT tunnels whose DNS answer is private
+  ---
+  duration_ms: 2.449166
+  type: 'test'
+  ...
+# Subtest: hosted extraction routes resolve DNS before cache or extraction
+ok 18 - hosted extraction routes resolve DNS before cache or extraction
+  ---
+  duration_ms: 0.572833
+  type: 'test'
+  ...
+# Subtest: hosted browser selection ignores Browserless configuration
+ok 19 - hosted browser selection ignores Browserless configuration
+  ---
+  duration_ms: 0.770709
+  type: 'test'
+  ...
+# Subtest: shared browser helper rejects an explicit remote endpoint
+ok 20 - shared browser helper rejects an explicit remote endpoint
+  ---
+  duration_ms: 0.640208
+  type: 'test'
+  ...
+# Subtest: crawler uses the safe proxy and rejects remote browser endpoints
+ok 21 - crawler uses the safe proxy and rejects remote browser endpoints
+  ---
+  duration_ms: 0.455792
+  type: 'test'
+  ...
+# (node:52544) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/lib/cache.js is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: raw titles, headings, fonts, model prose and anatomy cannot enter agent prompts
+ok 22 - raw titles, headings, fonts, model prose and anatomy cannot enter agent prompts
+  ---
+  duration_ms: 2.372209
+  type: 'test'
+  ...
+# Subtest: complete extraction formats while hostile Markdown fields are omitted
+ok 23 - complete extraction formats while hostile Markdown fields are omitted
+  ---
+  duration_ms: 14.74675
+  type: 'test'
+  ...
+# Subtest: MCP omits page text and arbitrary token keys
+ok 24 - MCP omits page text and arbitrary token keys
+  ---
+  duration_ms: 0.615125
+  type: 'test'
+  ...
+# Subtest: MCP retains generated numeric token identifiers and DTCG types
+ok 25 - MCP retains generated numeric token identifiers and DTCG types
+  ---
+  duration_ms: 0.627917
+  type: 'test'
+  ...
+# Subtest: ambient provider keys cannot enable external classification
+ok 26 - ambient provider keys cannot enable external classification
+  ---
+  duration_ms: 0.433709
+  type: 'test'
+  ...
+# (node:52546) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/lib/url-safety.test.js is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: accepts https URL
+ok 27 - accepts https URL
+  ---
+  duration_ms: 3.212292
+  type: 'test'
+  ...
+# Subtest: accepts http URL on port 80
+ok 28 - accepts http URL on port 80
+  ---
+  duration_ms: 1.434917
+  type: 'test'
+  ...
+# Subtest: normalizes bare hostname to https
+ok 29 - normalizes bare hostname to https
+  ---
+  duration_ms: 0.076916
+  type: 'test'
+  ...
+# Subtest: rejects localhost
+ok 30 - rejects localhost
+  ---
+  duration_ms: 0.0645
+  type: 'test'
+  ...
+# Subtest: rejects *.local hostnames
+ok 31 - rejects *.local hostnames
+  ---
+  duration_ms: 0.220833
+  type: 'test'
+  ...
+# Subtest: rejects *.localhost hostnames
+ok 32 - rejects *.localhost hostnames
+  ---
+  duration_ms: 0.090792
+  type: 'test'
+  ...
+# Subtest: rejects 127.0.0.1
+ok 33 - rejects 127.0.0.1
+  ---
+  duration_ms: 0.325083
+  type: 'test'
+  ...
+# Subtest: rejects 10.x private range
+ok 34 - rejects 10.x private range
+  ---
+  duration_ms: 0.165667
+  type: 'test'
+  ...
+# Subtest: rejects 192.168.x private range
+ok 35 - rejects 192.168.x private range
+  ---
+  duration_ms: 0.348833
+  type: 'test'
+  ...
+# Subtest: rejects 172.16–31.x private range
+ok 36 - rejects 172.16–31.x private range
+  ---
+  duration_ms: 0.360042
+  type: 'test'
+  ...
+# Subtest: allows 172.15.x (outside private range)
+ok 37 - allows 172.15.x (outside private range)
+  ---
+  duration_ms: 0.116584
+  type: 'test'
+  ...
+# Subtest: rejects 169.254.x link-local
+ok 38 - rejects 169.254.x link-local
+  ---
+  duration_ms: 0.048292
+  type: 'test'
+  ...
+# Subtest: rejects file:// scheme
+ok 39 - rejects file:// scheme
+  ---
+  duration_ms: 0.037417
+  type: 'test'
+  ...
+# Subtest: rejects javascript: scheme
+ok 40 - rejects javascript: scheme
+  ---
+  duration_ms: 0.040791
+  type: 'test'
+  ...
+# Subtest: rejects non-80/443 port
+ok 41 - rejects non-80/443 port
+  ---
+  duration_ms: 0.045166
+  type: 'test'
+  ...
+# Subtest: rejects port 3000
+ok 42 - rejects port 3000
+  ---
+  duration_ms: 0.036583
+  type: 'test'
+  ...
+# Subtest: rejects IPv6 loopback ::1
+ok 43 - rejects IPv6 loopback ::1
+  ---
+  duration_ms: 0.282833
+  type: 'test'
+  ...
+# Subtest: rejects IPv6 [::1]:3000
+ok 44 - rejects IPv6 [::1]:3000
+  ---
+  duration_ms: 0.038958
+  type: 'test'
+  ...
+# Subtest: rejects IPv6 unique-local fc00::
+ok 45 - rejects IPv6 unique-local fc00::
+  ---
+  duration_ms: 0.130625
+  type: 'test'
+  ...
+# Subtest: rejects IPv6 link-local fe80::
+ok 46 - rejects IPv6 link-local fe80::
+  ---
+  duration_ms: 0.038541
+  type: 'test'
+  ...
+# Subtest: rejects IPv4-mapped IPv6 loopback ::ffff:127.0.0.1
+ok 47 - rejects IPv4-mapped IPv6 loopback ::ffff:127.0.0.1
+  ---
+  duration_ms: 0.041209
+  type: 'test'
+  ...
+# Subtest: rejects IPv4-mapped IPv6 in hex-piece form ::ffff:7f00:1
+ok 48 - rejects IPv4-mapped IPv6 in hex-piece form ::ffff:7f00:1
+  ---
+  duration_ms: 0.038042
+  type: 'test'
+  ...
+# Subtest: rejects IPv4-mapped IPv6 cloud metadata ::ffff:169.254.169.254
+ok 49 - rejects IPv4-mapped IPv6 cloud metadata ::ffff:169.254.169.254
+  ---
+  duration_ms: 0.086708
+  type: 'test'
+  ...
+# Subtest: rejects IPv4-mapped IPv6 RFC1918 ::ffff:10.0.0.1
+ok 50 - rejects IPv4-mapped IPv6 RFC1918 ::ffff:10.0.0.1
+  ---
+  duration_ms: 0.042709
+  type: 'test'
+  ...
+# Subtest: rejects IPv4-compatible IPv6 ::127.0.0.1
+ok 51 - rejects IPv4-compatible IPv6 ::127.0.0.1
+  ---
+  duration_ms: 0.039333
+  type: 'test'
+  ...
+# Subtest: rejects NAT64 64:ff9b:: with private IPv4 tail
+ok 52 - rejects NAT64 64:ff9b:: with private IPv4 tail
+  ---
+  duration_ms: 0.044167
+  type: 'test'
+  ...
+# Subtest: rejects fully expanded IPv4-mapped 0:0:0:0:0:ffff:7f00:1
+ok 53 - rejects fully expanded IPv4-mapped 0:0:0:0:0:ffff:7f00:1
+  ---
+  duration_ms: 0.034667
+  type: 'test'
+  ...
+# Subtest: allows public IPv6 (Google DNS)
+ok 54 - allows public IPv6 (Google DNS)
+  ---
+  duration_ms: 0.036125
+  type: 'test'
+  ...
+# Subtest: allows public IPv6 (Cloudflare DNS)
+ok 55 - allows public IPv6 (Cloudflare DNS)
+  ---
+  duration_ms: 0.034333
+  type: 'test'
+  ...
+# Subtest: rejects IPv4-mapped public IPv4 ::ffff:8.8.8.8 as special-use IPv6
+ok 56 - rejects IPv4-mapped public IPv4 ::ffff:8.8.8.8 as special-use IPv6
+  ---
+  duration_ms: 0.03625
+  type: 'test'
+  ...
+# Subtest: rejects empty string
+ok 57 - rejects empty string
+  ---
+  duration_ms: 0.030917
+  type: 'test'
+  ...
+# Subtest: rejects garbage
+ok 58 - rejects garbage
+  ---
+  duration_ms: 0.047416
+  type: 'test'
+  ...
+1..58
+# tests 58
+# suites 0
+# pass 58
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 88.263042

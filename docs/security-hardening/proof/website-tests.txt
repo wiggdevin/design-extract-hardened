@@ -1,0 +1,378 @@
+TAP version 13
+# (node:44899) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/lib/rate-limit.test.js is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: first three requests allowed, fourth blocked
+ok 1 - first three requests allowed, fourth blocked
+  ---
+  duration_ms: 1.163584
+  type: 'test'
+  ...
+# Subtest: remaining counts down
+ok 2 - remaining counts down
+  ---
+  duration_ms: 0.176166
+  type: 'test'
+  ...
+# Subtest: different keys have independent budgets
+ok 3 - different keys have independent budgets
+  ---
+  duration_ms: 0.258125
+  type: 'test'
+  ...
+# Subtest: window reset after expiry
+ok 4 - window reset after expiry
+  ---
+  duration_ms: 41.258708
+  type: 'test'
+  ...
+# Subtest: custom limit respected
+ok 5 - custom limit respected
+  ---
+  duration_ms: 0.629
+  type: 'test'
+  ...
+# Subtest: resetAt advances with the first-seen time
+ok 6 - resetAt advances with the first-seen time
+  ---
+  duration_ms: 0.257791
+  type: 'test'
+  ...
+# (node:44900) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/lib/reel.test.js is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: capFrames keeps first and last and subsamples the middle
+ok 7 - capFrames keeps first and last and subsamples the middle
+  ---
+  duration_ms: 1.190208
+  type: 'test'
+  ...
+# Subtest: capFrames is a no-op under the cap
+ok 8 - capFrames is a no-op under the cap
+  ---
+  duration_ms: 0.120541
+  type: 'test'
+  ...
+# Subtest: buildReplayTimeline sorts events by time and emits non-negative delays
+ok 9 - buildReplayTimeline sorts events by time and emits non-negative delays
+  ---
+  duration_ms: 0.37175
+  type: 'test'
+  ...
+# Subtest: buildReplayTimeline compresses to maxDurationMs
+ok 10 - buildReplayTimeline compresses to maxDurationMs
+  ---
+  duration_ms: 0.242834
+  type: 'test'
+  ...
+# Subtest: buildReplayTimeline appends summary and files at the end
+ok 11 - buildReplayTimeline appends summary and files at the end
+  ---
+  duration_ms: 0.115667
+  type: 'test'
+  ...
+# Subtest: buildReplayTimeline tolerates an empty reel
+ok 12 - buildReplayTimeline tolerates an empty reel
+  ---
+  duration_ms: 0.576
+  type: 'test'
+  ...
+# (node:44901) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/lib/theatre-reducer.test.js is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: start resets state and marks streaming
+ok 13 - start resets state and marks streaming
+  ---
+  duration_ms: 1.739834
+  type: 'test'
+  ...
+# Subtest: frames only advance forward but every frame is counted
+ok 14 - frames only advance forward but every frame is counted
+  ---
+  duration_ms: 0.213166
+  type: 'test'
+  ...
+# Subtest: a missing seq frame still paints
+ok 15 - a missing seq frame still paints
+  ---
+  duration_ms: 0.079916
+  type: 'test'
+  ...
+# Subtest: color tokens dedupe by path and cap
+ok 16 - color tokens dedupe by path and cap
+  ---
+  duration_ms: 0.291667
+  type: 'test'
+  ...
+# Subtest: font + dimension tokens fold
+ok 17 - font + dimension tokens fold
+  ---
+  duration_ms: 0.164958
+  type: 'test'
+  ...
+# Subtest: stages are tracked uniquely and in order
+ok 18 - stages are tracked uniquely and in order
+  ---
+  duration_ms: 0.1315
+  type: 'test'
+  ...
+# Subtest: files marks done; a later error after files still flips to error
+ok 19 - files marks done; a later error after files still flips to error
+  ---
+  duration_ms: 0.145333
+  type: 'test'
+  ...
+# Subtest: idle settles a started run back to idle
+ok 20 - idle settles a started run back to idle
+  ---
+  duration_ms: 0.146875
+  type: 'test'
+  ...
+# Subtest: cache + permalink fold
+ok 21 - cache + permalink fold
+  ---
+  duration_ms: 0.4095
+  type: 'test'
+  ...
+# (node:44902) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/lib/theatre.test.js is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: wantsTheatre reads the body flag
+ok 22 - wantsTheatre reads the body flag
+  ---
+  duration_ms: 0.559458
+  type: 'test'
+  ...
+# Subtest: wantsTheatre reads the query param
+ok 23 - wantsTheatre reads the query param
+  ---
+  duration_ms: 0.211958
+  type: 'test'
+  ...
+# Subtest: frameEvent shapes the wire format
+ok 24 - frameEvent shapes the wire format
+  ---
+  duration_ms: 1.112625
+  type: 'test'
+  ...
+# Subtest: frameEvent omits absent dimensions
+ok 25 - frameEvent omits absent dimensions
+  ---
+  duration_ms: 0.105041
+  type: 'test'
+  ...
+# Subtest: theatre screencast caps are bounded for the hosted demo
+ok 26 - theatre screencast caps are bounded for the hosted demo
+  ---
+  duration_ms: 0.23975
+  type: 'test'
+  ...
+# (node:44903) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/lib/url-safety.test.js is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: accepts https URL
+ok 27 - accepts https URL
+  ---
+  duration_ms: 4.004875
+  type: 'test'
+  ...
+# Subtest: accepts http URL on port 80
+ok 28 - accepts http URL on port 80
+  ---
+  duration_ms: 1.875125
+  type: 'test'
+  ...
+# Subtest: normalizes bare hostname to https
+ok 29 - normalizes bare hostname to https
+  ---
+  duration_ms: 0.140209
+  type: 'test'
+  ...
+# Subtest: rejects localhost
+ok 30 - rejects localhost
+  ---
+  duration_ms: 0.103166
+  type: 'test'
+  ...
+# Subtest: rejects *.local hostnames
+ok 31 - rejects *.local hostnames
+  ---
+  duration_ms: 0.159833
+  type: 'test'
+  ...
+# Subtest: rejects *.localhost hostnames
+ok 32 - rejects *.localhost hostnames
+  ---
+  duration_ms: 0.089458
+  type: 'test'
+  ...
+# Subtest: rejects 127.0.0.1
+ok 33 - rejects 127.0.0.1
+  ---
+  duration_ms: 0.358625
+  type: 'test'
+  ...
+# Subtest: rejects 10.x private range
+ok 34 - rejects 10.x private range
+  ---
+  duration_ms: 0.188208
+  type: 'test'
+  ...
+# Subtest: rejects 192.168.x private range
+ok 35 - rejects 192.168.x private range
+  ---
+  duration_ms: 0.413375
+  type: 'test'
+  ...
+# Subtest: rejects 172.16–31.x private range
+ok 36 - rejects 172.16–31.x private range
+  ---
+  duration_ms: 0.434083
+  type: 'test'
+  ...
+# Subtest: allows 172.15.x (outside private range)
+ok 37 - allows 172.15.x (outside private range)
+  ---
+  duration_ms: 0.135
+  type: 'test'
+  ...
+# Subtest: rejects 169.254.x link-local
+ok 38 - rejects 169.254.x link-local
+  ---
+  duration_ms: 0.054875
+  type: 'test'
+  ...
+# Subtest: rejects file:// scheme
+ok 39 - rejects file:// scheme
+  ---
+  duration_ms: 0.044292
+  type: 'test'
+  ...
+# Subtest: rejects javascript: scheme
+ok 40 - rejects javascript: scheme
+  ---
+  duration_ms: 0.035583
+  type: 'test'
+  ...
+# Subtest: rejects non-80/443 port
+ok 41 - rejects non-80/443 port
+  ---
+  duration_ms: 0.041125
+  type: 'test'
+  ...
+# Subtest: rejects port 3000
+ok 42 - rejects port 3000
+  ---
+  duration_ms: 0.038125
+  type: 'test'
+  ...
+# Subtest: rejects IPv6 loopback ::1
+ok 43 - rejects IPv6 loopback ::1
+  ---
+  duration_ms: 0.44975
+  type: 'test'
+  ...
+# Subtest: rejects IPv6 [::1]:3000
+ok 44 - rejects IPv6 [::1]:3000
+  ---
+  duration_ms: 0.077542
+  type: 'test'
+  ...
+# Subtest: rejects IPv6 unique-local fc00::
+ok 45 - rejects IPv6 unique-local fc00::
+  ---
+  duration_ms: 0.205792
+  type: 'test'
+  ...
+# Subtest: rejects IPv6 link-local fe80::
+ok 46 - rejects IPv6 link-local fe80::
+  ---
+  duration_ms: 0.060375
+  type: 'test'
+  ...
+# Subtest: rejects IPv4-mapped IPv6 loopback ::ffff:127.0.0.1
+ok 47 - rejects IPv4-mapped IPv6 loopback ::ffff:127.0.0.1
+  ---
+  duration_ms: 0.068666
+  type: 'test'
+  ...
+# Subtest: rejects IPv4-mapped IPv6 in hex-piece form ::ffff:7f00:1
+ok 48 - rejects IPv4-mapped IPv6 in hex-piece form ::ffff:7f00:1
+  ---
+  duration_ms: 0.057375
+  type: 'test'
+  ...
+# Subtest: rejects IPv4-mapped IPv6 cloud metadata ::ffff:169.254.169.254
+ok 49 - rejects IPv4-mapped IPv6 cloud metadata ::ffff:169.254.169.254
+  ---
+  duration_ms: 0.120209
+  type: 'test'
+  ...
+# Subtest: rejects IPv4-mapped IPv6 RFC1918 ::ffff:10.0.0.1
+ok 50 - rejects IPv4-mapped IPv6 RFC1918 ::ffff:10.0.0.1
+  ---
+  duration_ms: 0.05625
+  type: 'test'
+  ...
+# Subtest: rejects IPv4-compatible IPv6 ::127.0.0.1
+ok 51 - rejects IPv4-compatible IPv6 ::127.0.0.1
+  ---
+  duration_ms: 0.054459
+  type: 'test'
+  ...
+# Subtest: rejects NAT64 64:ff9b:: with private IPv4 tail
+ok 52 - rejects NAT64 64:ff9b:: with private IPv4 tail
+  ---
+  duration_ms: 0.057583
+  type: 'test'
+  ...
+# Subtest: rejects fully expanded IPv4-mapped 0:0:0:0:0:ffff:7f00:1
+ok 53 - rejects fully expanded IPv4-mapped 0:0:0:0:0:ffff:7f00:1
+  ---
+  duration_ms: 0.044041
+  type: 'test'
+  ...
+# Subtest: allows public IPv6 (Google DNS)
+ok 54 - allows public IPv6 (Google DNS)
+  ---
+  duration_ms: 0.046125
+  type: 'test'
+  ...
+# Subtest: allows public IPv6 (Cloudflare DNS)
+ok 55 - allows public IPv6 (Cloudflare DNS)
+  ---
+  duration_ms: 0.043167
+  type: 'test'
+  ...
+# Subtest: rejects IPv4-mapped public IPv4 ::ffff:8.8.8.8 as special-use IPv6
+ok 56 - rejects IPv4-mapped public IPv4 ::ffff:8.8.8.8 as special-use IPv6
+  ---
+  duration_ms: 0.053458
+  type: 'test'
+  ...
+# Subtest: rejects empty string
+ok 57 - rejects empty string
+  ---
+  duration_ms: 0.0445
+  type: 'test'
+  ...
+# Subtest: rejects garbage
+ok 58 - rejects garbage
+  ---
+  duration_ms: 0.059458
+  type: 'test'
+  ...
+1..58
+# tests 58
+# suites 0
+# pass 58
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 93.779167

@@ -9,13 +9,13 @@ Three commands:
 ## Requirements
 
 - Node.js 20+
-- `npx` on PATH
+- Reviewed local `designlang` on PATH
 
 ## Publish
 
 ```bash
 cd raycast-extension
-npm install
+npm ci --ignore-scripts
 npm run build
 npm run publish
 ```

@@ -1,0 +1,6 @@
+$ gitleaks detect --source . --no-banner --redact --log-opts aa27bd11cab95d5235ba90b5c82e6c9baddceb7e..68330fa01fcdd9a9de22df3f60397f485b3ed490
+1:17AM INF 11 commits scanned.
+1:17AM INF scanned ~167978 bytes (167.98 KB) in 65.4ms
+1:17AM INF no leaks found
+
+EXIT_CODE=0

@@ -1,0 +1,4963 @@
+
+> designlang@13.2.0 test
+> node --test tests/*.test.js
+
+TAP version 13
+# Subtest: deriveBrandEssence — axes
+    # Subtest: reads a warm/kinetic/bold/modern site on the positive poles
+    ok 1 - reads a warm/kinetic/bold/modern site on the positive poles
+      ---
+      duration_ms: 2.197708
+      type: 'test'
+      ...
+    # Subtest: reads a cool/serif/editorial site on the negative poles
+    ok 2 - reads a cool/serif/editorial site on the negative poles
+      ---
+      duration_ms: 0.632333
+      type: 'test'
+      ...
+    # Subtest: clamps every axis to [-1, 1] with a reading string
+    ok 3 - clamps every axis to [-1, 1] with a reading string
+      ---
+      duration_ms: 0.618667
+      type: 'test'
+      ...
+    1..3
+ok 1 - deriveBrandEssence — axes
+  ---
+  duration_ms: 4.197916
+  type: 'suite'
+  ...
+# Subtest: deriveBrandEssence — archetype
+    # Subtest: picks one of the twelve archetypes with a 0..1 confidence and a runner-up
+    ok 1 - picks one of the twelve archetypes with a 0..1 confidence and a runner-up
+      ---
+      duration_ms: 1.027542
+      type: 'test'
+      ...
+    # Subtest: distinguishes a playful brand from an authoritative one
+    ok 2 - distinguishes a playful brand from an authoritative one
+      ---
+      duration_ms: 1.31625
+      type: 'test'
+      ...
+    1..2
+ok 2 - deriveBrandEssence — archetype
+  ---
+  duration_ms: 3.886667
+  type: 'suite'
+  ...
+# Subtest: deriveBrandEssence — copy
+    # Subtest: produces 3-5 adjectives, a positioning sentence, and evidence
+    ok 1 - produces 3-5 adjectives, a positioning sentence, and evidence
+      ---
+      duration_ms: 0.495625
+      type: 'test'
+      ...
+    # Subtest: does not leave a dangling em-dash when anchors are missing
+    ok 2 - does not leave a dangling em-dash when anchors are missing
+      ---
+      duration_ms: 0.939209
+      type: 'test'
+      ...
+    1..2
+ok 3 - deriveBrandEssence — copy
+  ---
+  duration_ms: 1.826375
+  type: 'suite'
+  ...
+# Subtest: deriveBrandEssence — robustness
+    # Subtest: degrades an empty design to neutral axes without throwing
+    ok 1 - degrades an empty design to neutral axes without throwing
+      ---
+      duration_ms: 0.273458
+      type: 'test'
+      ...
+    # Subtest: handles null/undefined input
+    ok 2 - handles null/undefined input
+      ---
+      duration_ms: 0.411459
+      type: 'test'
+      ...
+    # Subtest: tolerates string-form durations and weights
+    ok 3 - tolerates string-form durations and weights
+      ---
+      duration_ms: 0.579084
+      type: 'test'
+      ...
+    1..3
+ok 4 - deriveBrandEssence — robustness
+  ---
+  duration_ms: 1.505125
+  type: 'suite'
+  ...
+# Subtest: brand book renders the Essence chapter
+    # Subtest: emits Chapter 00 in the HTML book with the positioning text
+    ok 1 - emits Chapter 00 in the HTML book with the positioning text
+      ---
+      duration_ms: 126.739666
+      type: 'test'
+      ...
+    # Subtest: emits a 00 · Essence block in the markdown
+    ok 2 - emits a 00 · Essence block in the markdown
+      ---
+      duration_ms: 0.446708
+      type: 'test'
+      ...
+    # Subtest: reuses a precomputed design.essence when present
+    ok 3 - reuses a precomputed design.essence when present
+      ---
+      duration_ms: 0.5815
+      type: 'test'
+      ...
+    1..3
+ok 5 - brand book renders the Essence chapter
+  ---
+  duration_ms: 128.672625
+  type: 'suite'
+  ...
+# Subtest: runCi — extraction-failure path
+    # Subtest: returns shouldFail=true without throwing when extraction blows up
+    ok 1 - returns shouldFail=true without throwing when extraction blows up
+      ---
+      duration_ms: 7582.017209
+      type: 'test'
+      ...
+    # Subtest: writes a ci-report.md and ci-summary.json even on failure
+    ok 2 - writes a ci-report.md and ci-summary.json even on failure
+      ---
+      duration_ms: 6157.940375
+      type: 'test'
+      ...
+    # Subtest: summary preserves the success-path schema + adds extractionFailed flag
+    ok 3 - summary preserves the success-path schema + adds extractionFailed flag
+      ---
+      duration_ms: 6150.964334
+      type: 'test'
+      ...
+    # Subtest: does not throw — failure must be a structured return value
+    ok 4 - does not throw — failure must be a structured return value
+      ---
+      duration_ms: 6182.091792
+      type: 'test'
+      ...
+    1..4
+ok 6 - runCi — extraction-failure path
+  ---
+  duration_ms: 26073.909625
+  type: 'suite'
+  ...
+# Subtest: CLI
+    # Subtest: shows help with --help
+    ok 1 - shows help with --help
+      ---
+      duration_ms: 1101.718917
+      type: 'test'
+      ...
+    # Subtest: shows version with --version
+    ok 2 - shows version with --version
+      ---
+      duration_ms: 369.752917
+      type: 'test'
+      ...
+    # Subtest: shows the version from package.json
+    ok 3 - shows the version from package.json
+      ---
+      duration_ms: 319.747834
+      type: 'test'
+      ...
+    # Subtest: exits with error when no arguments provided
+    ok 4 - exits with error when no arguments provided
+      ---
+      duration_ms: 312.912708
+      type: 'test'
+      ...
+    # Subtest: lists --platforms option in help output
+    ok 5 - lists --platforms option in help output
+      ---
+      duration_ms: 329.364959
+      type: 'test'
+      ...
+    # Subtest: registers the fidelity command with a required --clone option
+    ok 6 - registers the fidelity command with a required --clone option
+      ---
+      duration_ms: 311.486875
+      type: 'test'
+      ...
+    # Subtest: fidelity exits non-zero when --clone is missing
+    ok 7 - fidelity exits non-zero when --clone is missing
+      ---
+      duration_ms: 317.211791
+      type: 'test'
+      ...
+    # Subtest: registers the gallery command
+    ok 8 - registers the gallery command
+      ---
+      duration_ms: 315.033167
+      type: 'test'
+      ...
+    # Subtest: clone exposes a --fidelity flag
+    ok 9 - clone exposes a --fidelity flag
+      ---
+      duration_ms: 316.616042
+      type: 'test'
+      ...
+    # Subtest: gallery exits non-zero when no reports are found
+    ok 10 - gallery exits non-zero when no reports are found
+      ---
+      duration_ms: 316.389667
+      type: 'test'
+      ...
+    1..10
+ok 7 - CLI
+  ---
+  duration_ms: 4011.436625
+  type: 'suite'
+  ...
+# Subtest: parsePlatforms
+    # Subtest: defaults to web only
+    ok 1 - defaults to web only
+      ---
+      duration_ms: 0.499709
+      type: 'test'
+      ...
+    # Subtest: parses comma-separated values
+    ok 2 - parses comma-separated values
+      ---
+      duration_ms: 0.057333
+      type: 'test'
+      ...
+    # Subtest: expands "all" to every known platform
+    ok 3 - expands "all" to every known platform
+      ---
+      duration_ms: 0.0465
+      type: 'test'
+      ...
+    # Subtest: always includes web (additive)
+    ok 4 - always includes web (additive)
+      ---
+      duration_ms: 0.039917
+      type: 'test'
+      ...
+    # Subtest: ignores unknown platforms
+    ok 5 - ignores unknown platforms
+      ---
+      duration_ms: 0.088833
+      type: 'test'
+      ...
+    # Subtest: accepts arrays
+    ok 6 - accepts arrays
+      ---
+      duration_ms: 0.041917
+      type: 'test'
+      ...
+    1..6
+ok 8 - parsePlatforms
+  ---
+  duration_ms: 0.884792
+  type: 'suite'
+  ...
+# Subtest: mergeConfig platforms
+    # Subtest: threads CLI --platforms through mergeConfig
+    ok 1 - threads CLI --platforms through mergeConfig
+      ---
+      duration_ms: 0.121667
+      type: 'test'
+      ...
+    # Subtest: honors platforms from config file
+    ok 2 - honors platforms from config file
+      ---
+      duration_ms: 0.052125
+      type: 'test'
+      ...
+    # Subtest: defaults to [web] when neither CLI nor config provides platforms
+    ok 3 - defaults to [web] when neither CLI nor config provides platforms
+      ---
+      duration_ms: 0.044333
+      type: 'test'
+      ...
+    1..3
+ok 9 - mergeConfig platforms
+  ---
+  duration_ms: 0.264875
+  type: 'suite'
+  ...
+# Subtest: doctor command
+    # Subtest: registers the doctor command in help output
+    ok 1 - registers the doctor command in help output
+      ---
+      duration_ms: 313.642459
+      type: 'test'
+      ...
+    # Subtest: describes itself under doctor --help
+    ok 2 - describes itself under doctor --help
+      ---
+      duration_ms: 314.059083
+      type: 'test'
+      ...
+    # Subtest: prints a row for every environment check
+    ok 3 - prints a row for every environment check
+      ---
+      duration_ms: 479.141709
+      type: 'test'
+      ...
+    # Subtest: reports the running designlang version
+    ok 4 - reports the running designlang version
+      ---
+      duration_ms: 481.347958
+      type: 'test'
+      ...
+    # Subtest: exits 0 if and only if every check passed
+    ok 5 - exits 0 if and only if every check passed
+      ---
+      duration_ms: 533.083416
+      type: 'test'
+      ...
+    # Subtest: prints a fix hint for each failing check
+    ok 6 - prints a fix hint for each failing check
+      ---
+      duration_ms: 529.130083
+      type: 'test'
+      ...
+    1..6
+ok 10 - doctor command
+  ---
+  duration_ms: 2650.826792
+  type: 'suite'
+  ...
+# Subtest: generated clone keeps malicious URL and page copy as inert values
+ok 11 - generated clone keeps malicious URL and page copy as inert values
+  ---
+  duration_ms: 14.689375
+  type: 'test'
+  ...
+# Subtest: loadCookiesFromFile
+    # Subtest: loads JSON array
+    ok 1 - loads JSON array
+      ---
+      duration_ms: 2.042041
+      type: 'test'
+      ...
+    # Subtest: loads Playwright storageState
+    ok 2 - loads Playwright storageState
+      ---
+      duration_ms: 0.642291
+      type: 'test'
+      ...
+    # Subtest: loads Netscape cookies.txt with tab-separated lines and comment
+    ok 3 - loads Netscape cookies.txt with tab-separated lines and comment
+      ---
+      duration_ms: 0.927834
+      type: 'test'
+      ...
+    # Subtest: throws on invalid JSON shape
+    ok 4 - throws on invalid JSON shape
+      ---
+      duration_ms: 0.620291
+      type: 'test'
+      ...
+    1..4
+ok 12 - loadCookiesFromFile
+  ---
+  duration_ms: 5.850208
+  type: 'suite'
+  ...
+# Subtest: mergeCookies
+    # Subtest: parses CLI name=value strings into cookie objects
+    ok 1 - parses CLI name=value strings into cookie objects
+      ---
+      duration_ms: 0.351666
+      type: 'test'
+      ...
+    # Subtest: lets file cookies override CLI cookies with the same name+domain
+    ok 2 - lets file cookies override CLI cookies with the same name+domain
+      ---
+      duration_ms: 0.105708
+      type: 'test'
+      ...
+    # Subtest: keeps cookies with different domains separately
+    ok 3 - keeps cookies with different domains separately
+      ---
+      duration_ms: 0.223625
+      type: 'test'
+      ...
+    # Subtest: strips entries without a name
+    ok 4 - strips entries without a name
+      ---
+      duration_ms: 0.358083
+      type: 'test'
+      ...
+    1..4
+ok 13 - mergeCookies
+  ---
+  duration_ms: 1.42425
+  type: 'suite'
+  ...
+# Subtest: qs enforces bracket comma array limits
+ok 14 - qs enforces bracket comma array limits
+  ---
+  duration_ms: 2.429041
+  type: 'test'
+  ...
+# Subtest: qs round-trip cannot call attacker-controlled isBuffer
+ok 15 - qs round-trip cannot call attacker-controlled isBuffer
+  ---
+  duration_ms: 3.289166
+  type: 'test'
+  ...
+# Subtest: root install has no lifecycle hook and all packages have immutable registry integrity
+ok 16 - root install has no lifecycle hook and all packages have immutable registry integrity
+  ---
+  duration_ms: 17.330083
+  type: 'test'
+  ...
+# Subtest: workflow actions use immutable commits and no mutable package execution
+ok 17 - workflow actions use immutable commits and no mutable package execution
+  ---
+  duration_ms: 1.013542
+  type: 'test'
+  ...
+# Subtest: Smithery uses a pinned image, checked-in code and non-root runtime
+ok 18 - Smithery uses a pinned image, checked-in code and non-root runtime
+  ---
+  duration_ms: 0.300833
+  type: 'test'
+  ...
+# Subtest: Raycast locks patched minimatch and esbuild without automatic npx execution
+ok 19 - Raycast locks patched minimatch and esbuild without automatic npx execution
+  ---
+  duration_ms: 2.571458
+  type: 'test'
+  ...
+# Subtest: designVector — contract
+    # Subtest: emits one value per feature, in the frozen FEATURE_ORDER
+    ok 1 - emits one value per feature, in the frozen FEATURE_ORDER
+      ---
+      duration_ms: 1.6325
+      type: 'test'
+      ...
+    # Subtest: keeps every value inside 0..1, or null when the input is missing
+    ok 2 - keeps every value inside 0..1, or null when the input is missing
+      ---
+      duration_ms: 0.862541
+      type: 'test'
+      ...
+    # Subtest: is deterministic — the same design yields an identical vector
+    ok 3 - is deterministic — the same design yields an identical vector
+      ---
+      duration_ms: 0.798291
+      type: 'test'
+      ...
+    # Subtest: degrades to nulls instead of throwing on an empty design
+    ok 4 - degrades to nulls instead of throwing on an empty design
+      ---
+      duration_ms: 0.1935
+      type: 'test'
+      ...
+    1..4
+ok 20 - designVector — contract
+  ---
+  duration_ms: 5.99675
+  type: 'suite'
+  ...
+# Subtest: designDistance
+    # Subtest: scores a design against itself as zero
+    ok 1 - scores a design against itself as zero
+      ---
+      duration_ms: 1.942666
+      type: 'test'
+      ...
+    # Subtest: is symmetric
+    ok 2 - is symmetric
+      ---
+      duration_ms: 0.3135
+      type: 'test'
+      ...
+    # Subtest: reports a distance per axis, not one opaque number
+    ok 3 - reports a distance per axis, not one opaque number
+      ---
+      duration_ms: 0.828375
+      type: 'test'
+      ...
+    # Subtest: places two dark minimal systems nearer than either is to a playful one
+    ok 4 - places two dark minimal systems nearer than either is to a playful one
+      ---
+      duration_ms: 1.800542
+      type: 'test'
+      ...
+    # Subtest: skips features the other side is missing rather than inventing a value
+    ok 5 - skips features the other side is missing rather than inventing a value
+      ---
+      duration_ms: 0.769875
+      type: 'test'
+      ...
+    # Subtest: refuses to score two designs with nothing in common
+    ok 6 - refuses to score two designs with nothing in common
+      ---
+      duration_ms: 0.428667
+      type: 'test'
+      ...
+    1..6
+ok 21 - designDistance
+  ---
+  duration_ms: 6.770416
+  type: 'suite'
+  ...
+# Subtest: nearest
+    # Subtest: ranks the corpus by distance, closest first
+    ok 1 - ranks the corpus by distance, closest first
+      ---
+      duration_ms: 0.469375
+      type: 'test'
+      ...
+    # Subtest: never ranks a design against itself
+    ok 2 - never ranks a design against itself
+      ---
+      duration_ms: 0.162333
+      type: 'test'
+      ...
+    1..2
+ok 22 - nearest
+  ---
+  duration_ms: 0.759
+  type: 'suite'
+  ...
+# Subtest: vector robustness
+    # Subtest: barely moves under extraction noise, but moves a lot under a real restyle
+    ok 1 - barely moves under extraction noise, but moves a lot under a real restyle
+      ---
+      duration_ms: 0.214375
+      type: 'test'
+      ...
+    1..1
+ok 23 - vector robustness
+  ---
+  duration_ms: 0.27325
+  type: 'suite'
+  ...
+# Subtest: percentiles
+    # Subtest: places a design below everything in the corpus near 0
+    ok 1 - places a design below everything in the corpus near 0
+      ---
+      duration_ms: 0.588
+      type: 'test'
+      ...
+    # Subtest: places a design above everything in the corpus near 1
+    ok 2 - places a design above everything in the corpus near 1
+      ---
+      duration_ms: 0.225833
+      type: 'test'
+      ...
+    # Subtest: reports a percentile per axis as well as per feature
+    ok 3 - reports a percentile per axis as well as per feature
+      ---
+      duration_ms: 0.344167
+      type: 'test'
+      ...
+    # Subtest: leaves features the design never measured as null
+    ok 4 - leaves features the design never measured as null
+      ---
+      duration_ms: 0.358125
+      type: 'test'
+      ...
+    # Subtest: refuses a corpus built for a different vector version
+    ok 5 - refuses a corpus built for a different vector version
+      ---
+      duration_ms: 0.539541
+      type: 'test'
+      ...
+    1..5
+ok 24 - percentiles
+  ---
+  duration_ms: 2.368125
+  type: 'suite'
+  ...
+# Subtest: formatDnaMarkdown
+    # Subtest: names each nearest neighbour with its distance
+    ok 1 - names each nearest neighbour with its distance
+      ---
+      duration_ms: 2.182292
+      type: 'test'
+      ...
+    # Subtest: reports a percentile line for every axis
+    ok 2 - reports a percentile line for every axis
+      ---
+      duration_ms: 0.3785
+      type: 'test'
+      ...
+    # Subtest: warns when the vector was built from patchy extraction
+    ok 3 - warns when the vector was built from patchy extraction
+      ---
+      duration_ms: 0.232416
+      type: 'test'
+      ...
+    # Subtest: stays quiet about coverage when the extraction was complete
+    ok 4 - stays quiet about coverage when the extraction was complete
+      ---
+      duration_ms: 0.945833
+      type: 'test'
+      ...
+    1..4
+ok 25 - formatDnaMarkdown
+  ---
+  duration_ms: 3.888833
+  type: 'suite'
+  ...
+# Subtest: corpus store
+    # Subtest: round-trips a corpus through disk unchanged
+    ok 1 - round-trips a corpus through disk unchanged
+      ---
+      duration_ms: 2.086958
+      type: 'test'
+      ...
+    # Subtest: returns null when there is no corpus file
+    ok 2 - returns null when there is no corpus file
+      ---
+      duration_ms: 0.15275
+      type: 'test'
+      ...
+    # Subtest: refuses a corpus file written by an older vector version
+    ok 3 - refuses a corpus file written by an older vector version
+      ---
+      duration_ms: 1.32275
+      type: 'test'
+      ...
+    1..3
+ok 26 - corpus store
+  ---
+  duration_ms: 3.693792
+  type: 'suite'
+  ...
+# Subtest: features — real extractor shapes
+    # Subtest: reads saturation and lightness given on a 0-100 scale
+    ok 1 - reads saturation and lightness given on a 0-100 scale
+      ---
+      duration_ms: 0.181958
+      type: 'test'
+      ...
+    # Subtest: reads font weights that arrive as CSS strings
+    ok 2 - reads font weights that arrive as CSS strings
+      ---
+      duration_ms: 0.07725
+      type: 'test'
+      ...
+    # Subtest: converts a computed line-height in px into a ratio
+    ok 3 - converts a computed line-height in px into a ratio
+      ---
+      duration_ms: 0.125208
+      type: 'test'
+      ...
+    # Subtest: treats a `normal` line-height as unmeasured rather than guessing
+    ok 4 - treats a `normal` line-height as unmeasured rather than guessing
+      ---
+      duration_ms: 0.929292
+      type: 'test'
+      ...
+    1..4
+ok 27 - features — real extractor shapes
+  ---
+  duration_ms: 1.439625
+  type: 'suite'
+  ...
+# Subtest: formatDnaMarkdown — neighbour wording
+    # Subtest: calls only the first neighbour the closest
+    ok 1 - calls only the first neighbour the closest
+      ---
+      duration_ms: 7.326083
+      type: 'test'
+      ...
+    1..1
+ok 28 - formatDnaMarkdown — neighbour wording
+  ---
+  duration_ms: 7.407209
+  type: 'suite'
+  ...
+# (node:89094) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/lib/cache.js is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: credentials cannot enable storage, public discovery or LLM requests
+ok 29 - credentials cannot enable storage, public discovery or LLM requests
+  ---
+  duration_ms: 3.601542
+  type: 'test'
+  ...
+# Subtest: hosted quotas fail closed without an atomic private quota backend
+ok 30 - hosted quotas fail closed without an atomic private quota backend
+  ---
+  duration_ms: 0.952
+  type: 'test'
+  ...
+# Subtest: extractColors
+    # Subtest: returns an object with expected keys
+    ok 1 - returns an object with expected keys
+      ---
+      duration_ms: 6.970541
+      type: 'test'
+      ...
+    # Subtest: detects a primary chromatic color
+    ok 2 - detects a primary chromatic color
+      ---
+      duration_ms: 2.810458
+      type: 'test'
+      ...
+    # Subtest: identifies background colors from large-area elements
+    ok 3 - identifies background colors from large-area elements
+      ---
+      duration_ms: 1.033791
+      type: 'test'
+      ...
+    # Subtest: identifies text colors
+    ok 4 - identifies text colors
+      ---
+      duration_ms: 0.51875
+      type: 'test'
+      ...
+    # Subtest: detects neutrals (unsaturated colors)
+    ok 5 - detects neutrals (unsaturated colors)
+      ---
+      duration_ms: 0.355833
+      type: 'test'
+      ...
+    # Subtest: all colors have hex, rgb, hsl, count, contexts
+    ok 6 - all colors have hex, rgb, hsl, count, contexts
+      ---
+      duration_ms: 1.114667
+      type: 'test'
+      ...
+    # Subtest: collects gradients from backgroundImage
+    ok 7 - collects gradients from backgroundImage
+      ---
+      duration_ms: 0.318625
+      type: 'test'
+      ...
+    1..7
+ok 31 - extractColors
+  ---
+  duration_ms: 14.51
+  type: 'suite'
+  ...
+# Subtest: extractTypography
+    # Subtest: returns expected keys
+    ok 1 - returns expected keys
+      ---
+      duration_ms: 2.089292
+      type: 'test'
+      ...
+    # Subtest: detects font families sorted by usage
+    ok 2 - detects font families sorted by usage
+      ---
+      duration_ms: 0.610667
+      type: 'test'
+      ...
+    # Subtest: builds a type scale from unique sizes
+    ok 3 - builds a type scale from unique sizes
+      ---
+      duration_ms: 0.708042
+      type: 'test'
+      ...
+    # Subtest: identifies heading sizes from h1-h6 tags
+    ok 4 - identifies heading sizes from h1-h6 tags
+      ---
+      duration_ms: 0.229417
+      type: 'test'
+      ...
+    # Subtest: identifies body text
+    ok 5 - identifies body text
+      ---
+      duration_ms: 0.266209
+      type: 'test'
+      ...
+    # Subtest: counts font weights
+    ok 6 - counts font weights
+      ---
+      duration_ms: 0.186208
+      type: 'test'
+      ...
+    # Subtest: drops generic CSS family names from the families list
+    ok 7 - drops generic CSS family names from the families list
+      ---
+      duration_ms: 0.28075
+      type: 'test'
+      ...
+    # Subtest: drops icon-font families (Material Icons, Font Awesome, etc.)
+    ok 8 - drops icon-font families (Material Icons, Font Awesome, etc.)
+      ---
+      duration_ms: 0.190125
+      type: 'test'
+      ...
+    1..8
+ok 32 - extractTypography
+  ---
+  duration_ms: 5.185458
+  type: 'suite'
+  ...
+# Subtest: extractSpacing
+    # Subtest: returns expected keys
+    ok 1 - returns expected keys
+      ---
+      duration_ms: 0.550042
+      type: 'test'
+      ...
+    # Subtest: detects a base unit
+    ok 2 - detects a base unit
+      ---
+      duration_ms: 0.176167
+      type: 'test'
+      ...
+    # Subtest: raw values are sorted ascending
+    ok 3 - raw values are sorted ascending
+      ---
+      duration_ms: 0.111291
+      type: 'test'
+      ...
+    # Subtest: generates tokens object
+    ok 4 - generates tokens object
+      ---
+      duration_ms: 0.085875
+      type: 'test'
+      ...
+    1..4
+ok 33 - extractSpacing
+  ---
+  duration_ms: 1.024875
+  type: 'suite'
+  ...
+# Subtest: extractShadows
+    # Subtest: returns an object with values array
+    ok 1 - returns an object with values array
+      ---
+      duration_ms: 1.041625
+      type: 'test'
+      ...
+    # Subtest: extracts unique shadows
+    ok 2 - extracts unique shadows
+      ---
+      duration_ms: 0.172833
+      type: 'test'
+      ...
+    # Subtest: classifies shadow sizes
+    ok 3 - classifies shadow sizes
+      ---
+      duration_ms: 0.406958
+      type: 'test'
+      ...
+    # Subtest: detects inset shadows
+    ok 4 - detects inset shadows
+      ---
+      duration_ms: 0.233417
+      type: 'test'
+      ...
+    # Subtest: sorts by blur ascending
+    ok 5 - sorts by blur ascending
+      ---
+      duration_ms: 0.114417
+      type: 'test'
+      ...
+    # Subtest: parses multi-layer shadows from the key layer, not the whole string
+    ok 6 - parses multi-layer shadows from the key layer, not the whole string
+      ---
+      duration_ms: 0.095542
+      type: 'test'
+      ...
+    # Subtest: builds an ordered elevation ladder and drops near-duplicates
+    ok 7 - builds an ordered elevation ladder and drops near-duplicates
+      ---
+      duration_ms: 0.666416
+      type: 'test'
+      ...
+    # Subtest: flags brand-tinted shadows
+    ok 8 - flags brand-tinted shadows
+      ---
+      duration_ms: 0.082666
+      type: 'test'
+      ...
+    # Subtest: reads neutral black shadows as neutral
+    ok 9 - reads neutral black shadows as neutral
+      ---
+      duration_ms: 0.0665
+      type: 'test'
+      ...
+    # Subtest: keeps inset shadows out of the elevation ladder
+    ok 10 - keeps inset shadows out of the elevation ladder
+      ---
+      duration_ms: 0.073583
+      type: 'test'
+      ...
+    1..10
+ok 34 - extractShadows
+  ---
+  duration_ms: 3.139834
+  type: 'suite'
+  ...
+# Subtest: extractBorders
+    # Subtest: returns expected keys
+    ok 1 - returns expected keys
+      ---
+      duration_ms: 31.09025
+      type: 'test'
+      ...
+    # Subtest: extracts unique border radii
+    ok 2 - extracts unique border radii
+      ---
+      duration_ms: 28.807542
+      type: 'test'
+      ...
+    # Subtest: labels border radii
+    ok 3 - labels border radii
+      ---
+      duration_ms: 0.182042
+      type: 'test'
+      ...
+    # Subtest: extracts border widths
+    ok 4 - extracts border widths
+      ---
+      duration_ms: 0.117083
+      type: 'test'
+      ...
+    # Subtest: extracts border styles
+    ok 5 - extracts border styles
+      ---
+      duration_ms: 0.085084
+      type: 'test'
+      ...
+    1..5
+ok 35 - extractBorders
+  ---
+  duration_ms: 63.448041
+  type: 'suite'
+  ...
+# Subtest: extractComponents
+    # Subtest: detects buttons
+    ok 1 - detects buttons
+      ---
+      duration_ms: 16.909083
+      type: 'test'
+      ...
+    # Subtest: detects inputs
+    ok 2 - detects inputs
+      ---
+      duration_ms: 0.346125
+      type: 'test'
+      ...
+    # Subtest: detects links
+    ok 3 - detects links
+      ---
+      duration_ms: 4.124625
+      type: 'test'
+      ...
+    # Subtest: detects navigation
+    ok 4 - detects navigation
+      ---
+      duration_ms: 2.164459
+      type: 'test'
+      ...
+    # Subtest: detects cards
+    ok 5 - detects cards
+      ---
+      duration_ms: 3.313833
+      type: 'test'
+      ...
+    # Subtest: generates CSS for detected components
+    ok 6 - generates CSS for detected components
+      ---
+      duration_ms: 0.228542
+      type: 'test'
+      ...
+    1..6
+ok 36 - extractComponents
+  ---
+  duration_ms: 29.576125
+  type: 'suite'
+  ...
+# Subtest: extractAccessibility
+    # Subtest: returns expected keys
+    ok 1 - returns expected keys
+      ---
+      duration_ms: 0.747875
+      type: 'test'
+      ...
+    # Subtest: detects passing pairs
+    ok 2 - detects passing pairs
+      ---
+      duration_ms: 0.954667
+      type: 'test'
+      ...
+    # Subtest: detects failing pairs
+    ok 3 - detects failing pairs
+      ---
+      duration_ms: 0.186291
+      type: 'test'
+      ...
+    # Subtest: score is between 0 and 100
+    ok 4 - score is between 0 and 100
+      ---
+      duration_ms: 0.1185
+      type: 'test'
+      ...
+    # Subtest: sorts failures first
+    ok 5 - sorts failures first
+      ---
+      duration_ms: 0.154208
+      type: 'test'
+      ...
+    # Subtest: each pair has ratio and level
+    ok 6 - each pair has ratio and level
+      ---
+      duration_ms: 0.159792
+      type: 'test'
+      ...
+    1..6
+ok 37 - extractAccessibility
+  ---
+  duration_ms: 2.529833
+  type: 'suite'
+  ...
+# Subtest: extractLayout
+    # Subtest: returns expected keys
+    ok 1 - returns expected keys
+      ---
+      duration_ms: 1.365458
+      type: 'test'
+      ...
+    # Subtest: counts grid and flex containers
+    ok 2 - counts grid and flex containers
+      ---
+      duration_ms: 0.292
+      type: 'test'
+      ...
+    # Subtest: detects grid column patterns
+    ok 3 - detects grid column patterns
+      ---
+      duration_ms: 0.601666
+      type: 'test'
+      ...
+    # Subtest: summarizes flex directions
+    ok 4 - summarizes flex directions
+      ---
+      duration_ms: 0.174667
+      type: 'test'
+      ...
+    # Subtest: collects gap values
+    ok 5 - collects gap values
+      ---
+      duration_ms: 0.186959
+      type: 'test'
+      ...
+    # Subtest: detects container widths
+    ok 6 - detects container widths
+      ---
+      duration_ms: 0.098708
+      type: 'test'
+      ...
+    1..6
+ok 38 - extractLayout
+  ---
+  duration_ms: 2.868375
+  type: 'suite'
+  ...
+# Subtest: extractGradients
+    # Subtest: returns expected keys
+    ok 1 - returns expected keys
+      ---
+      duration_ms: 3.288958
+      type: 'test'
+      ...
+    # Subtest: counts unique gradients
+    ok 2 - counts unique gradients
+      ---
+      duration_ms: 0.387458
+      type: 'test'
+      ...
+    # Subtest: parses gradient type
+    ok 3 - parses gradient type
+      ---
+      duration_ms: 2.197916
+      type: 'test'
+      ...
+    # Subtest: parses gradient stops
+    ok 4 - parses gradient stops
+      ---
+      duration_ms: 0.223958
+      type: 'test'
+      ...
+    # Subtest: classifies gradients
+    ok 5 - classifies gradients
+      ---
+      duration_ms: 0.287709
+      type: 'test'
+      ...
+    1..5
+ok 39 - extractGradients
+  ---
+  duration_ms: 6.842334
+  type: 'suite'
+  ...
+# Subtest: extractZIndex
+    # Subtest: returns expected keys
+    ok 1 - returns expected keys
+      ---
+      duration_ms: 0.4295
+      type: 'test'
+      ...
+    # Subtest: collects sorted unique z-index values
+    ok 2 - collects sorted unique z-index values
+      ---
+      duration_ms: 0.208125
+      type: 'test'
+      ...
+    # Subtest: groups values into layers
+    ok 3 - groups values into layers
+      ---
+      duration_ms: 0.108083
+      type: 'test'
+      ...
+    # Subtest: skips auto z-index values
+    ok 4 - skips auto z-index values
+      ---
+      duration_ms: 0.070833
+      type: 'test'
+      ...
+    1..4
+ok 40 - extractZIndex
+  ---
+  duration_ms: 0.93525
+  type: 'suite'
+  ...
+# Subtest: scoreDesignSystem
+    # Subtest: returns expected keys
+    ok 1 - returns expected keys
+      ---
+      duration_ms: 0.415583
+      type: 'test'
+      ...
+    # Subtest: overall score is between 0 and 100
+    ok 2 - overall score is between 0 and 100
+      ---
+      duration_ms: 0.0775
+      type: 'test'
+      ...
+    # Subtest: assigns a letter grade
+    ok 3 - assigns a letter grade
+      ---
+      duration_ms: 0.065417
+      type: 'test'
+      ...
+    # Subtest: scores each category
+    ok 4 - scores each category
+      ---
+      duration_ms: 0.302167
+      type: 'test'
+      ...
+    # Subtest: gives good scores for a clean design
+    ok 5 - gives good scores for a clean design
+      ---
+      duration_ms: 0.092417
+      type: 'test'
+      ...
+    # Subtest: identifies strengths
+    ok 6 - identifies strengths
+      ---
+      duration_ms: 0.059708
+      type: 'test'
+      ...
+    # Subtest: penalizes missing primary color
+    ok 7 - penalizes missing primary color
+      ---
+      duration_ms: 0.075
+      type: 'test'
+      ...
+    1..7
+ok 41 - scoreDesignSystem
+  ---
+  duration_ms: 1.200708
+  type: 'suite'
+  ...
+# Subtest: extractStackFingerprint
+    # Subtest: detects Next.js from __NEXT_DATA__
+    ok 1 - detects Next.js from __NEXT_DATA__
+      ---
+      duration_ms: 0.250958
+      type: 'test'
+      ...
+    # Subtest: detects Tailwind from utility-heavy classNames
+    ok 2 - detects Tailwind from utility-heavy classNames
+      ---
+      duration_ms: 47.962292
+      type: 'test'
+      ...
+    # Subtest: returns unknown when nothing matches
+    ok 3 - returns unknown when nothing matches
+      ---
+      duration_ms: 0.166458
+      type: 'test'
+      ...
+    1..3
+ok 42 - extractStackFingerprint
+  ---
+  duration_ms: 48.487875
+  type: 'suite'
+  ...
+# Subtest: extractCssHealth
+    # Subtest: counts !important
+    ok 1 - counts !important
+      ---
+      duration_ms: 1.335875
+      type: 'test'
+      ...
+    # Subtest: counts duplicate declarations
+    ok 2 - counts duplicate declarations
+      ---
+      duration_ms: 0.618583
+      type: 'test'
+      ...
+    # Subtest: reports unused bytes
+    ok 3 - reports unused bytes
+      ---
+      duration_ms: 0.448042
+      type: 'test'
+      ...
+    # Subtest: catalogs keyframes
+    ok 4 - catalogs keyframes
+      ---
+      duration_ms: 0.221
+      type: 'test'
+      ...
+    1..4
+ok 43 - extractCssHealth
+  ---
+  duration_ms: 2.786333
+  type: 'suite'
+  ...
+# Subtest: remediateFailingPairs
+    # Subtest: suggests a palette color that passes AA
+    ok 1 - suggests a palette color that passes AA
+      ---
+      duration_ms: 0.648542
+      type: 'test'
+      ...
+    # Subtest: returns null suggestion when no palette color passes
+    ok 2 - returns null suggestion when no palette color passes
+      ---
+      duration_ms: 0.570042
+      type: 'test'
+      ...
+    1..2
+ok 44 - remediateFailingPairs
+  ---
+  duration_ms: 1.351625
+  type: 'suite'
+  ...
+# Subtest: extractSemanticRegions
+    # Subtest: labels header as nav
+    ok 1 - labels header as nav
+      ---
+      duration_ms: 0.257209
+      type: 'test'
+      ...
+    # Subtest: labels section with CTA + heading as hero
+    ok 2 - labels section with CTA + heading as hero
+      ---
+      duration_ms: 0.082084
+      type: 'test'
+      ...
+    # Subtest: labels pricing based on cards + keyword
+    ok 3 - labels pricing based on cards + keyword
+      ---
+      duration_ms: 0.186375
+      type: 'test'
+      ...
+    1..3
+ok 45 - extractSemanticRegions
+  ---
+  duration_ms: 0.613666
+  type: 'suite'
+  ...
+# Subtest: clusterComponents
+    # Subtest: collapses identical instances into one entry
+    ok 1 - collapses identical instances into one entry
+      ---
+      duration_ms: 0.345209
+      type: 'test'
+      ...
+    # Subtest: separates variants with different style vectors
+    ok 2 - separates variants with different style vectors
+      ---
+      duration_ms: 0.085625
+      type: 'test'
+      ...
+    1..2
+ok 46 - clusterComponents
+  ---
+  duration_ms: 0.488667
+  type: 'suite'
+  ...
+# Subtest: typography system
+    # Subtest: infers a modular ratio from a clean scale
+    ok 1 - infers a modular ratio from a clean scale
+      ---
+      duration_ms: 0.183041
+      type: 'test'
+      ...
+    # Subtest: refuses to name a ratio for an irregular scale
+    ok 2 - refuses to name a ratio for an irregular scale
+      ---
+      duration_ms: 0.090792
+      type: 'test'
+      ...
+    # Subtest: does not let a small ratio explain everything with big powers
+    ok 3 - does not let a small ratio explain everything with big powers
+      ---
+      duration_ms: 0.066625
+      type: 'test'
+      ...
+    # Subtest: parses clamp() into min/max px
+    ok 4 - parses clamp() into min/max px
+      ---
+      duration_ms: 0.66
+      type: 'test'
+      ...
+    # Subtest: flags a clamp whose middle term never scales
+    ok 5 - flags a clamp whose middle term never scales
+      ---
+      duration_ms: 0.671625
+      type: 'test'
+      ...
+    # Subtest: parses bare viewport units
+    ok 6 - parses bare viewport units
+      ---
+      duration_ms: 0.18575
+      type: 'test'
+      ...
+    # Subtest: returns null for a static value
+    ok 7 - returns null for a static value
+      ---
+      duration_ms: 0.140917
+      type: 'test'
+      ...
+    # Subtest: reserves display for the largest step and orders the rest
+    ok 8 - reserves display for the largest step and orders the rest
+      ---
+      duration_ms: 0.692292
+      type: 'test'
+      ...
+    # Subtest: measures the reading column, not the narrowest paragraph
+    ok 9 - measures the reading column, not the narrowest paragraph
+      ---
+      duration_ms: 0.248459
+      type: 'test'
+      ...
+    # Subtest: names every step in the scale
+    ok 10 - names every step in the scale
+      ---
+      duration_ms: 0.179542
+      type: 'test'
+      ...
+    # Subtest: measures line length for body text
+    ok 11 - measures line length for body text
+      ---
+      duration_ms: 0.120583
+      type: 'test'
+      ...
+    # Subtest: reports no measure when there is no body copy
+    ok 12 - reports no measure when there is no body copy
+      ---
+      duration_ms: 0.0775
+      type: 'test'
+      ...
+    # Subtest: folds fluid declarations into the system summary
+    ok 13 - folds fluid declarations into the system summary
+      ---
+      duration_ms: 0.26075
+      type: 'test'
+      ...
+    # Subtest: builds line-height and tracking ladders
+    ok 14 - builds line-height and tracking ladders
+      ---
+      duration_ms: 0.153916
+      type: 'test'
+      ...
+    1..14
+ok 47 - typography system
+  ---
+  duration_ms: 4.045125
+  type: 'suite'
+  ...
+# Subtest: layout system
+    # Subtest: finds the content width and gutter
+    ok 1 - finds the content width and gutter
+      ---
+      duration_ms: 0.551584
+      type: 'test'
+      ...
+    # Subtest: picks the column system by area, not by count
+    ok 2 - picks the column system by area, not by count
+      ---
+      duration_ms: 0.494375
+      type: 'test'
+      ...
+    # Subtest: reads section rhythm from full-bleed sections
+    ok 3 - reads section rhythm from full-bleed sections
+      ---
+      duration_ms: 0.355292
+      type: 'test'
+      ...
+    # Subtest: sorts the gap scale numerically
+    ok 4 - sorts the gap scale numerically
+      ---
+      duration_ms: 0.17025
+      type: 'test'
+      ...
+    # Subtest: collects fluid layout declarations
+    ok 5 - collects fluid layout declarations
+      ---
+      duration_ms: 0.369208
+      type: 'test'
+      ...
+    # Subtest: reports a full-bleed shell instead of promoting a card
+    ok 6 - reports a full-bleed shell instead of promoting a card
+      ---
+      duration_ms: 0.24975
+      type: 'test'
+      ...
+    # Subtest: prefers a constrained column when one governs real area
+    ok 7 - prefers a constrained column when one governs real area
+      ---
+      duration_ms: 0.154791
+      type: 'test'
+      ...
+    # Subtest: survives a page with no containers
+    ok 8 - survives a page with no containers
+      ---
+      duration_ms: 0.069459
+      type: 'test'
+      ...
+    1..8
+ok 48 - layout system
+  ---
+  duration_ms: 2.938958
+  type: 'suite'
+  ...
+# Subtest: color ramps and pairs
+    # Subtest: builds a perceptually even ramp that keeps the source colour
+    ok 1 - builds a perceptually even ramp that keeps the source colour
+      ---
+      duration_ms: 0.204959
+      type: 'test'
+      ...
+    # Subtest: returns null for an unparseable colour
+    ok 2 - returns null for an unparseable colour
+      ---
+      duration_ms: 0.430958
+      type: 'test'
+      ...
+    # Subtest: measures contrast
+    ok 3 - measures contrast
+      ---
+      duration_ms: 0.052833
+      type: 'test'
+      ...
+    # Subtest: picks the foreground that actually passes on each surface
+    ok 4 - picks the foreground that actually passes on each surface
+      ---
+      duration_ms: 0.1395
+      type: 'test'
+      ...
+    # Subtest: falls back outside the palette when no site colour passes
+    ok 5 - falls back outside the palette when no site colour passes
+      ---
+      duration_ms: 0.073459
+      type: 'test'
+      ...
+    # Subtest: prefers a passing colour the site already ships
+    ok 6 - prefers a passing colour the site already ships
+      ---
+      duration_ms: 7.467125
+      type: 'test'
+      ...
+    # Subtest: ranks colours by painted area, not by declaration count
+    ok 7 - ranks colours by painted area, not by declaration count
+      ---
+      duration_ms: 9.101208
+      type: 'test'
+      ...
+    # Subtest: attaches ramps for the named roles
+    ok 8 - attaches ramps for the named roles
+      ---
+      duration_ms: 0.674375
+      type: 'test'
+      ...
+    1..8
+ok 49 - color ramps and pairs
+  ---
+  duration_ms: 18.475459
+  type: 'suite'
+  ...
+# Subtest: buildCorrectionPlan
+    # Subtest: emits directives for unmapped tokens, snap-distance, and motion gaps
+    ok 1 - emits directives for unmapped tokens, snap-distance, and motion gaps
+      ---
+      duration_ms: 0.954833
+      type: 'test'
+      ...
+    # Subtest: ranks the highest-gain directive first
+    ok 2 - ranks the highest-gain directive first
+      ---
+      duration_ms: 0.368833
+      type: 'test'
+      ...
+    # Subtest: does not emit directives for aspects already above threshold
+    ok 3 - does not emit directives for aspects already above threshold
+      ---
+      duration_ms: 0.268458
+      type: 'test'
+      ...
+    1..3
+ok 50 - buildCorrectionPlan
+  ---
+  duration_ms: 2.34025
+  type: 'suite'
+  ...
+# Subtest: combineFidelity
+    # Subtest: blends visual and motion with default weights
+    ok 1 - blends visual and motion with default weights
+      ---
+      duration_ms: 0.2775
+      type: 'test'
+      ...
+    # Subtest: falls back to whichever signal is present
+    ok 2 - falls back to whichever signal is present
+      ---
+      duration_ms: 0.146708
+      type: 'test'
+      ...
+    1..2
+ok 51 - combineFidelity
+  ---
+  duration_ms: 0.725792
+  type: 'suite'
+  ...
+# Subtest: gradeFor
+    # Subtest: maps scores to letter grades
+    ok 1 - maps scores to letter grades
+      ---
+      duration_ms: 0.279875
+      type: 'test'
+      ...
+    1..1
+ok 52 - gradeFor
+  ---
+  duration_ms: 0.780459
+  type: 'suite'
+  ...
+# Subtest: runFidelityLoop
+    # Subtest: iterates until it crosses the threshold, applying corrections each round
+    ok 1 - iterates until it crosses the threshold, applying corrections each round
+      ---
+      duration_ms: 0.555542
+      type: 'test'
+      ...
+    # Subtest: stops at maxRounds without converging when corrections stall
+    ok 2 - stops at maxRounds without converging when corrections stall
+      ---
+      duration_ms: 0.279208
+      type: 'test'
+      ...
+    # Subtest: stops early when there are no directives left
+    ok 3 - stops early when there are no directives left
+      ---
+      duration_ms: 0.228375
+      type: 'test'
+      ...
+    # Subtest: throws without a measure function
+    ok 4 - throws without a measure function
+      ---
+      duration_ms: 0.57875
+      type: 'test'
+      ...
+    1..4
+ok 53 - runFidelityLoop
+  ---
+  duration_ms: 1.855583
+  type: 'suite'
+  ...
+# Subtest: formatFidelityJson
+    # Subtest: round-trips the report as pretty JSON
+    ok 1 - round-trips the report as pretty JSON
+      ---
+      duration_ms: 0.605875
+      type: 'test'
+      ...
+    1..1
+ok 54 - formatFidelityJson
+  ---
+  duration_ms: 3.84125
+  type: 'suite'
+  ...
+# Subtest: formatFidelityMarkdown
+    # Subtest: states the headline score, grade and breakdown
+    ok 1 - states the headline score, grade and breakdown
+      ---
+      duration_ms: 0.5365
+      type: 'test'
+      ...
+    # Subtest: renders the motion table and ranked correction plan
+    ok 2 - renders the motion table and ranked correction plan
+      ---
+      duration_ms: 0.138416
+      type: 'test'
+      ...
+    # Subtest: says so when there are no corrections
+    ok 3 - says so when there are no corrections
+      ---
+      duration_ms: 0.227875
+      type: 'test'
+      ...
+    1..3
+ok 55 - formatFidelityMarkdown
+  ---
+  duration_ms: 1.080792
+  type: 'suite'
+  ...
+# Subtest: formatFidelityCard
+    # Subtest: produces a self-contained SVG with the score, grade and host
+    ok 1 - produces a self-contained SVG with the score, grade and host
+      ---
+      duration_ms: 0.38575
+      type: 'test'
+      ...
+    # Subtest: degrades gracefully when fidelity is unknown
+    ok 2 - degrades gracefully when fidelity is unknown
+      ---
+      duration_ms: 0.284834
+      type: 'test'
+      ...
+    1..2
+ok 56 - formatFidelityCard
+  ---
+  duration_ms: 1.105
+  type: 'suite'
+  ...
+# Subtest: formatMarkdown
+    # Subtest: returns a string
+    ok 1 - returns a string
+      ---
+      duration_ms: 119.341
+      type: 'test'
+      ...
+    # Subtest: omits untrusted site title from AI-readable output
+    ok 2 - omits untrusted site title from AI-readable output
+      ---
+      duration_ms: 2.057
+      type: 'test'
+      ...
+    # Subtest: contains color palette section
+    ok 3 - contains color palette section
+      ---
+      duration_ms: 1.399459
+      type: 'test'
+      ...
+    # Subtest: contains typography section
+    ok 4 - contains typography section
+      ---
+      duration_ms: 2.076
+      type: 'test'
+      ...
+    # Subtest: contains spacing section
+    ok 5 - contains spacing section
+      ---
+      duration_ms: 0.731042
+      type: 'test'
+      ...
+    # Subtest: contains the primary color hex
+    ok 6 - contains the primary color hex
+      ---
+      duration_ms: 1.856667
+      type: 'test'
+      ...
+    # Subtest: contains font family names
+    ok 7 - contains font family names
+      ---
+      duration_ms: 5.144708
+      type: 'test'
+      ...
+    # Subtest: contains component patterns section
+    ok 8 - contains component patterns section
+      ---
+      duration_ms: 14.788958
+      type: 'test'
+      ...
+    # Subtest: contains design system score section
+    ok 9 - contains design system score section
+      ---
+      duration_ms: 1.091875
+      type: 'test'
+      ...
+    # Subtest: contains layout section
+    ok 10 - contains layout section
+      ---
+      duration_ms: 1.982166
+      type: 'test'
+      ...
+    # Subtest: issue \#135: object stringification + class truncation
+        # Subtest: never emits literal [object Object]
+        ok 1 - never emits literal [object Object]
+          ---
+          duration_ms: 2.024916
+          type: 'test'
+          ...
+        # Subtest: omits arbitrary CSS variable names from agent context
+        ok 2 - omits arbitrary CSS variable names from agent context
+          ---
+          duration_ms: 0.472959
+          type: 'test'
+          ...
+        # Subtest: renders easing function values, not objects (1b)
+        ok 3 - renders easing function values, not objects (1b)
+          ---
+          duration_ms: 0.377625
+          type: 'test'
+          ...
+        # Subtest: omits freeform issue prose from agent context
+        ok 4 - omits freeform issue prose from agent context
+          ---
+          duration_ms: 1.383458
+          type: 'test'
+          ...
+        # Subtest: keeps full component class names (bug 2)
+        ok 5 - keeps full component class names (bug 2)
+          ---
+          duration_ms: 0.504333
+          type: 'test'
+          ...
+        1..5
+    ok 11 - issue \#135: object stringification + class truncation
+      ---
+      duration_ms: 5.100375
+      type: 'suite'
+      ...
+    1..11
+ok 57 - formatMarkdown
+  ---
+  duration_ms: 162.035708
+  type: 'suite'
+  ...
+# Subtest: formatTokens
+    # Subtest: returns valid JSON
+    ok 1 - returns valid JSON
+      ---
+      duration_ms: 0.878208
+      type: 'test'
+      ...
+    # Subtest: contains color tokens
+    ok 2 - contains color tokens
+      ---
+      duration_ms: 0.243834
+      type: 'test'
+      ...
+    # Subtest: contains fontFamily tokens
+    ok 3 - contains fontFamily tokens
+      ---
+      duration_ms: 0.620667
+      type: 'test'
+      ...
+    # Subtest: contains spacing tokens
+    ok 4 - contains spacing tokens
+      ---
+      duration_ms: 1.892542
+      type: 'test'
+      ...
+    # Subtest: contains borderRadius tokens
+    ok 5 - contains borderRadius tokens
+      ---
+      duration_ms: 0.177458
+      type: 'test'
+      ...
+    # Subtest: contains shadow tokens
+    ok 6 - contains shadow tokens
+      ---
+      duration_ms: 6.130084
+      type: 'test'
+      ...
+    # Subtest: contains breakpoint tokens
+    ok 7 - contains breakpoint tokens
+      ---
+      duration_ms: 0.20925
+      type: 'test'
+      ...
+    1..7
+ok 58 - formatTokens
+  ---
+  duration_ms: 10.432875
+  type: 'suite'
+  ...
+# Subtest: formatDtcgTokens
+    # Subtest: emits $value/$type for every leaf
+    ok 1 - emits $value/$type for every leaf
+      ---
+      duration_ms: 0.383
+      type: 'test'
+      ...
+    # Subtest: emits semantic aliases referencing primitives
+    ok 2 - emits semantic aliases referencing primitives
+      ---
+      duration_ms: 0.290084
+      type: 'test'
+      ...
+    # Subtest: emits composite typography tokens
+    ok 3 - emits composite typography tokens
+      ---
+      duration_ms: 0.111167
+      type: 'test'
+      ...
+    # Subtest: round-trips through JSON unchanged
+    ok 4 - round-trips through JSON unchanged
+      ---
+      duration_ms: 1.230833
+      type: 'test'
+      ...
+    1..4
+ok 59 - formatDtcgTokens
+  ---
+  duration_ms: 2.280666
+  type: 'suite'
+  ...
+# Subtest: formatTailwind
+    # Subtest: returns a string
+    ok 1 - returns a string
+      ---
+      duration_ms: 0.673
+      type: 'test'
+      ...
+    # Subtest: contains export default
+    ok 2 - contains export default
+      ---
+      duration_ms: 0.173375
+      type: 'test'
+      ...
+    # Subtest: contains primary color
+    ok 3 - contains primary color
+      ---
+      duration_ms: 0.498167
+      type: 'test'
+      ...
+    # Subtest: contains font family
+    ok 4 - contains font family
+      ---
+      duration_ms: 0.198166
+      type: 'test'
+      ...
+    # Subtest: contains spacing values
+    ok 5 - contains spacing values
+      ---
+      duration_ms: 0.625083
+      type: 'test'
+      ...
+    # Subtest: contains screen breakpoints
+    ok 6 - contains screen breakpoints
+      ---
+      duration_ms: 0.187208
+      type: 'test'
+      ...
+    1..6
+ok 60 - formatTailwind
+  ---
+  duration_ms: 2.505958
+  type: 'suite'
+  ...
+# Subtest: formatCssVars
+    # Subtest: returns a string
+    ok 1 - returns a string
+      ---
+      duration_ms: 0.481208
+      type: 'test'
+      ...
+    # Subtest: starts with :root {
+    ok 2 - starts with :root {
+      ---
+      duration_ms: 0.098875
+      type: 'test'
+      ...
+    # Subtest: ends with closing brace
+    ok 3 - ends with closing brace
+      ---
+      duration_ms: 0.178292
+      type: 'test'
+      ...
+    # Subtest: contains color variables
+    ok 4 - contains color variables
+      ---
+      duration_ms: 0.080791
+      type: 'test'
+      ...
+    # Subtest: contains spacing variables
+    ok 5 - contains spacing variables
+      ---
+      duration_ms: 0.501334
+      type: 'test'
+      ...
+    # Subtest: contains font variables
+    ok 6 - contains font variables
+      ---
+      duration_ms: 0.090333
+      type: 'test'
+      ...
+    # Subtest: contains radius variables
+    ok 7 - contains radius variables
+      ---
+      duration_ms: 0.059458
+      type: 'test'
+      ...
+    # Subtest: contains shadow variables
+    ok 8 - contains shadow variables
+      ---
+      duration_ms: 0.05525
+      type: 'test'
+      ...
+    1..8
+ok 61 - formatCssVars
+  ---
+  duration_ms: 1.696208
+  type: 'suite'
+  ...
+# Subtest: formatPreview
+    # Subtest: returns a string
+    ok 1 - returns a string
+      ---
+      duration_ms: 0.808792
+      type: 'test'
+      ...
+    # Subtest: returns valid HTML with doctype
+    ok 2 - returns valid HTML with doctype
+      ---
+      duration_ms: 0.114333
+      type: 'test'
+      ...
+    # Subtest: contains html and body tags
+    ok 3 - contains html and body tags
+      ---
+      duration_ms: 0.231792
+      type: 'test'
+      ...
+    # Subtest: contains the site title
+    ok 4 - contains the site title
+      ---
+      duration_ms: 0.082584
+      type: 'test'
+      ...
+    # Subtest: contains color swatches section
+    ok 5 - contains color swatches section
+      ---
+      duration_ms: 0.075958
+      type: 'test'
+      ...
+    # Subtest: contains typography section
+    ok 6 - contains typography section
+      ---
+      duration_ms: 0.070625
+      type: 'test'
+      ...
+    1..6
+ok 62 - formatPreview
+  ---
+  duration_ms: 1.495542
+  type: 'suite'
+  ...
+# Subtest: formatFigma
+    # Subtest: returns valid JSON
+    ok 1 - returns valid JSON
+      ---
+      duration_ms: 0.505375
+      type: 'test'
+      ...
+    # Subtest: has collections array with Brand collection
+    ok 2 - has collections array with Brand collection
+      ---
+      duration_ms: 0.649292
+      type: 'test'
+      ...
+    # Subtest: has Typography and Spacing collections
+    ok 3 - has Typography and Spacing collections
+      ---
+      duration_ms: 0.547541
+      type: 'test'
+      ...
+    # Subtest: contains color variables with normalized RGB in light mode
+    ok 4 - contains color variables with normalized RGB in light mode
+      ---
+      duration_ms: 0.302
+      type: 'test'
+      ...
+    # Subtest: contains spacing variables
+    ok 5 - contains spacing variables
+      ---
+      duration_ms: 0.224667
+      type: 'test'
+      ...
+    # Subtest: contains radius variables
+    ok 6 - contains radius variables
+      ---
+      duration_ms: 0.167167
+      type: 'test'
+      ...
+    1..6
+ok 63 - formatFigma
+  ---
+  duration_ms: 2.796958
+  type: 'suite'
+  ...
+# Subtest: formatReactTheme
+    # Subtest: returns a string
+    ok 1 - returns a string
+      ---
+      duration_ms: 0.989125
+      type: 'test'
+      ...
+    # Subtest: contains export const theme
+    ok 2 - contains export const theme
+      ---
+      duration_ms: 0.171667
+      type: 'test'
+      ...
+    # Subtest: contains export default theme
+    ok 3 - contains export default theme
+      ---
+      duration_ms: 0.139042
+      type: 'test'
+      ...
+    # Subtest: contains the primary color
+    ok 4 - contains the primary color
+      ---
+      duration_ms: 0.381291
+      type: 'test'
+      ...
+    # Subtest: contains font family
+    ok 5 - contains font family
+      ---
+      duration_ms: 0.334084
+      type: 'test'
+      ...
+    # Subtest: contains spacing values
+    ok 6 - contains spacing values
+      ---
+      duration_ms: 0.136292
+      type: 'test'
+      ...
+    # Subtest: contains the embedded JSON as valid JS
+    ok 7 - contains the embedded JSON as valid JS
+      ---
+      duration_ms: 0.404583
+      type: 'test'
+      ...
+    1..7
+ok 64 - formatReactTheme
+  ---
+  duration_ms: 2.894416
+  type: 'suite'
+  ...
+# Subtest: formatShadcnTheme
+    # Subtest: returns a string
+    ok 1 - returns a string
+      ---
+      duration_ms: 0.418083
+      type: 'test'
+      ...
+    # Subtest: contains @layer base
+    ok 2 - contains @layer base
+      ---
+      duration_ms: 0.1075
+      type: 'test'
+      ...
+    # Subtest: contains :root
+    ok 3 - contains :root
+      ---
+      duration_ms: 0.155125
+      type: 'test'
+      ...
+    # Subtest: contains --primary variable
+    ok 4 - contains --primary variable
+      ---
+      duration_ms: 0.160375
+      type: 'test'
+      ...
+    # Subtest: contains --background variable
+    ok 5 - contains --background variable
+      ---
+      duration_ms: 0.176208
+      type: 'test'
+      ...
+    # Subtest: contains --radius variable
+    ok 6 - contains --radius variable
+      ---
+      duration_ms: 0.100334
+      type: 'test'
+      ...
+    # Subtest: contains shadcn/ui comment
+    ok 7 - contains shadcn/ui comment
+      ---
+      duration_ms: 0.11675
+      type: 'test'
+      ...
+    1..7
+ok 65 - formatShadcnTheme
+  ---
+  duration_ms: 1.588083
+  type: 'suite'
+  ...
+# Subtest: resolveRef
+    # Subtest: returns the raw $value for non-reference tokens
+    ok 1 - returns the raw $value for non-reference tokens
+      ---
+      duration_ms: 0.200958
+      type: 'test'
+      ...
+    # Subtest: follows one-level references
+    ok 2 - follows one-level references
+      ---
+      duration_ms: 0.213875
+      type: 'test'
+      ...
+    # Subtest: follows chained references
+    ok 3 - follows chained references
+      ---
+      duration_ms: 0.158959
+      type: 'test'
+      ...
+    # Subtest: returns undefined for missing paths
+    ok 4 - returns undefined for missing paths
+      ---
+      duration_ms: 0.093417
+      type: 'test'
+      ...
+    # Subtest: resolves dimension tokens
+    ok 5 - resolves dimension tokens
+      ---
+      duration_ms: 0.127916
+      type: 'test'
+      ...
+    1..5
+ok 66 - resolveRef
+  ---
+  duration_ms: 1.145917
+  type: 'suite'
+  ...
+# Subtest: formatIosSwiftUI
+    # Subtest: emits import SwiftUI and extension Color
+    ok 1 - emits import SwiftUI and extension Color
+      ---
+      duration_ms: 1.608708
+      type: 'test'
+      ...
+    # Subtest: emits actionPrimary with resolved primitive hex
+    ok 2 - emits actionPrimary with resolved primitive hex
+      ---
+      duration_ms: 0.225791
+      type: 'test'
+      ...
+    # Subtest: resolves semantic references (no raw {...} strings in output)
+    ok 3 - resolves semantic references (no raw {...} strings in output)
+      ---
+      duration_ms: 0.475416
+      type: 'test'
+      ...
+    # Subtest: is idempotent
+    ok 4 - is idempotent
+      ---
+      duration_ms: 0.404125
+      type: 'test'
+      ...
+    1..4
+ok 67 - formatIosSwiftUI
+  ---
+  duration_ms: 2.890125
+  type: 'suite'
+  ...
+# Subtest: formatAndroidCompose
+    # Subtest: Theme.kt contains object DesignTokens and ActionPrimary
+    ok 1 - Theme.kt contains object DesignTokens and ActionPrimary
+      ---
+      duration_ms: 1.558542
+      type: 'test'
+      ...
+    # Subtest: colors.xml has <color name="action_primary">
+    ok 2 - colors.xml has <color name="action_primary">
+      ---
+      duration_ms: 0.74025
+      type: 'test'
+      ...
+    # Subtest: dimens.xml has <dimen name="spacing_s0"> with dp unit
+    ok 3 - dimens.xml has <dimen name="spacing_s0"> with dp unit
+      ---
+      duration_ms: 1.345834
+      type: 'test'
+      ...
+    1..3
+ok 68 - formatAndroidCompose
+  ---
+  duration_ms: 3.840708
+  type: 'suite'
+  ...
+# Subtest: formatFlutterDart
+    # Subtest: contains class DesignTokens
+    ok 1 - contains class DesignTokens
+      ---
+      duration_ms: 1.186708
+      type: 'test'
+      ...
+    # Subtest: emits actionPrimary with resolved ARGB hex
+    ok 2 - emits actionPrimary with resolved ARGB hex
+      ---
+      duration_ms: 0.761584
+      type: 'test'
+      ...
+    1..2
+ok 69 - formatFlutterDart
+  ---
+  duration_ms: 2.0415
+  type: 'suite'
+  ...
+# Subtest: formatWordPressTheme
+    # Subtest: theme.json parses and has color palette with at least one entry
+    ok 1 - theme.json parses and has color palette with at least one entry
+      ---
+      duration_ms: 0.152584
+      type: 'test'
+      ...
+    # Subtest: theme.json is version 3
+    ok 2 - theme.json is version 3
+      ---
+      duration_ms: 0.07075
+      type: 'test'
+      ...
+    # Subtest: style.css contains Theme Name and --action-primary custom prop
+    ok 3 - style.css contains Theme Name and --action-primary custom prop
+      ---
+      duration_ms: 0.084875
+      type: 'test'
+      ...
+    # Subtest: functions.php starts with <?php
+    ok 4 - functions.php starts with <?php
+      ---
+      duration_ms: 0.135
+      type: 'test'
+      ...
+    1..4
+ok 70 - formatWordPressTheme
+  ---
+  duration_ms: 0.551625
+  type: 'suite'
+  ...
+# Subtest: formatAgentRules
+    # Subtest: emits all four files, each non-empty
+    ok 1 - emits all four files, each non-empty
+      ---
+      duration_ms: 0.179625
+      type: 'test'
+      ...
+    # Subtest: Cursor .mdc begins with frontmatter containing alwaysApply: true
+    ok 2 - Cursor .mdc begins with frontmatter containing alwaysApply: true
+      ---
+      duration_ms: 0.078083
+      type: 'test'
+      ...
+    # Subtest: all four files omit the source URL from instruction files
+    ok 3 - all four files omit the source URL from instruction files
+      ---
+      duration_ms: 0.079375
+      type: 'test'
+      ...
+    # Subtest: all four files contain resolved hex for semantic.color.action.primary
+    ok 4 - all four files contain resolved hex for semantic.color.action.primary
+      ---
+      duration_ms: 0.258333
+      type: 'test'
+      ...
+    1..4
+ok 71 - formatAgentRules
+  ---
+  duration_ms: 7.246958
+  type: 'suite'
+  ...
+# Subtest: formatGrade
+    # Subtest: returns a self-contained HTML document with the grade letter and score
+    ok 1 - returns a self-contained HTML document with the grade letter and score
+      ---
+      duration_ms: 1.362542
+      type: 'test'
+      ...
+    # Subtest: embeds evidence from the audited design (palette, type, dimensions)
+    ok 2 - embeds evidence from the audited design (palette, type, dimensions)
+      ---
+      duration_ms: 0.358375
+      type: 'test'
+      ...
+    # Subtest: escapes user-controlled content to prevent HTML injection
+    ok 3 - escapes user-controlled content to prevent HTML injection
+      ---
+      duration_ms: 0.310416
+      type: 'test'
+      ...
+    # Subtest: handles typography scale entries shaped as objects ({size, weight, ...})
+    ok 4 - handles typography scale entries shaped as objects ({size, weight, ...})
+      ---
+      duration_ms: 0.174792
+      type: 'test'
+      ...
+    # Subtest: surfaces a low-confidence note when primary.confidence < 0.5 (v12.10)
+    ok 5 - surfaces a low-confidence note when primary.confidence < 0.5 (v12.10)
+      ---
+      duration_ms: 0.298333
+      type: 'test'
+      ...
+    # Subtest: omits the confidence note when primary.confidence >= 0.5 or missing
+    ok 6 - omits the confidence note when primary.confidence >= 0.5 or missing
+      ---
+      duration_ms: 0.434917
+      type: 'test'
+      ...
+    # Subtest: throws a clear error when score is missing
+    ok 7 - throws a clear error when score is missing
+      ---
+      duration_ms: 0.311417
+      type: 'test'
+      ...
+    1..7
+ok 72 - formatGrade
+  ---
+  duration_ms: 3.39375
+  type: 'suite'
+  ...
+# Subtest: formatGradeMarkdown
+    # Subtest: produces a markdown report with grade, dimensions table, strengths, and fixes
+    ok 1 - produces a markdown report with grade, dimensions table, strengths, and fixes
+      ---
+      duration_ms: 0.282875
+      type: 'test'
+      ...
+    1..1
+ok 73 - formatGradeMarkdown
+  ---
+  duration_ms: 0.3235
+  type: 'suite'
+  ...
+# Subtest: compareScores
+    # Subtest: counts wins per side using a 3-point gap threshold
+    ok 1 - counts wins per side using a 3-point gap threshold
+      ---
+      duration_ms: 0.156708
+      type: 'test'
+      ...
+    # Subtest: returns tie when overall deltas are within 3 points
+    ok 2 - returns tie when overall deltas are within 3 points
+      ---
+      duration_ms: 0.181083
+      type: 'test'
+      ...
+    # Subtest: skips dimensions missing on either side
+    ok 3 - skips dimensions missing on either side
+      ---
+      duration_ms: 0.058042
+      type: 'test'
+      ...
+    1..3
+ok 74 - compareScores
+  ---
+  duration_ms: 0.457375
+  type: 'suite'
+  ...
+# Subtest: formatBattle
+    # Subtest: returns a self-contained HTML document with both grades and a verdict
+    ok 1 - returns a self-contained HTML document with both grades and a verdict
+      ---
+      duration_ms: 1.543125
+      type: 'test'
+      ...
+    # Subtest: uses paddings + bars for both sides (no NaN, both colors present)
+    ok 2 - uses paddings + bars for both sides (no NaN, both colors present)
+      ---
+      duration_ms: 0.274375
+      type: 'test'
+      ...
+    # Subtest: throws a clear error when either design is missing a score
+    ok 3 - throws a clear error when either design is missing a score
+      ---
+      duration_ms: 0.183584
+      type: 'test'
+      ...
+    1..3
+ok 75 - formatBattle
+  ---
+  duration_ms: 2.091042
+  type: 'suite'
+  ...
+# Subtest: formatBattleMarkdown
+    # Subtest: emits a battle table with overall row and per-dimension rows
+    ok 1 - emits a battle table with overall row and per-dimension rows
+      ---
+      duration_ms: 0.244958
+      type: 'test'
+      ...
+    1..1
+ok 76 - formatBattleMarkdown
+  ---
+  duration_ms: 0.290291
+  type: 'suite'
+  ...
+# Subtest: formatBadge
+    # Subtest: returns valid SVG with both label and value sections
+    ok 1 - returns valid SVG with both label and value sections
+      ---
+      duration_ms: 0.224542
+      type: 'test'
+      ...
+    # Subtest: picks color from grade letter
+    ok 2 - picks color from grade letter
+      ---
+      duration_ms: 0.076708
+      type: 'test'
+      ...
+    # Subtest: escapes user-controlled text
+    ok 3 - escapes user-controlled text
+      ---
+      duration_ms: 0.089459
+      type: 'test'
+      ...
+    # Subtest: handles missing/unknown grade with a fallback color
+    ok 4 - handles missing/unknown grade with a fallback color
+      ---
+      duration_ms: 0.061083
+      type: 'test'
+      ...
+    1..4
+ok 77 - formatBadge
+  ---
+  duration_ms: 0.528708
+  type: 'suite'
+  ...
+# Subtest: formatScoreBadge
+    # Subtest: shows "grade · overall" derived from a design.score object
+    ok 1 - shows "grade · overall" derived from a design.score object
+      ---
+      duration_ms: 0.35325
+      type: 'test'
+      ...
+    # Subtest: returns an em-dash badge when score is missing
+    ok 2 - returns an em-dash badge when score is missing
+      ---
+      duration_ms: 0.129708
+      type: 'test'
+      ...
+    1..2
+ok 78 - formatScoreBadge
+  ---
+  duration_ms: 0.567292
+  type: 'suite'
+  ...
+# Subtest: vocabularies
+    # Subtest: exposes six built-in vocabularies
+    ok 1 - exposes six built-in vocabularies
+      ---
+      duration_ms: 0.337791
+      type: 'test'
+      ...
+    # Subtest: listVocabularies returns id + name + blurb for each
+    ok 2 - listVocabularies returns id + name + blurb for each
+      ---
+      duration_ms: 0.159416
+      type: 'test'
+      ...
+    # Subtest: every vocabulary defines tokens, fonts, and css
+    ok 3 - every vocabulary defines tokens, fonts, and css
+      ---
+      duration_ms: 0.104208
+      type: 'test'
+      ...
+    # Subtest: getVocabulary returns the vocab by id
+    ok 4 - getVocabulary returns the vocab by id
+      ---
+      duration_ms: 0.080667
+      type: 'test'
+      ...
+    # Subtest: getVocabulary throws on unknown id with a helpful message
+    ok 5 - getVocabulary throws on unknown id with a helpful message
+      ---
+      duration_ms: 0.17575
+      type: 'test'
+      ...
+    1..5
+ok 79 - vocabularies
+  ---
+  duration_ms: 0.948917
+  type: 'suite'
+  ...
+# Subtest: formatRemix
+    # Subtest: returns a self-contained HTML document with the host name and vocab name
+    ok 1 - returns a self-contained HTML document with the host name and vocab name
+      ---
+      duration_ms: 1.573292
+      type: 'test'
+      ...
+    # Subtest: embeds vocabulary tokens as CSS custom properties
+    ok 2 - embeds vocabulary tokens as CSS custom properties
+      ---
+      duration_ms: 0.5165
+      type: 'test'
+      ...
+    # Subtest: imports each vocabulary's display font from Google Fonts
+    ok 3 - imports each vocabulary's display font from Google Fonts
+      ---
+      duration_ms: 0.421541
+      type: 'test'
+      ...
+    # Subtest: omits nav and footer sections from the body
+    ok 4 - omits nav and footer sections from the body
+      ---
+      duration_ms: 0.158
+      type: 'test'
+      ...
+    # Subtest: dedupes sections that share a heading (real-world SPA pattern)
+    ok 5 - dedupes sections that share a heading (real-world SPA pattern)
+      ---
+      duration_ms: 0.132917
+      type: 'test'
+      ...
+    # Subtest: does not re-shift a section heading from the voice pool (no duplicate render)
+    ok 6 - does not re-shift a section heading from the voice pool (no duplicate render)
+      ---
+      duration_ms: 0.279292
+      type: 'test'
+      ...
+    # Subtest: synthesizes a believable artifact when no sections are extracted
+    ok 7 - synthesizes a believable artifact when no sections are extracted
+      ---
+      duration_ms: 0.218208
+      type: 'test'
+      ...
+    # Subtest: escapes user-controlled section content
+    ok 8 - escapes user-controlled section content
+      ---
+      duration_ms: 0.725791
+      type: 'test'
+      ...
+    # Subtest: throws clear errors on missing inputs
+    ok 9 - throws clear errors on missing inputs
+      ---
+      duration_ms: 0.430209
+      type: 'test'
+      ...
+    1..9
+ok 80 - formatRemix
+  ---
+  duration_ms: 4.7535
+  type: 'suite'
+  ...
+# Subtest: buildPack
+    # Subtest: produces a complete bundle with all expected top-level directories
+    ok 1 - produces a complete bundle with all expected top-level directories
+      ---
+      duration_ms: 45.190084
+      type: 'test'
+      ...
+    # Subtest: writes valid token files (DTCG, Tailwind, CSS vars, Figma vars, motion)
+    ok 2 - writes valid token files (DTCG, Tailwind, CSS vars, Figma vars, motion)
+      ---
+      duration_ms: 16.399792
+      type: 'test'
+      ...
+    # Subtest: writes a README that references the source URL and grade
+    ok 3 - writes a README that references the source URL and grade
+      ---
+      duration_ms: 14.967417
+      type: 'test'
+      ...
+    # Subtest: writes a starter index.html that links to tokens/variables.css
+    ok 4 - writes a starter index.html that links to tokens/variables.css
+      ---
+      duration_ms: 15.625334
+      type: 'test'
+      ...
+    # Subtest: writes recipe files with proper names (not array indices)
+    ok 5 - writes recipe files with proper names (not array indices)
+      ---
+      duration_ms: 16.194166
+      type: 'test'
+      ...
+    # Subtest: throws a clear error when outDir is missing
+    ok 6 - throws a clear error when outDir is missing
+      ---
+      duration_ms: 0.150584
+      type: 'test'
+      ...
+    # Subtest: coerces non-string emitter outputs to JSON without throwing
+    ok 7 - coerces non-string emitter outputs to JSON without throwing
+      ---
+      duration_ms: 15.076458
+      type: 'test'
+      ...
+    1..7
+ok 81 - buildPack
+  ---
+  duration_ms: 143.611333
+  type: 'suite'
+  ...
+# Subtest: recolorDesign
+    # Subtest: pins the source primary slot to the user's exact target hex
+    ok 1 - pins the source primary slot to the user's exact target hex
+      ---
+      duration_ms: 3.053583
+      type: 'test'
+      ...
+    # Subtest: preserves spacing, typography, and neutrals untouched
+    ok 2 - preserves spacing, typography, and neutrals untouched
+      ---
+      duration_ms: 0.47525
+      type: 'test'
+      ...
+    # Subtest: rotates non-neutral colours by the hue delta
+    ok 3 - rotates non-neutral colours by the hue delta
+      ---
+      duration_ms: 0.246791
+      type: 'test'
+      ...
+    # Subtest: throws a clear error when --primary is missing or malformed
+    ok 4 - throws a clear error when --primary is missing or malformed
+      ---
+      duration_ms: 0.128125
+      type: 'test'
+      ...
+    # Subtest: respects --from override when source primary is misclassified
+    ok 5 - respects --from override when source primary is misclassified
+      ---
+      duration_ms: 0.264167
+      type: 'test'
+      ...
+    # Subtest: records the swap in design.meta.themeSwap
+    ok 6 - records the swap in design.meta.themeSwap
+      ---
+      duration_ms: 0.430542
+      type: 'test'
+      ...
+    1..6
+ok 82 - recolorDesign
+  ---
+  duration_ms: 6.358417
+  type: 'suite'
+  ...
+# Subtest: formatThemeSwap
+    # Subtest: renders both palettes and a verdict line in self-contained HTML
+    ok 1 - renders both palettes and a verdict line in self-contained HTML
+      ---
+      duration_ms: 0.85975
+      type: 'test'
+      ...
+    # Subtest: escapes user-controlled content
+    ok 2 - escapes user-controlled content
+      ---
+      duration_ms: 0.415584
+      type: 'test'
+      ...
+    # Subtest: throws when either design is missing
+    ok 3 - throws when either design is missing
+      ---
+      duration_ms: 0.086792
+      type: 'test'
+      ...
+    1..3
+ok 83 - formatThemeSwap
+  ---
+  duration_ms: 1.5735
+  type: 'suite'
+  ...
+# Subtest: formatThemeSwapMarkdown
+    # Subtest: produces a markdown report with from→to header and palette diff table
+    ok 1 - produces a markdown report with from→to header and palette diff table
+      ---
+      duration_ms: 0.317708
+      type: 'test'
+      ...
+    1..1
+ok 84 - formatThemeSwapMarkdown
+  ---
+  duration_ms: 0.574375
+  type: 'suite'
+  ...
+# Subtest: formatBrandBook
+    # Subtest: returns a self-contained HTML document with all 13 chapter sections
+    ok 1 - returns a self-contained HTML document with all 13 chapter sections
+      ---
+      duration_ms: 40.942625
+      type: 'test'
+      ...
+    # Subtest: renders the host name + brand colors + type scale from the design
+    ok 2 - renders the host name + brand colors + type scale from the design
+      ---
+      duration_ms: 46.952208
+      type: 'test'
+      ...
+    # Subtest: escapes user-controlled strings to prevent HTML injection
+    ok 3 - escapes user-controlled strings to prevent HTML injection
+      ---
+      duration_ms: 1.260417
+      type: 'test'
+      ...
+    # Subtest: handles missing/sparse design fields without throwing
+    ok 4 - handles missing/sparse design fields without throwing
+      ---
+      duration_ms: 0.402792
+      type: 'test'
+      ...
+    # Subtest: coerces non-array slot/variant fields without crashing (real extractor returns mixed shapes)
+    ok 5 - coerces non-array slot/variant fields without crashing (real extractor returns mixed shapes)
+      ---
+      duration_ms: 10.739875
+      type: 'test'
+      ...
+    # Subtest: throws a clear error when design is missing
+    ok 6 - throws a clear error when design is missing
+      ---
+      duration_ms: 0.154541
+      type: 'test'
+      ...
+    1..6
+ok 85 - formatBrandBook
+  ---
+  duration_ms: 102.5885
+  type: 'suite'
+  ...
+# Subtest: formatBrandBookMarkdown
+    # Subtest: produces a multi-section markdown document
+    ok 1 - produces a multi-section markdown document
+      ---
+      duration_ms: 19.055375
+      type: 'test'
+      ...
+    1..1
+ok 86 - formatBrandBookMarkdown
+  ---
+  duration_ms: 23.876583
+  type: 'suite'
+  ...
+# Subtest: fuseDesigns
+    # Subtest: exposes the seven canonical axes
+    ok 1 - exposes the seven canonical axes
+      ---
+      duration_ms: 0.139
+      type: 'test'
+      ...
+    # Subtest: uses the documented default split — visual from A, voice + type + components from B
+    ok 2 - uses the documented default split — visual from A, voice + type + components from B
+      ---
+      duration_ms: 0.638791
+      type: 'test'
+      ...
+    # Subtest: honours per-axis overrides
+    ok 3 - honours per-axis overrides
+      ---
+      duration_ms: 1.347708
+      type: 'test'
+      ...
+    # Subtest: strips score / cssHealth (they belong to the source extractions, not the fusion)
+    ok 4 - strips score / cssHealth (they belong to the source extractions, not the fusion)
+      ---
+      duration_ms: 2.603416
+      type: 'test'
+      ...
+    # Subtest: synthesises a pair-specific meta URL and title
+    ok 5 - synthesises a pair-specific meta URL and title
+      ---
+      duration_ms: 0.369417
+      type: 'test'
+      ...
+    # Subtest: does not mutate the source designs
+    ok 6 - does not mutate the source designs
+      ---
+      duration_ms: 0.354792
+      type: 'test'
+      ...
+    # Subtest: throws clearly when either design is missing
+    ok 7 - throws clearly when either design is missing
+      ---
+      duration_ms: 0.1535
+      type: 'test'
+      ...
+    1..7
+ok 87 - fuseDesigns
+  ---
+  duration_ms: 13.9335
+  type: 'suite'
+  ...
+# Subtest: formatPair
+    # Subtest: renders both source hosts + the fused identity in self-contained HTML
+    ok 1 - renders both source hosts + the fused identity in self-contained HTML
+      ---
+      duration_ms: 1.3925
+      type: 'test'
+      ...
+    # Subtest: uses the fused designs sample heading in the specimen when available
+    ok 2 - uses the fused designs sample heading in the specimen when available
+      ---
+      duration_ms: 1.589459
+      type: 'test'
+      ...
+    # Subtest: escapes user-controlled strings (XSS)
+    ok 3 - escapes user-controlled strings (XSS)
+      ---
+      duration_ms: 1.757875
+      type: 'test'
+      ...
+    # Subtest: throws when any of the three designs is missing
+    ok 4 - throws when any of the three designs is missing
+      ---
+      duration_ms: 1.6495
+      type: 'test'
+      ...
+    1..4
+ok 88 - formatPair
+  ---
+  duration_ms: 11.133708
+  type: 'suite'
+  ...
+# Subtest: formatPairMarkdown
+    # Subtest: emits a per-axis source table
+    ok 1 - emits a per-axis source table
+      ---
+      duration_ms: 0.903083
+      type: 'test'
+      ...
+    1..1
+ok 89 - formatPairMarkdown
+  ---
+  duration_ms: 2.090792
+  type: 'suite'
+  ...
+# Subtest: formatGalleryIndex
+    # Subtest: renders a card grid sorted best-first with stats
+    ok 1 - renders a card grid sorted best-first with stats
+      ---
+      duration_ms: 2.361959
+      type: 'test'
+      ...
+    1..1
+ok 90 - formatGalleryIndex
+  ---
+  duration_ms: 3.20575
+  type: 'suite'
+  ...
+# Subtest: formatGalleryItemPage
+    # Subtest: embeds the card, OG image, motion table and correction plan
+    ok 1 - embeds the card, OG image, motion table and correction plan
+      ---
+      duration_ms: 0.65325
+      type: 'test'
+      ...
+    # Subtest: says no corrections when the plan is empty
+    ok 2 - says no corrections when the plan is empty
+      ---
+      duration_ms: 0.122791
+      type: 'test'
+      ...
+    1..2
+ok 91 - formatGalleryItemPage
+  ---
+  duration_ms: 0.919958
+  type: 'suite'
+  ...
+# Subtest: renderGallerySite
+    # Subtest: emits index + per-item page + per-item card
+    ok 1 - emits index + per-item page + per-item card
+      ---
+      duration_ms: 0.244625
+      type: 'test'
+      ...
+    1..1
+ok 92 - renderGallerySite
+  ---
+  duration_ms: 0.428292
+  type: 'suite'
+  ...
+# Subtest: findReportFiles
+    # Subtest: finds fidelity.json and *.fidelity.json, skips node_modules and other files
+    ok 1 - finds fidelity.json and *.fidelity.json, skips node_modules and other files
+      ---
+      duration_ms: 1.464709
+      type: 'test'
+      ...
+    # Subtest: returns [] for a missing directory
+    ok 2 - returns [] for a missing directory
+      ---
+      duration_ms: 0.757167
+      type: 'test'
+      ...
+    1..2
+ok 93 - findReportFiles
+  ---
+  duration_ms: 3.3635
+  type: 'suite'
+  ...
+# Subtest: loadReportsFromDir
+    # Subtest: parses valid reports and skips malformed ones
+    ok 1 - parses valid reports and skips malformed ones
+      ---
+      duration_ms: 0.899375
+      type: 'test'
+      ...
+    1..1
+ok 94 - loadReportsFromDir
+  ---
+  duration_ms: 1.015708
+  type: 'suite'
+  ...
+# Subtest: slugify
+    # Subtest: produces url-safe slugs
+    ok 1 - produces url-safe slugs
+      ---
+      duration_ms: 0.72025
+      type: 'test'
+      ...
+    1..1
+ok 95 - slugify
+  ---
+  duration_ms: 1.524333
+  type: 'suite'
+  ...
+# Subtest: toGalleryItem
+    # Subtest: maps a fidelity report to an item
+    ok 1 - maps a fidelity report to an item
+      ---
+      duration_ms: 13.603
+      type: 'test'
+      ...
+    # Subtest: tolerates a partial report
+    ok 2 - tolerates a partial report
+      ---
+      duration_ms: 1.611708
+      type: 'test'
+      ...
+    1..2
+ok 96 - toGalleryItem
+  ---
+  duration_ms: 15.585084
+  type: 'suite'
+  ...
+# Subtest: buildGallery
+    # Subtest: sorts best-first and disambiguates duplicate slugs
+    ok 1 - sorts best-first and disambiguates duplicate slugs
+      ---
+      duration_ms: 10.220292
+      type: 'test'
+      ...
+    # Subtest: computes stats over the scored items only
+    ok 2 - computes stats over the scored items only
+      ---
+      duration_ms: 6.3955
+      type: 'test'
+      ...
+    # Subtest: handles an empty set
+    ok 3 - handles an empty set
+      ---
+      duration_ms: 3.489708
+      type: 'test'
+      ...
+    1..3
+ok 97 - buildGallery
+  ---
+  duration_ms: 33.359208
+  type: 'suite'
+  ...
+# (node:89116) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/lib/cache.js is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: comment events and secrets cannot invoke the external bot
+ok 98 - comment events and secrets cannot invoke the external bot
+  ---
+  duration_ms: 43.892208
+  type: 'test'
+  ...
+# Subtest: Windows shell integration and prebuilt VSIX are absent
+ok 99 - Windows shell integration and prebuilt VSIX are absent
+  ---
+  duration_ms: 0.374375
+  type: 'test'
+  ...
+# Subtest: extractInteractionStates
+    # Subtest: returns a default shape on empty input
+    ok 1 - returns a default shape on empty input
+      ---
+      duration_ms: 6.189458
+      type: 'test'
+      ...
+    # Subtest: computes hover deltas between before/after style snapshots
+    ok 2 - computes hover deltas between before/after style snapshots
+      ---
+      duration_ms: 0.375209
+      type: 'test'
+      ...
+    # Subtest: normalizes modal snapshots
+    ok 3 - normalizes modal snapshots
+      ---
+      duration_ms: 1.24825
+      type: 'test'
+      ...
+    # Subtest: handles missing snapshot fields gracefully
+    ok 4 - handles missing snapshot fields gracefully
+      ---
+      duration_ms: 0.202
+      type: 'test'
+      ...
+    1..4
+ok 100 - extractInteractionStates
+  ---
+  duration_ms: 19.221208
+  type: 'suite'
+  ...
+# Subtest: MCP resources
+    # Subtest: lists five URIs
+    ok 1 - lists five URIs
+      ---
+      duration_ms: 1.93425
+      type: 'test'
+      ...
+    # Subtest: reads semantic tokens
+    ok 2 - reads semantic tokens
+      ---
+      duration_ms: 0.29375
+      type: 'test'
+      ...
+    # Subtest: throws for unknown uri
+    ok 3 - throws for unknown uri
+      ---
+      duration_ms: 0.336791
+      type: 'test'
+      ...
+    1..3
+ok 101 - MCP resources
+  ---
+  duration_ms: 3.405292
+  type: 'suite'
+  ...
+# Subtest: MCP tools
+    # Subtest: search_tokens finds semantic token by substring
+    ok 1 - search_tokens finds semantic token by substring
+      ---
+      duration_ms: 0.463833
+      type: 'test'
+      ...
+    # Subtest: find_nearest_color returns a palette color passing AA
+    ok 2 - find_nearest_color returns a palette color passing AA
+      ---
+      duration_ms: 0.509375
+      type: 'test'
+      ...
+    # Subtest: get_region returns hero
+    ok 3 - get_region returns hero
+      ---
+      duration_ms: 1.217375
+      type: 'test'
+      ...
+    # Subtest: get_component returns button cluster
+    ok 4 - get_component returns button cluster
+      ---
+      duration_ms: 0.611833
+      type: 'test'
+      ...
+    # Subtest: list_failing_contrast_pairs returns remediation array
+    ok 5 - list_failing_contrast_pairs returns remediation array
+      ---
+      duration_ms: 0.460459
+      type: 'test'
+      ...
+    # Subtest: throws on unknown tool
+    ok 6 - throws on unknown tool
+      ---
+      duration_ms: 0.499375
+      type: 'test'
+      ...
+    1..6
+ok 102 - MCP tools
+  ---
+  duration_ms: 4.5215
+  type: 'suite'
+  ...
+# Subtest: extractModernCss
+    # Subtest: returns zeroed structure for empty payload
+    ok 1 - returns zeroed structure for empty payload
+      ---
+      duration_ms: 1.287417
+      type: 'test'
+      ...
+    # Subtest: counts pseudo-elements and captures samples
+    ok 2 - counts pseudo-elements and captures samples
+      ---
+      duration_ms: 17.45425
+      type: 'test'
+      ...
+    # Subtest: aggregates variable-font axes with min/max
+    ok 3 - aggregates variable-font axes with min/max
+      ---
+      duration_ms: 0.478166
+      type: 'test'
+      ...
+    # Subtest: collects OpenType features and counts
+    ok 4 - collects OpenType features and counts
+      ---
+      duration_ms: 29.028833
+      type: 'test'
+      ...
+    # Subtest: collects modern text-layout properties
+    ok 5 - collects modern text-layout properties
+      ---
+      duration_ms: 0.589583
+      type: 'test'
+      ...
+    # Subtest: passes through container queries and env() usage
+    ok 6 - passes through container queries and env() usage
+      ---
+      duration_ms: 0.152041
+      type: 'test'
+      ...
+    1..6
+ok 103 - extractModernCss
+  ---
+  duration_ms: 50.023667
+  type: 'suite'
+  ...
+# Subtest: motionlang emitters
+    # Subtest: framer-motion: emits spring derived from detected overshoot bezier
+    ok 1 - framer-motion: emits spring derived from detected overshoot bezier
+      ---
+      duration_ms: 30.258791
+      type: 'test'
+      ...
+    # Subtest: framer-motion: emits whileInView block when scroll-linked motion is present
+    ok 2 - framer-motion: emits whileInView block when scroll-linked motion is present
+      ---
+      duration_ms: 0.351917
+      type: 'test'
+      ...
+    # Subtest: framer-motion: reconstructs keyframe variants from used @keyframes
+    ok 3 - framer-motion: reconstructs keyframe variants from used @keyframes
+      ---
+      duration_ms: 1.856583
+      type: 'test'
+      ...
+    # Subtest: framer-motion: degrades cleanly with no motion signal
+    ok 4 - framer-motion: degrades cleanly with no motion signal
+      ---
+      duration_ms: 0.703
+      type: 'test'
+      ...
+    # Subtest: motion-one: emits animations helpers calling animate()
+    ok 5 - motion-one: emits animations helpers calling animate()
+      ---
+      duration_ms: 0.978709
+      type: 'test'
+      ...
+    # Subtest: motion-one: emits inView/scroll helpers only when scroll-linked
+    ok 6 - motion-one: emits inView/scroll helpers only when scroll-linked
+      ---
+      duration_ms: 0.25775
+      type: 'test'
+      ...
+    # Subtest: motion-one: spring stiffness/damping respond to overshoot magnitude
+    ok 7 - motion-one: spring stiffness/damping respond to overshoot magnitude
+      ---
+      duration_ms: 0.787833
+      type: 'test'
+      ...
+    # Subtest: motion-css: emits custom properties from extracted tokens
+    ok 8 - motion-css: emits custom properties from extracted tokens
+      ---
+      duration_ms: 0.785833
+      type: 'test'
+      ...
+    # Subtest: motion-css: always guards prefers-reduced-motion
+    ok 9 - motion-css: always guards prefers-reduced-motion
+      ---
+      duration_ms: 0.483959
+      type: 'test'
+      ...
+    # Subtest: motion-css: degrades to sane defaults with no motion signal
+    ok 10 - motion-css: degrades to sane defaults with no motion signal
+      ---
+      duration_ms: 2.158291
+      type: 'test'
+      ...
+    # Subtest: motion-tailwind: emits a requireable theme.extend block
+    ok 11 - motion-tailwind: emits a requireable theme.extend block
+      ---
+      duration_ms: 0.624833
+      type: 'test'
+      ...
+    # Subtest: motion-tailwind: reconstructs used on-page @keyframes
+    ok 12 - motion-tailwind: reconstructs used on-page @keyframes
+      ---
+      duration_ms: 0.194208
+      type: 'test'
+      ...
+    # Subtest: motion-tailwind: spring easing appears when overshoot bezier detected
+    ok 13 - motion-tailwind: spring easing appears when overshoot bezier detected
+      ---
+      duration_ms: 0.130541
+      type: 'test'
+      ...
+    # Subtest: motion-waapi: reproduces extracted cubic-bezier curves verbatim (no approximation)
+    ok 14 - motion-waapi: reproduces extracted cubic-bezier curves verbatim (no approximation)
+      ---
+      duration_ms: 2.064083
+      type: 'test'
+      ...
+    # Subtest: motion-waapi: emits zero-dependency animate() helpers honouring reduced-motion
+    ok 15 - motion-waapi: emits zero-dependency animate() helpers honouring reduced-motion
+      ---
+      duration_ms: 0.287583
+      type: 'test'
+      ...
+    # Subtest: motion-waapi: reconstructs used @keyframes as frame arrays
+    ok 16 - motion-waapi: reconstructs used @keyframes as frame arrays
+      ---
+      duration_ms: 0.244375
+      type: 'test'
+      ...
+    # Subtest: motion-gsap: registers extracted curves as CustomEase path data
+    ok 17 - motion-gsap: registers extracted curves as CustomEase path data
+      ---
+      duration_ms: 0.615458
+      type: 'test'
+      ...
+    # Subtest: motion-gsap: emits gsap.from reveals and a ScrollTrigger reveal when scroll-linked
+    ok 18 - motion-gsap: emits gsap.from reveals and a ScrollTrigger reveal when scroll-linked
+      ---
+      duration_ms: 0.156625
+      type: 'test'
+      ...
+    # Subtest: motion-gsap: omits ScrollTrigger helper and degrades cleanly with no motion
+    ok 19 - motion-gsap: omits ScrollTrigger helper and degrades cleanly with no motion
+      ---
+      duration_ms: 0.096875
+      type: 'test'
+      ...
+    1..19
+ok 104 - motionlang emitters
+  ---
+  duration_ms: 44.928459
+  type: 'suite'
+  ...
+# Subtest: motionlang v3 runtime fidelity
+    # Subtest: framer-motion: stagger uses the observed staggerMs (120ms -> 0.120s)
+    ok 1 - framer-motion: stagger uses the observed staggerMs (120ms -> 0.120s)
+      ---
+      duration_ms: 0.554791
+      type: 'test'
+      ...
+    # Subtest: motion-gsap: emits a stagger reveal helper with the observed step
+    ok 2 - motion-gsap: emits a stagger reveal helper with the observed step
+      ---
+      duration_ms: 0.101541
+      type: 'test'
+      ...
+    # Subtest: motion-tokens: emits choreography + scroll recipes and observed durations
+    ok 3 - motion-tokens: emits choreography + scroll recipes and observed durations
+      ---
+      duration_ms: 4.40075
+      type: 'test'
+      ...
+    # Subtest: motion-tokens: omits runtime blocks when no runtime data
+    ok 4 - motion-tokens: omits runtime blocks when no runtime data
+      ---
+      duration_ms: 1.055666
+      type: 'test'
+      ...
+    1..4
+ok 105 - motionlang v3 runtime fidelity
+  ---
+  duration_ms: 6.957417
+  type: 'suite'
+  ...
+# Subtest: scoreMotionFidelity — identity
+    # Subtest: scores a clone that matches the original near-perfectly
+    ok 1 - scores a clone that matches the original near-perfectly
+      ---
+      duration_ms: 1.706833
+      type: 'test'
+      ...
+    1..1
+ok 106 - scoreMotionFidelity — identity
+  ---
+  duration_ms: 3.267208
+  type: 'suite'
+  ...
+# Subtest: scoreMotionFidelity — frozen clone
+    # Subtest: heavily penalises a clone with no motion at all
+    ok 1 - heavily penalises a clone with no motion at all
+      ---
+      duration_ms: 0.439666
+      type: 'test'
+      ...
+    # Subtest: flags the missing spring and scroll-linked motion explicitly
+    ok 2 - flags the missing spring and scroll-linked motion explicitly
+      ---
+      duration_ms: 0.283583
+      type: 'test'
+      ...
+    1..2
+ok 107 - scoreMotionFidelity — frozen clone
+  ---
+  duration_ms: 0.871583
+  type: 'suite'
+  ...
+# Subtest: scoreMotionFidelity — partial match
+    # Subtest: rewards close-but-not-exact durations and easings
+    ok 1 - rewards close-but-not-exact durations and easings
+      ---
+      duration_ms: 0.3245
+      type: 'test'
+      ...
+    # Subtest: penalises over-animation more gently than missing motion
+    ok 2 - penalises over-animation more gently than missing motion
+      ---
+      duration_ms: 0.323208
+      type: 'test'
+      ...
+    1..2
+ok 108 - scoreMotionFidelity — partial match
+  ---
+  duration_ms: 0.771333
+  type: 'suite'
+  ...
+# Subtest: scoreMotionFidelity — choreography
+    # Subtest: penalises a flat clone of a staggered original
+    ok 1 - penalises a flat clone of a staggered original
+      ---
+      duration_ms: 0.464375
+      type: 'test'
+      ...
+    1..1
+ok 109 - scoreMotionFidelity — choreography
+  ---
+  duration_ms: 1.0165
+  type: 'suite'
+  ...
+# Subtest: scoreMotionFidelity — both static
+    # Subtest: treats two motionless designs as a perfect match
+    ok 1 - treats two motionless designs as a perfect match
+      ---
+      duration_ms: 0.456959
+      type: 'test'
+      ...
+    1..1
+ok 110 - scoreMotionFidelity — both static
+  ---
+  duration_ms: 0.875333
+  type: 'suite'
+  ...
+# Subtest: processRuntimeMotion
+    # Subtest: dedupes identical observations (property order normalized)
+    ok 1 - dedupes identical observations (property order normalized)
+      ---
+      duration_ms: 2.661209
+      type: 'test'
+      ...
+    # Subtest: drops junk/null observations
+    ok 2 - drops junk/null observations
+      ---
+      duration_ms: 1.502458
+      type: 'test'
+      ...
+    # Subtest: groups observations by trigger
+    ok 3 - groups observations by trigger
+      ---
+      duration_ms: 0.333
+      type: 'test'
+      ...
+    # Subtest: collects unique runtime durations with semantic names
+    ok 4 - collects unique runtime durations with semantic names
+      ---
+      duration_ms: 0.289792
+      type: 'test'
+      ...
+    # Subtest: reports stats
+    ok 5 - reports stats
+      ---
+      duration_ms: 0.139292
+      type: 'test'
+      ...
+    # Subtest: accepts a bare array too
+    ok 6 - accepts a bare array too
+      ---
+      duration_ms: 0.750958
+      type: 'test'
+      ...
+    1..6
+ok 111 - processRuntimeMotion
+  ---
+  duration_ms: 9.1255
+  type: 'suite'
+  ...
+# Subtest: detectScrollRecipes
+    # Subtest: classifies transform-only scroll motion as parallax
+    ok 1 - classifies transform-only scroll motion as parallax
+      ---
+      duration_ms: 0.778166
+      type: 'test'
+      ...
+    # Subtest: classifies opacity+transform scroll motion as reveal
+    ok 2 - classifies opacity+transform scroll motion as reveal
+      ---
+      duration_ms: 0.359708
+      type: 'test'
+      ...
+    # Subtest: only considers scroll-triggered observations
+    ok 3 - only considers scroll-triggered observations
+      ---
+      duration_ms: 0.347583
+      type: 'test'
+      ...
+    1..3
+ok 112 - detectScrollRecipes
+  ---
+  duration_ms: 1.98525
+  type: 'suite'
+  ...
+# Subtest: detectChoreography
+    # Subtest: detects an evenly-staggered enter sequence
+    ok 1 - detects an evenly-staggered enter sequence
+      ---
+      duration_ms: 0.529417
+      type: 'test'
+      ...
+    # Subtest: ignores groups that all fire together (no stagger)
+    ok 2 - ignores groups that all fire together (no stagger)
+      ---
+      duration_ms: 0.109375
+      type: 'test'
+      ...
+    # Subtest: ignores sequences shorter than 3
+    ok 3 - ignores sequences shorter than 3
+      ---
+      duration_ms: 0.085875
+      type: 'test'
+      ...
+    1..3
+ok 113 - detectChoreography
+  ---
+  duration_ms: 0.829875
+  type: 'suite'
+  ...
+# Subtest: nameDuration
+    # Subtest: buckets durations
+    ok 1 - buckets durations
+      ---
+      duration_ms: 0.340666
+      type: 'test'
+      ...
+    1..1
+ok 114 - nameDuration
+  ---
+  duration_ms: 61.172375
+  type: 'suite'
+  ...
+# (node:89123) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/lib/browser.js is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: resolved URL validation accepts an entirely public answer set
+ok 115 - resolved URL validation accepts an entirely public answer set
+  ---
+  duration_ms: 21.892375
+  type: 'test'
+  ...
+# Subtest: resolved URL validation rejects a hostname resolving to loopback
+ok 116 - resolved URL validation rejects a hostname resolving to loopback
+  ---
+  duration_ms: 0.715042
+  type: 'test'
+  ...
+# Subtest: resolved URL validation rejects mixed public and private DNS answers
+ok 117 - resolved URL validation rejects mixed public and private DNS answers
+  ---
+  duration_ms: 0.21575
+  type: 'test'
+  ...
+# Subtest: URL validation rejects credentials and special-purpose IP literals
+ok 118 - URL validation rejects credentials and special-purpose IP literals
+  ---
+  duration_ms: 1.511916
+  type: 'test'
+  ...
+# Subtest: resolved target pins one of the validated public addresses
+ok 119 - resolved target pins one of the validated public addresses
+  ---
+  duration_ms: 0.238833
+  type: 'test'
+  ...
+# Subtest: safe proxy blocks HTTP requests whose DNS answer is private
+ok 120 - safe proxy blocks HTTP requests whose DNS answer is private
+  ---
+  duration_ms: 33.775458
+  type: 'test'
+  ...
+# Subtest: safe proxy blocks HTTPS CONNECT tunnels whose DNS answer is private
+ok 121 - safe proxy blocks HTTPS CONNECT tunnels whose DNS answer is private
+  ---
+  duration_ms: 18.189
+  type: 'test'
+  ...
+# Subtest: hosted extraction routes resolve DNS before cache or extraction
+ok 122 - hosted extraction routes resolve DNS before cache or extraction
+  ---
+  duration_ms: 2.501875
+  type: 'test'
+  ...
+# Subtest: hosted browser selection ignores Browserless configuration
+ok 123 - hosted browser selection ignores Browserless configuration
+  ---
+  duration_ms: 3.882083
+  type: 'test'
+  ...
+# Subtest: shared browser helper rejects an explicit remote endpoint
+ok 124 - shared browser helper rejects an explicit remote endpoint
+  ---
+  duration_ms: 1.00025
+  type: 'test'
+  ...
+# Subtest: crawler uses the safe proxy and rejects remote browser endpoints
+ok 125 - crawler uses the safe proxy and rejects remote browser endpoints
+  ---
+  duration_ms: 0.85675
+  type: 'test'
+  ...
+# Subtest: pdf renderer
+    # Subtest: writes a non-empty PDF file
+    ok 1 - writes a non-empty PDF file
+      ---
+      duration_ms: 1147.075667
+      type: 'test'
+      ...
+    # Subtest: embeds a JSON file attachment when requested
+    ok 2 - embeds a JSON file attachment when requested
+      ---
+      duration_ms: 800.264
+      type: 'test'
+      ...
+    # Subtest: respects the paper flag
+    ok 3 - respects the paper flag
+      ---
+      duration_ms: 1336.583083
+      type: 'test'
+      ...
+    1..3
+ok 126 - pdf renderer
+  ---
+  duration_ms: 3284.884334
+  type: 'suite'
+  ...
+# Subtest: plugin manifest
+    # Subtest: keeps plugin.json and marketplace.json in sync with package.json
+    ok 1 - keeps plugin.json and marketplace.json in sync with package.json
+      ---
+      duration_ms: 3.70725
+      type: 'test'
+      ...
+    # Subtest: ships a command file for every new command added in this release
+    ok 2 - ships a command file for every new command added in this release
+      ---
+      duration_ms: 1.871792
+      type: 'test'
+      ...
+    # Subtest: describes the new commands in the plugin description
+    ok 3 - describes the new commands in the plugin description
+      ---
+      duration_ms: 2.156458
+      type: 'test'
+      ...
+    1..3
+ok 127 - plugin manifest
+  ---
+  duration_ms: 9.14
+  type: 'suite'
+  ...
+# (node:89126) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/lib/cache.js is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: raw titles, headings, fonts, model prose and anatomy cannot enter agent prompts
+ok 128 - raw titles, headings, fonts, model prose and anatomy cannot enter agent prompts
+  ---
+  duration_ms: 16.282459
+  type: 'test'
+  ...
+# Subtest: complete extraction formats while hostile Markdown fields are omitted
+ok 129 - complete extraction formats while hostile Markdown fields are omitted
+  ---
+  duration_ms: 39.734
+  type: 'test'
+  ...
+# Subtest: MCP omits page text and arbitrary token keys
+ok 130 - MCP omits page text and arbitrary token keys
+  ---
+  duration_ms: 1.01075
+  type: 'test'
+  ...
+# Subtest: MCP retains generated numeric token identifiers and DTCG types
+ok 131 - MCP retains generated numeric token identifiers and DTCG types
+  ---
+  duration_ms: 1.268958
+  type: 'test'
+  ...
+# Subtest: slugForPath
+    # Subtest: treats / and empty as index
+    ok 1 - treats / and empty as index
+      ---
+      duration_ms: 0.7115
+      type: 'test'
+      ...
+    # Subtest: slugifies standard paths
+    ok 2 - slugifies standard paths
+      ---
+      duration_ms: 0.508333
+      type: 'test'
+      ...
+    1..2
+ok 132 - slugForPath
+  ---
+  duration_ms: 16.051958
+  type: 'suite'
+  ...
+# Subtest: reconcileRoutes
+    # Subtest: returns empty-safe output for no routes
+    ok 1 - returns empty-safe output for no routes
+      ---
+      duration_ms: 1.740833
+      type: 'test'
+      ...
+    # Subtest: intersects identical tokens across routes into shared
+    ok 2 - intersects identical tokens across routes into shared
+      ---
+      duration_ms: 1.100417
+      type: 'test'
+      ...
+    # Subtest: emits `added` tokens for a route that has unique tokens
+    ok 3 - emits `added` tokens for a route that has unique tokens
+      ---
+      duration_ms: 0.481833
+      type: 'test'
+      ...
+    # Subtest: emits `changed` when a route overrides an otherwise-shared token value
+    ok 4 - emits `changed` when a route overrides an otherwise-shared token value
+      ---
+      duration_ms: 0.462875
+      type: 'test'
+      ...
+    # Subtest: resolves slug collisions by appending a numeric suffix
+    ok 5 - resolves slug collisions by appending a numeric suffix
+      ---
+      duration_ms: 0.338834
+      type: 'test'
+      ...
+    # Subtest: formatRoutesReport produces readable markdown
+    ok 6 - formatRoutesReport produces readable markdown
+      ---
+      duration_ms: 0.659583
+      type: 'test'
+      ...
+    1..6
+ok 133 - reconcileRoutes
+  ---
+  duration_ms: 5.326333
+  type: 'suite'
+  ...
+# Subtest: scopeForCoverage
+    # Subtest: tags by coverage thresholds
+    ok 1 - tags by coverage thresholds
+      ---
+      duration_ms: 0.583959
+      type: 'test'
+      ...
+    1..1
+ok 134 - scopeForCoverage
+  ---
+  duration_ms: 3.029959
+  type: 'suite'
+  ...
+# Subtest: OKLab colour maths
+    # Subtest: converts and finds near-identical colours close
+    ok 1 - converts and finds near-identical colours close
+      ---
+      duration_ms: 0.692459
+      type: 'test'
+      ...
+    # Subtest: clusters perceptually-identical swatches into one representative
+    ok 2 - clusters perceptually-identical swatches into one representative
+      ---
+      duration_ms: 0.42225
+      type: 'test'
+      ...
+    1..2
+ok 135 - OKLab colour maths
+  ---
+  duration_ms: 1.26825
+  type: 'suite'
+  ...
+# Subtest: synthesizeSite
+    # Subtest: elects a canonical system shaped like a design object
+    ok 1 - elects a canonical system shaped like a design object
+      ---
+      duration_ms: 2.115542
+      type: 'test'
+      ...
+    # Subtest: flags page-local tokens as outliers
+    ok 2 - flags page-local tokens as outliers
+      ---
+      duration_ms: 0.724333
+      type: 'test'
+      ...
+    # Subtest: produces a numeric grade and letter for 2+ pages
+    ok 3 - produces a numeric grade and letter for 2+ pages
+      ---
+      duration_ms: 0.445042
+      type: 'test'
+      ...
+    # Subtest: declines to grade a single page
+    ok 4 - declines to grade a single page
+      ---
+      duration_ms: 4.932833
+      type: 'test'
+      ...
+    # Subtest: ignores pages without a design and tolerates missing fields
+    ok 5 - ignores pages without a design and tolerates missing fields
+      ---
+      duration_ms: 1.142042
+      type: 'test'
+      ...
+    # Subtest: preserves full swatch fields (rgb/contexts) for downstream emitters
+    ok 6 - preserves full swatch fields (rgb/contexts) for downstream emitters
+      ---
+      duration_ms: 0.531792
+      type: 'test'
+      ...
+    # Subtest: is deterministic across runs
+    ok 7 - is deterministic across runs
+      ---
+      duration_ms: 0.516417
+      type: 'test'
+      ...
+    1..7
+ok 136 - synthesizeSite
+  ---
+  duration_ms: 10.781292
+  type: 'suite'
+  ...
+# Subtest: ambient provider keys cannot enable external classification
+ok 137 - ambient provider keys cannot enable external classification
+  ---
+  duration_ms: 0.697833
+  type: 'test'
+  ...
+# Subtest: deriveTokens picks brand/background/text colors into preview vars
+ok 138 - deriveTokens picks brand/background/text colors into preview vars
+  ---
+  duration_ms: 2.278792
+  type: 'test'
+  ...
+# Subtest: deriveTokens computes a readable accent foreground
+ok 139 - deriveTokens computes a readable accent foreground
+  ---
+  duration_ms: 0.342333
+  type: 'test'
+  ...
+# Subtest: deriveTokens falls back cleanly on an empty extraction
+ok 140 - deriveTokens falls back cleanly on an empty extraction
+  ---
+  duration_ms: 0.597334
+  type: 'test'
+  ...
+# Subtest: studioHtml renders the live preview surface and inspector
+ok 141 - studioHtml renders the live preview surface and inspector
+  ---
+  duration_ms: 2.255834
+  type: 'test'
+  ...
+# Subtest: studioHtml escapes the prefix into the title and never breaks the data island
+ok 142 - studioHtml escapes the prefix into the title and never breaks the data island
+  ---
+  duration_ms: 0.465084
+  type: 'test'
+  ...
+# Subtest: studioHtml includes the polish: contrast readouts, edit count, backdrop, type scale
+ok 143 - studioHtml includes the polish: contrast readouts, edit count, backdrop, type scale
+  ---
+  duration_ms: 0.378208
+  type: 'test'
+  ...
+# Subtest: studioHtml composes an intentional specimen from the extraction context
+ok 144 - studioHtml composes an intentional specimen from the extraction context
+  ---
+  duration_ms: 0.265417
+  type: 'test'
+  ...
+# Subtest: deriveDark flips surface to dark and keeps the brand accent legible
+ok 145 - deriveDark flips surface to dark and keeps the brand accent legible
+  ---
+  duration_ms: 0.157958
+  type: 'test'
+  ...
+# Subtest: deriveDark lightens an accent that would vanish on dark
+ok 146 - deriveDark lightens an accent that would vanish on dark
+  ---
+  duration_ms: 0.443125
+  type: 'test'
+  ...
+# Subtest: studioHtml includes the theme (light/dark) control and ships a dark base
+ok 147 - studioHtml includes the theme (light/dark) control and ships a dark base
+  ---
+  duration_ms: 15.674875
+  type: 'test'
+  ...
+# Subtest: contrastRatio matches known WCAG values
+ok 148 - contrastRatio matches known WCAG values
+  ---
+  duration_ms: 0.243667
+  type: 'test'
+  ...
+# Subtest: studioHtml renders a Motion tab with easing curves and runtime choreography
+ok 149 - studioHtml renders a Motion tab with easing curves and runtime choreography
+  ---
+  duration_ms: 2.530458
+  type: 'test'
+  ...
+# Subtest: studioHtml Motion tab degrades to a prompt when no motion tokens
+ok 150 - studioHtml Motion tab degrades to a prompt when no motion tokens
+  ---
+  duration_ms: 0.402542
+  type: 'test'
+  ...
+# Subtest: starts the cast with jpeg + downscale options
+ok 151 - starts the cast with jpeg + downscale options
+  ---
+  duration_ms: 0.927375
+  type: 'test'
+  ...
+# Subtest: acks every frame even when throttled, emits at most one per interval
+ok 152 - acks every frame even when throttled, emits at most one per interval
+  ---
+  duration_ms: 33.2915
+  type: 'test'
+  ...
+# Subtest: stops after maxFrames and ignores later frames
+ok 153 - stops after maxFrames and ignores later frames
+  ---
+  duration_ms: 4.873917
+  type: 'test'
+  ...
+# Subtest: stops after maxDurationMs
+ok 154 - stops after maxDurationMs
+  ---
+  duration_ms: 0.7625
+  type: 'test'
+  ...
+# Subtest: stop() detaches the listener and is idempotent
+ok 155 - stop() detaches the listener and is idempotent
+  ---
+  duration_ms: 0.240958
+  type: 'test'
+  ...
+# Subtest: a startScreencast failure throws and removes the listener
+ok 156 - a startScreencast failure throws and removes the listener
+  ---
+  duration_ms: 0.4395
+  type: 'test'
+  ...
+# Subtest: rejects bad arguments
+ok 157 - rejects bad arguments
+  ---
+  duration_ms: 0.306458
+  type: 'test'
+  ...
+# Subtest: parseColor
+    # Subtest: returns null for null/undefined/empty/none/inherit
+    ok 1 - returns null for null/undefined/empty/none/inherit
+      ---
+      duration_ms: 1.121875
+      type: 'test'
+      ...
+    # Subtest: parses 3-digit hex (\#RGB)
+    ok 2 - parses 3-digit hex (\#RGB)
+      ---
+      duration_ms: 2.185375
+      type: 'test'
+      ...
+    # Subtest: parses 6-digit hex (\#RRGGBB)
+    ok 3 - parses 6-digit hex (\#RRGGBB)
+      ---
+      duration_ms: 0.157083
+      type: 'test'
+      ...
+    # Subtest: parses 8-digit hex (\#RRGGBBAA)
+    ok 4 - parses 8-digit hex (\#RRGGBBAA)
+      ---
+      duration_ms: 0.180417
+      type: 'test'
+      ...
+    # Subtest: parses 4-digit hex (\#RGBA)
+    ok 5 - parses 4-digit hex (\#RGBA)
+      ---
+      duration_ms: 0.111292
+      type: 'test'
+      ...
+    # Subtest: parses rgb(r, g, b)
+    ok 6 - parses rgb(r, g, b)
+      ---
+      duration_ms: 0.206959
+      type: 'test'
+      ...
+    # Subtest: parses rgba(r, g, b, a)
+    ok 7 - parses rgba(r, g, b, a)
+      ---
+      duration_ms: 0.273917
+      type: 'test'
+      ...
+    # Subtest: parses hsl(h, s%, l%)
+    ok 8 - parses hsl(h, s%, l%)
+      ---
+      duration_ms: 0.498166
+      type: 'test'
+      ...
+    # Subtest: parses hsla(h, s%, l%, a)
+    ok 9 - parses hsla(h, s%, l%, a)
+      ---
+      duration_ms: 0.505
+      type: 'test'
+      ...
+    # Subtest: parses modern hsl syntax: hsl(210 50% 40%)
+    ok 10 - parses modern hsl syntax: hsl(210 50% 40%)
+      ---
+      duration_ms: 0.735625
+      type: 'test'
+      ...
+    # Subtest: parses modern hsl syntax with alpha: hsl(210 50% 40% / 0.5)
+    ok 11 - parses modern hsl syntax with alpha: hsl(210 50% 40% / 0.5)
+      ---
+      duration_ms: 0.258667
+      type: 'test'
+      ...
+    # Subtest: parses oklch(L C H)
+    ok 12 - parses oklch(L C H)
+      ---
+      duration_ms: 0.470375
+      type: 'test'
+      ...
+    # Subtest: parses oklch with alpha
+    ok 13 - parses oklch with alpha
+      ---
+      duration_ms: 0.288667
+      type: 'test'
+      ...
+    # Subtest: parses oklab(L a b)
+    ok 14 - parses oklab(L a b)
+      ---
+      duration_ms: 0.321792
+      type: 'test'
+      ...
+    # Subtest: parses color-mix(in srgb, ...)
+    ok 15 - parses color-mix(in srgb, ...)
+      ---
+      duration_ms: 0.378333
+      type: 'test'
+      ...
+    # Subtest: parses named colors
+    ok 16 - parses named colors
+      ---
+      duration_ms: 0.220958
+      type: 'test'
+      ...
+    # Subtest: parses named color white
+    ok 17 - parses named color white
+      ---
+      duration_ms: 0.081417
+      type: 'test'
+      ...
+    # Subtest: parses named colors case-insensitively
+    ok 18 - parses named colors case-insensitively
+      ---
+      duration_ms: 0.061458
+      type: 'test'
+      ...
+    # Subtest: returns null for unrecognized strings
+    ok 19 - returns null for unrecognized strings
+      ---
+      duration_ms: 0.29725
+      type: 'test'
+      ...
+    1..19
+ok 158 - parseColor
+  ---
+  duration_ms: 10.521792
+  type: 'suite'
+  ...
+# Subtest: rgbToHex
+    # Subtest: converts black
+    ok 1 - converts black
+      ---
+      duration_ms: 0.126084
+      type: 'test'
+      ...
+    # Subtest: converts white
+    ok 2 - converts white
+      ---
+      duration_ms: 0.052166
+      type: 'test'
+      ...
+    # Subtest: converts a mid color
+    ok 3 - converts a mid color
+      ---
+      duration_ms: 0.051875
+      type: 'test'
+      ...
+    1..3
+ok 159 - rgbToHex
+  ---
+  duration_ms: 0.318041
+  type: 'suite'
+  ...
+# Subtest: rgbToHsl
+    # Subtest: converts pure red
+    ok 1 - converts pure red
+      ---
+      duration_ms: 0.148292
+      type: 'test'
+      ...
+    # Subtest: converts pure green (CSS green = 0,128,0)
+    ok 2 - converts pure green (CSS green = 0,128,0)
+      ---
+      duration_ms: 0.054625
+      type: 'test'
+      ...
+    # Subtest: converts gray (achromatic)
+    ok 3 - converts gray (achromatic)
+      ---
+      duration_ms: 0.05125
+      type: 'test'
+      ...
+    # Subtest: converts white
+    ok 4 - converts white
+      ---
+      duration_ms: 0.048417
+      type: 'test'
+      ...
+    1..4
+ok 160 - rgbToHsl
+  ---
+  duration_ms: 0.383542
+  type: 'suite'
+  ...
+# Subtest: colorDistance
+    # Subtest: returns 0 for identical colors
+    ok 1 - returns 0 for identical colors
+      ---
+      duration_ms: 0.098042
+      type: 'test'
+      ...
+    # Subtest: returns correct Euclidean distance
+    ok 2 - returns correct Euclidean distance
+      ---
+      duration_ms: 0.0545
+      type: 'test'
+      ...
+    # Subtest: returns small distance for similar colors
+    ok 3 - returns small distance for similar colors
+      ---
+      duration_ms: 0.050416
+      type: 'test'
+      ...
+    1..3
+ok 161 - colorDistance
+  ---
+  duration_ms: 0.262625
+  type: 'suite'
+  ...
+# Subtest: clusterColors
+    # Subtest: groups similar colors together
+    ok 1 - groups similar colors together
+      ---
+      duration_ms: 1.406917
+      type: 'test'
+      ...
+    # Subtest: returns each color as its own cluster when threshold is 0
+    ok 2 - returns each color as its own cluster when threshold is 0
+      ---
+      duration_ms: 0.151042
+      type: 'test'
+      ...
+    # Subtest: sorts clusters by count descending
+    ok 3 - sorts clusters by count descending
+      ---
+      duration_ms: 0.101708
+      type: 'test'
+      ...
+    # Subtest: uses the most-used member as the cluster representative (not first-encountered)
+    ok 4 - uses the most-used member as the cluster representative (not first-encountered)
+      ---
+      duration_ms: 0.214167
+      type: 'test'
+      ...
+    1..4
+ok 162 - clusterColors
+  ---
+  duration_ms: 2.005833
+  type: 'suite'
+  ...
+# Subtest: clusterValues
+    # Subtest: groups nearby numbers
+    ok 1 - groups nearby numbers
+      ---
+      duration_ms: 0.1745
+      type: 'test'
+      ...
+    # Subtest: returns all values when threshold is 0
+    ok 2 - returns all values when threshold is 0
+      ---
+      duration_ms: 0.148
+      type: 'test'
+      ...
+    1..2
+ok 163 - clusterValues
+  ---
+  duration_ms: 0.386417
+  type: 'suite'
+  ...
+# Subtest: parseCSSValue
+    # Subtest: parses px values
+    ok 1 - parses px values
+      ---
+      duration_ms: 0.375917
+      type: 'test'
+      ...
+    # Subtest: parses rem values
+    ok 2 - parses rem values
+      ---
+      duration_ms: 0.164625
+      type: 'test'
+      ...
+    # Subtest: parses em values
+    ok 3 - parses em values
+      ---
+      duration_ms: 0.072834
+      type: 'test'
+      ...
+    # Subtest: parses percentage values
+    ok 4 - parses percentage values
+      ---
+      duration_ms: 0.0765
+      type: 'test'
+      ...
+    # Subtest: parses unitless numbers
+    ok 5 - parses unitless numbers
+      ---
+      duration_ms: 0.06225
+      type: 'test'
+      ...
+    # Subtest: returns null for normal/auto/none
+    ok 6 - returns null for normal/auto/none
+      ---
+      duration_ms: 0.05725
+      type: 'test'
+      ...
+    # Subtest: returns null for null/undefined
+    ok 7 - returns null for null/undefined
+      ---
+      duration_ms: 0.052291
+      type: 'test'
+      ...
+    1..7
+ok 164 - parseCSSValue
+  ---
+  duration_ms: 1.01475
+  type: 'suite'
+  ...
+# Subtest: detectScale
+    # Subtest: detects a base unit for multiples-of-4 scale
+    ok 1 - detects a base unit for multiples-of-4 scale
+      ---
+      duration_ms: 0.212584
+      type: 'test'
+      ...
+    # Subtest: detects a base unit for multiples-of-8 scale
+    ok 2 - detects a base unit for multiples-of-8 scale
+      ---
+      duration_ms: 1.459875
+      type: 'test'
+      ...
+    # Subtest: returns null base for fewer than 3 values
+    ok 3 - returns null base for fewer than 3 values
+      ---
+      duration_ms: 0.110458
+      type: 'test'
+      ...
+    # Subtest: returns null base for arbitrary values
+    ok 4 - returns null base for arbitrary values
+      ---
+      duration_ms: 0.065041
+      type: 'test'
+      ...
+    # Subtest: detects base-5 scales (Bootstrap-style)
+    ok 5 - detects base-5 scales (Bootstrap-style)
+      ---
+      duration_ms: 0.05875
+      type: 'test'
+      ...
+    # Subtest: detects base-6 scales
+    ok 6 - detects base-6 scales
+      ---
+      duration_ms: 0.052209
+      type: 'test'
+      ...
+    # Subtest: still prefers base-8 when both 4 and 8 fit (Tailwind-leaning bonus)
+    ok 7 - still prefers base-8 when both 4 and 8 fit (Tailwind-leaning bonus)
+      ---
+      duration_ms: 0.047833
+      type: 'test'
+      ...
+    1..7
+ok 165 - detectScale
+  ---
+  duration_ms: 2.136792
+  type: 'suite'
+  ...
+# Subtest: nameFromUrl
+    # Subtest: extracts hostname and makes it safe
+    ok 1 - extracts hostname and makes it safe
+      ---
+      duration_ms: 0.244083
+      type: 'test'
+      ...
+    # Subtest: strips www prefix
+    ok 2 - strips www prefix
+      ---
+      duration_ms: 0.092167
+      type: 'test'
+      ...
+    # Subtest: returns unknown-site for invalid URLs
+    ok 3 - returns unknown-site for invalid URLs
+      ---
+      duration_ms: 0.069667
+      type: 'test'
+      ...
+    # Subtest: handles complex domains
+    ok 4 - handles complex domains
+      ---
+      duration_ms: 0.0525
+      type: 'test'
+      ...
+    1..4
+ok 166 - nameFromUrl
+  ---
+  duration_ms: 0.534541
+  type: 'suite'
+  ...
+# Subtest: isSaturated
+    # Subtest: returns true for a saturated color
+    ok 1 - returns true for a saturated color
+      ---
+      duration_ms: 0.10125
+      type: 'test'
+      ...
+    # Subtest: returns false for gray
+    ok 2 - returns false for gray
+      ---
+      duration_ms: 0.047875
+      type: 'test'
+      ...
+    # Subtest: returns false for white
+    ok 3 - returns false for white
+      ---
+      duration_ms: 0.048417
+      type: 'test'
+      ...
+    # Subtest: returns false for black
+    ok 4 - returns false for black
+      ---
+      duration_ms: 0.046708
+      type: 'test'
+      ...
+    1..4
+ok 167 - isSaturated
+  ---
+  duration_ms: 0.32775
+  type: 'suite'
+  ...
+# Subtest: safeName
+    # Subtest: replaces special characters with hyphens
+    ok 1 - replaces special characters with hyphens
+      ---
+      duration_ms: 0.069542
+      type: 'test'
+      ...
+    # Subtest: collapses multiple hyphens
+    ok 2 - collapses multiple hyphens
+      ---
+      duration_ms: 0.043667
+      type: 'test'
+      ...
+    # Subtest: trims leading/trailing hyphens
+    ok 3 - trims leading/trailing hyphens
+      ---
+      duration_ms: 0.0425
+      type: 'test'
+      ...
+    1..3
+ok 168 - safeName
+  ---
+  duration_ms: 0.219208
+  type: 'suite'
+  ...
+# Subtest: remToPx
+    # Subtest: converts with default base 16
+    ok 1 - converts with default base 16
+      ---
+      duration_ms: 0.070792
+      type: 'test'
+      ...
+    # Subtest: converts with custom base
+    ok 2 - converts with custom base
+      ---
+      duration_ms: 0.042541
+      type: 'test'
+      ...
+    1..2
+ok 169 - remToPx
+  ---
+  duration_ms: 0.163208
+  type: 'suite'
+  ...
+# Subtest: pxToRem
+    # Subtest: converts with default base 16
+    ok 1 - converts with default base 16
+      ---
+      duration_ms: 0.078125
+      type: 'test'
+      ...
+    # Subtest: converts with custom base
+    ok 2 - converts with custom base
+      ---
+      duration_ms: 0.044084
+      type: 'test'
+      ...
+    1..2
+ok 170 - pxToRem
+  ---
+  duration_ms: 0.166875
+  type: 'suite'
+  ...
+# Subtest: v10: page intent
+    # Subtest: classifies /pricing as pricing with high confidence
+    ok 1 - classifies /pricing as pricing with high confidence
+      ---
+      duration_ms: 3.306333
+      type: 'test'
+      ...
+    # Subtest: classifies / with hero+features as landing
+    ok 2 - classifies / with hero+features as landing
+      ---
+      duration_ms: 1.221792
+      type: 'test'
+      ...
+    # Subtest: classifies docs URL as docs
+    ok 3 - classifies docs URL as docs
+      ---
+      duration_ms: 0.246875
+      type: 'test'
+      ...
+    1..3
+ok 171 - v10: page intent
+  ---
+  duration_ms: 5.631459
+  type: 'suite'
+  ...
+# Subtest: v10: section roles
+    # Subtest: labels hero/features/pricing/footer
+    ok 1 - labels hero/features/pricing/footer
+      ---
+      duration_ms: 1.876875
+      type: 'test'
+      ...
+    1..1
+ok 172 - v10: section roles
+  ---
+  duration_ms: 2.100541
+  type: 'suite'
+  ...
+# Subtest: v10: component library detection
+    # Subtest: detects shadcn via shadcn css tokens
+    ok 1 - detects shadcn via shadcn css tokens
+      ---
+      duration_ms: 1.93675
+      type: 'test'
+      ...
+    # Subtest: detects MUI via Mui*-root classes
+    ok 2 - detects MUI via Mui*-root classes
+      ---
+      duration_ms: 0.53525
+      type: 'test'
+      ...
+    # Subtest: falls back to tailwindcss when only utility density present
+    ok 3 - falls back to tailwindcss when only utility density present
+      ---
+      duration_ms: 0.54775
+      type: 'test'
+      ...
+    1..3
+ok 173 - v10: component library detection
+  ---
+  duration_ms: 3.399125
+  type: 'suite'
+  ...
+# Subtest: v10: material language
+    # Subtest: flags brutalist via hard shadows + sharp corners + saturation
+    ok 1 - flags brutalist via hard shadows + sharp corners + saturation
+      ---
+      duration_ms: 1.065375
+      type: 'test'
+      ...
+    # Subtest: flags flat when no shadows and simple radii
+    ok 2 - flags flat when no shadows and simple radii
+      ---
+      duration_ms: 0.370917
+      type: 'test'
+      ...
+    1..2
+ok 174 - v10: material language
+  ---
+  duration_ms: 1.800875
+  type: 'suite'
+  ...
+# Subtest: v10: imagery style
+    # Subtest: flags flat-illustration when svg dominant
+    ok 1 - flags flat-illustration when svg dominant
+      ---
+      duration_ms: 1.187916
+      type: 'test'
+      ...
+    # Subtest: flags photography when raster + photo filename hints
+    ok 2 - flags photography when raster + photo filename hints
+      ---
+      duration_ms: 0.144375
+      type: 'test'
+      ...
+    1..2
+ok 175 - v10: imagery style
+  ---
+  duration_ms: 1.403875
+  type: 'suite'
+  ...
+# Subtest: v10: multipage discovery
+    # Subtest: picks canonical pages from nav links by URL + anchor
+    ok 1 - picks canonical pages from nav links by URL + anchor
+      ---
+      duration_ms: 1.496459
+      type: 'test'
+      ...
+    # Subtest: computes cross-page consistency
+    ok 2 - computes cross-page consistency
+      ---
+      duration_ms: 0.508625
+      type: 'test'
+      ...
+    1..2
+ok 176 - v10: multipage discovery
+  ---
+  duration_ms: 2.066833
+  type: 'suite'
+  ...
+# Subtest: v10: prompt pack
+    # Subtest: builds prompts with inlined tokens
+    ok 1 - builds prompts with inlined tokens
+      ---
+      duration_ms: 2.355542
+      type: 'test'
+      ...
+    # Subtest: v0 prompt is non-empty even with a minimal design
+    ok 2 - v0 prompt is non-empty even with a minimal design
+      ---
+      duration_ms: 0.136417
+      type: 'test'
+      ...
+    1..2
+ok 177 - v10: prompt pack
+  ---
+  duration_ms: 2.574542
+  type: 'suite'
+  ...
+# Subtest: v10.1: component screenshots module
+    # Subtest: exports the capture function
+    ok 1 - exports the capture function
+      ---
+      duration_ms: 0.939292
+      type: 'test'
+      ...
+    # Subtest: accepts two arguments (url, outDir) — no throw on inspection
+    ok 2 - accepts two arguments (url, outDir) — no throw on inspection
+      ---
+      duration_ms: 0.112625
+      type: 'test'
+      ...
+    1..2
+ok 178 - v10.1: component screenshots module
+  ---
+  duration_ms: 2.493125
+  type: 'suite'
+  ...
+# Subtest: v10.2: dark-mode pairing
+    # Subtest: returns unavailable when no darkMode data was captured
+    ok 1 - returns unavailable when no darkMode data was captured
+      ---
+      duration_ms: 0.7435
+      type: 'test'
+      ...
+    # Subtest: pairs role colors between light and dark
+    ok 2 - pairs role colors between light and dark
+      ---
+      duration_ms: 0.482834
+      type: 'test'
+      ...
+    # Subtest: flags tokens missing from the dark pass
+    ok 3 - flags tokens missing from the dark pass
+      ---
+      duration_ms: 0.14925
+      type: 'test'
+      ...
+    1..3
+ok 179 - v10.2: dark-mode pairing
+  ---
+  duration_ms: 3.076042
+  type: 'suite'
+  ...
+# Subtest: v10.2: responsive screenshots module
+    # Subtest: exports the capture function
+    ok 1 - exports the capture function
+      ---
+      duration_ms: 0.096875
+      type: 'test'
+      ...
+    1..1
+ok 180 - v10.2: responsive screenshots module
+  ---
+  duration_ms: 0.28775
+  type: 'suite'
+  ...
+# Subtest: v10.3: SEO extractor
+    # Subtest: picks up OG + Twitter + description
+    ok 1 - picks up OG + Twitter + description
+      ---
+      duration_ms: 0.752583
+      type: 'test'
+      ...
+    # Subtest: tolerates missing metas / scripts
+    ok 2 - tolerates missing metas / scripts
+      ---
+      duration_ms: 0.127
+      type: 'test'
+      ...
+    1..2
+ok 181 - v10.3: SEO extractor
+  ---
+  duration_ms: 1.752333
+  type: 'suite'
+  ...
+# Subtest: v10.3: perf module
+    # Subtest: exports the capture function
+    ok 1 - exports the capture function
+      ---
+      duration_ms: 0.116666
+      type: 'test'
+      ...
+    # Subtest: returns a preloadCount from stack
+    ok 2 - returns a preloadCount from stack
+      ---
+      duration_ms: 0.2495
+      type: 'test'
+      ...
+    1..2
+ok 182 - v10.3: perf module
+  ---
+  duration_ms: 0.490959
+  type: 'suite'
+  ...
+# Subtest: v10.4: icon system
+    # Subtest: flags Lucide from 1.5 stroke + 24px grid + stroke-dominant
+    ok 1 - flags Lucide from 1.5 stroke + 24px grid + stroke-dominant
+      ---
+      duration_ms: 1.729
+      type: 'test'
+      ...
+    # Subtest: returns unknown on empty
+    ok 2 - returns unknown on empty
+      ---
+      duration_ms: 0.152042
+      type: 'test'
+      ...
+    1..2
+ok 183 - v10.4: icon system
+  ---
+  duration_ms: 2.960416
+  type: 'suite'
+  ...
+# Subtest: v10.4: background patterns
+    # Subtest: flags gradient-mesh when multiple radial gradients stack
+    ok 1 - flags gradient-mesh when multiple radial gradients stack
+      ---
+      duration_ms: 0.588583
+      type: 'test'
+      ...
+    # Subtest: returns plain when no backgrounds
+    ok 2 - returns plain when no backgrounds
+      ---
+      duration_ms: 0.116459
+      type: 'test'
+      ...
+    1..2
+ok 184 - v10.4: background patterns
+  ---
+  duration_ms: 0.938541
+  type: 'suite'
+  ...
+# Subtest: v10.4: stack intel
+    # Subtest: detects Shopify + GA + Optimizely
+    ok 1 - detects Shopify + GA + Optimizely
+      ---
+      duration_ms: 1.15375
+      type: 'test'
+      ...
+    # Subtest: returns empties on clean sites
+    ok 2 - returns empties on clean sites
+      ---
+      duration_ms: 2.274375
+      type: 'test'
+      ...
+    1..2
+ok 185 - v10.4: stack intel
+  ---
+  duration_ms: 3.990208
+  type: 'suite'
+  ...
+# Subtest: v10.5: form states
+    # Subtest: detects skeleton-loading + spinner + empty-state + error-state from class samples
+    ok 1 - detects skeleton-loading + spinner + empty-state + error-state from class samples
+      ---
+      duration_ms: 1.62325
+      type: 'test'
+      ...
+    # Subtest: detects modal containers from section class names
+    ok 2 - detects modal containers from section class names
+      ---
+      duration_ms: 6.053917
+      type: 'test'
+      ...
+    # Subtest: detects sonner toast library
+    ok 3 - detects sonner toast library
+      ---
+      duration_ms: 0.276625
+      type: 'test'
+      ...
+    # Subtest: summarises form input candidates
+    ok 4 - summarises form input candidates
+      ---
+      duration_ms: 1.649708
+      type: 'test'
+      ...
+    1..4
+ok 186 - v10.5: form states
+  ---
+  duration_ms: 10.665125
+  type: 'suite'
+  ...
+# Subtest: v9: motion extractor
+    # Subtest: buckets durations into named tokens
+    ok 1 - buckets durations into named tokens
+      ---
+      duration_ms: 3.515667
+      type: 'test'
+      ...
+    # Subtest: detects scroll-linked signals
+    ok 2 - detects scroll-linked signals
+      ---
+      duration_ms: 0.598209
+      type: 'test'
+      ...
+    # Subtest: emits DTCG-ish motion tokens JSON
+    ok 3 - emits DTCG-ish motion tokens JSON
+      ---
+      duration_ms: 0.427917
+      type: 'test'
+      ...
+    1..3
+ok 187 - v9: motion extractor
+  ---
+  duration_ms: 6.003333
+  type: 'suite'
+  ...
+# Subtest: v9: component anatomy
+    # Subtest: collapses instances to variant × size matrix
+    ok 1 - collapses instances to variant × size matrix
+      ---
+      duration_ms: 0.660708
+      type: 'test'
+      ...
+    # Subtest: formats typed React stubs
+    ok 2 - formats typed React stubs
+      ---
+      duration_ms: 0.558875
+      type: 'test'
+      ...
+    1..2
+ok 188 - v9: component anatomy
+  ---
+  duration_ms: 1.717959
+  type: 'suite'
+  ...
+# Subtest: v9: voice extractor
+    # Subtest: picks tone + top CTA verbs
+    ok 1 - picks tone + top CTA verbs
+      ---
+      duration_ms: 1.82525
+      type: 'test'
+      ...
+    1..1
+ok 189 - v9: voice extractor
+  ---
+  duration_ms: 2.226958
+  type: 'suite'
+  ...
+# Subtest: v9: token lint
+    # Subtest: flags color sprawl + contrast fails in a flat token file
+    ok 1 - flags color sprawl + contrast fails in a flat token file
+      ---
+      duration_ms: 3.601417
+      type: 'test'
+      ...
+    1..1
+ok 190 - v9: token lint
+  ---
+  duration_ms: 4.077291
+  type: 'suite'
+  ...
+# Subtest: issue \#110: prefers-color-scheme dark detection
+    # Subtest: emulates prefers-color-scheme: dark on a fake page and extracts colours
+    ok 1 - emulates prefers-color-scheme: dark on a fake page and extracts colours
+      ---
+      duration_ms: 2.954834
+      type: 'test'
+      ...
+    # Subtest: returns null for a page without emulateMedia support
+    ok 2 - returns null for a page without emulateMedia support
+      ---
+      duration_ms: 0.23025
+      type: 'test'
+      ...
+    # Subtest: prefers the class-based dark colours but fills gaps from the media pass
+    ok 3 - prefers the class-based dark colours but fills gaps from the media pass
+      ---
+      duration_ms: 0.875709
+      type: 'test'
+      ...
+    # Subtest: falls back to the media pass when the class-based dark set is empty
+    ok 4 - falls back to the media pass when the class-based dark set is empty
+      ---
+      duration_ms: 0.127167
+      type: 'test'
+      ...
+    # Subtest: restores prefers-color-scheme to light after a successful capture
+    ok 5 - restores prefers-color-scheme to light after a successful capture
+      ---
+      duration_ms: 0.384125
+      type: 'test'
+      ...
+    # Subtest: restores prefers-color-scheme to light even if the page evaluate throws
+    ok 6 - restores prefers-color-scheme to light even if the page evaluate throws
+      ---
+      duration_ms: 0.144416
+      type: 'test'
+      ...
+    1..6
+ok 191 - issue \#110: prefers-color-scheme dark detection
+  ---
+  duration_ms: 4.89575
+  type: 'suite'
+  ...
+# Subtest: verify · tokensFromDesign
+    # Subtest: flattens the design into snap-ready token sets
+    ok 1 - flattens the design into snap-ready token sets
+      ---
+      duration_ms: 1.880666
+      type: 'test'
+      ...
+    # Subtest: degrades on an empty design without throwing
+    ok 2 - degrades on an empty design without throwing
+      ---
+      duration_ms: 0.237792
+      type: 'test'
+      ...
+    1..2
+ok 192 - verify · tokensFromDesign
+  ---
+  duration_ms: 3.147916
+  type: 'suite'
+  ...
+# Subtest: verify · restyle snapping
+    # Subtest: snaps a near colour to the closest palette token by ΔE
+    ok 1 - snaps a near colour to the closest palette token by ΔE
+      ---
+      duration_ms: 8.966958
+      type: 'test'
+      ...
+    # Subtest: treats fully transparent as transparent (not a palette snap)
+    ok 2 - treats fully transparent as transparent (not a palette snap)
+      ---
+      duration_ms: 3.398
+      type: 'test'
+      ...
+    # Subtest: deltaE is ~0 for identical colours and large for opposites
+    ok 3 - deltaE is ~0 for identical colours and large for opposites
+      ---
+      duration_ms: 19.870334
+      type: 'test'
+      ...
+    # Subtest: snaps a number to the nearest scale value
+    ok 4 - snaps a number to the nearest scale value
+      ---
+      duration_ms: 0.199625
+      type: 'test'
+      ...
+    # Subtest: flags unmapped when the scale is empty (honest loss, not silent keep)
+    ok 5 - flags unmapped when the scale is empty (honest loss, not silent keep)
+      ---
+      duration_ms: 0.276625
+      type: 'test'
+      ...
+    # Subtest: nearestShadow picks by blur and maps "none" cleanly
+    ok 6 - nearestShadow picks by blur and maps "none" cleanly
+      ---
+      duration_ms: 12.873583
+      type: 'test'
+      ...
+    # Subtest: snapFamily keeps a known family and flags an unknown one
+    ok 7 - snapFamily keeps a known family and flags an unknown one
+      ---
+      duration_ms: 3.9805
+      type: 'test'
+      ...
+    # Subtest: restyleComponent produces inline styles + an explained delta per property
+    ok 8 - restyleComponent produces inline styles + an explained delta per property
+      ---
+      duration_ms: 1.297334
+      type: 'test'
+      ...
+    1..8
+ok 193 - verify · restyle snapping
+  ---
+  duration_ms: 51.472625
+  type: 'suite'
+  ...
+# Subtest: verify · pixel diff
+    # Subtest: identical images → ratio 0 → fidelity 100
+    ok 1 - identical images → ratio 0 → fidelity 100
+      ---
+      duration_ms: 53.000333
+      type: 'test'
+      ...
+    # Subtest: opposite images → high ratio → low fidelity
+    ok 2 - opposite images → high ratio → low fidelity
+      ---
+      duration_ms: 6.21025
+      type: 'test'
+      ...
+    # Subtest: size mismatch is letterboxed (not stretched) and counts the margin as loss
+    ok 3 - size mismatch is letterboxed (not stretched) and counts the margin as loss
+      ---
+      duration_ms: 9.391125
+      type: 'test'
+      ...
+    1..3
+ok 194 - verify · pixel diff
+  ---
+  duration_ms: 68.983333
+  type: 'suite'
+  ...
+# Subtest: color-gamut
+    # Subtest: converts oklch(1 0 0) to white
+    ok 1 - converts oklch(1 0 0) to white
+      ---
+      duration_ms: 1.455167
+      type: 'test'
+      ...
+    # Subtest: converts oklch(0 0 0) to black
+    ok 2 - converts oklch(0 0 0) to black
+      ---
+      duration_ms: 0.238
+      type: 'test'
+      ...
+    # Subtest: converts a mid-chroma oklch to approximate sRGB
+    ok 3 - converts a mid-chroma oklch to approximate sRGB
+      ---
+      duration_ms: 0.369375
+      type: 'test'
+      ...
+    # Subtest: parses oklab values with percentages
+    ok 4 - parses oklab values with percentages
+      ---
+      duration_ms: 0.209917
+      type: 'test'
+      ...
+    # Subtest: rgbToHex clamps and formats correctly
+    ok 5 - rgbToHex clamps and formats correctly
+      ---
+      duration_ms: 0.108417
+      type: 'test'
+      ...
+    1..5
+ok 195 - color-gamut
+  ---
+  duration_ms: 3.678666
+  type: 'suite'
+  ...
+# Subtest: extractWideGamut
+    # Subtest: returns zeros for empty input
+    ok 1 - returns zeros for empty input
+      ---
+      duration_ms: 0.316166
+      type: 'test'
+      ...
+    # Subtest: buckets colors by type and emits hex for oklch samples
+    ok 2 - buckets colors by type and emits hex for oklch samples
+      ---
+      duration_ms: 0.317541
+      type: 'test'
+      ...
+    1..2
+ok 196 - extractWideGamut
+  ---
+  duration_ms: 1.020417
+  type: 'suite'
+  ...
+# Subtest: extractTokenSources
+    # Subtest: returns an array of token→sourceUrl entries based on first matching element
+    ok 1 - returns an array of token→sourceUrl entries based on first matching element
+      ---
+      duration_ms: 0.876625
+      type: 'test'
+      ...
+    1..1
+ok 197 - extractTokenSources
+  ---
+  duration_ms: 1.070583
+  type: 'suite'
+  ...
+1..197
+# tests 646
+# suites 151
+# pass 646
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 26139.526041

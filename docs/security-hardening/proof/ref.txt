@@ -1,0 +1,4 @@
+Branch: hardened
+Initial clean HEAD: aa27bd11cab95d5235ba90b5c82e6c9baddceb7e
+Reviewed implementation ref: 68330fa01fcdd9a9de22df3f60397f485b3ed490
+No push, publish, PR or deployment performed.

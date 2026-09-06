@@ -1,0 +1,11 @@
+7128a51 fix: restrict agent prompts to measured values and closed vocabularies
+ef22beb fix: disable unapproved public storage and model exports
+ca6f211 fix: disable privileged review bot and remove unsafe editor extension
+58a186d fix: cover Markdown and MCP trust boundaries without dropping schema
+53c860a fix: preserve bounded generated token identifiers in MCP
+1f7a264 fix: pin runtime supply chain and drop container root privileges
+22482a3 fix: pin website dependencies and remove unused Blob client
+1c38ec4 fix: lock companion dependency resolution without running hooks
+edbc355 docs: define hardened data flows and local installation boundaries
+0ec70bc fix: patch vulnerable Raycast tooling dependencies
+68330fa fix: retire mutable companion setup before any checkout changes

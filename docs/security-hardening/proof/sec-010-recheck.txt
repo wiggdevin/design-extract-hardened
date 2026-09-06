@@ -1,0 +1,49 @@
+$ node --test tests/dependency-security.test.js
+TAP version 13
+# Subtest: qs enforces bracket comma array limits
+ok 1 - qs enforces bracket comma array limits
+  ---
+  duration_ms: 0.860959
+  type: 'test'
+  ...
+# Subtest: qs round-trip cannot call attacker-controlled isBuffer
+ok 2 - qs round-trip cannot call attacker-controlled isBuffer
+  ---
+  duration_ms: 1.002208
+  type: 'test'
+  ...
+# Subtest: root install has no lifecycle hook and all packages have immutable registry integrity
+ok 3 - root install has no lifecycle hook and all packages have immutable registry integrity
+  ---
+  duration_ms: 0.922625
+  type: 'test'
+  ...
+# Subtest: workflow actions use immutable commits and no mutable package execution
+ok 4 - workflow actions use immutable commits and no mutable package execution
+  ---
+  duration_ms: 0.561375
+  type: 'test'
+  ...
+# Subtest: Smithery uses a pinned image, checked-in code and non-root runtime
+ok 5 - Smithery uses a pinned image, checked-in code and non-root runtime
+  ---
+  duration_ms: 0.164458
+  type: 'test'
+  ...
+# Subtest: Raycast locks patched minimatch and esbuild without automatic npx execution
+ok 6 - Raycast locks patched minimatch and esbuild without automatic npx execution
+  ---
+  duration_ms: 0.929333
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 67.71025
+
+EXIT_CODE=0

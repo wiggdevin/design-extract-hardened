@@ -1,0 +1,29 @@
+$ node --test tests/integration-security.test.js
+TAP version 13
+# (node:65156) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/lib/cache.js is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: comment events and secrets cannot invoke the external bot
+ok 1 - comment events and secrets cannot invoke the external bot
+  ---
+  duration_ms: 1.390334
+  type: 'test'
+  ...
+# Subtest: Windows shell integration and prebuilt VSIX are absent
+ok 2 - Windows shell integration and prebuilt VSIX are absent
+  ---
+  duration_ms: 0.139041
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 54.735417
+
+EXIT_CODE=0

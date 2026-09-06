@@ -1,0 +1,65 @@
+$ node --test tests/integration-security.test.js tests/dependency-security.test.js
+TAP version 13
+# Subtest: qs enforces bracket comma array limits
+ok 1 - qs enforces bracket comma array limits
+  ---
+  duration_ms: 0.841
+  type: 'test'
+  ...
+# Subtest: qs round-trip cannot call attacker-controlled isBuffer
+ok 2 - qs round-trip cannot call attacker-controlled isBuffer
+  ---
+  duration_ms: 0.86375
+  type: 'test'
+  ...
+# Subtest: root install has no lifecycle hook and all packages have immutable registry integrity
+ok 3 - root install has no lifecycle hook and all packages have immutable registry integrity
+  ---
+  duration_ms: 0.942708
+  type: 'test'
+  ...
+# Subtest: workflow actions use immutable commits and no mutable package execution
+ok 4 - workflow actions use immutable commits and no mutable package execution
+  ---
+  duration_ms: 0.537791
+  type: 'test'
+  ...
+# Subtest: Smithery uses a pinned image, checked-in code and non-root runtime
+ok 5 - Smithery uses a pinned image, checked-in code and non-root runtime
+  ---
+  duration_ms: 0.1535
+  type: 'test'
+  ...
+# Subtest: Raycast locks patched minimatch and esbuild without automatic npx execution
+ok 6 - Raycast locks patched minimatch and esbuild without automatic npx execution
+  ---
+  duration_ms: 0.88325
+  type: 'test'
+  ...
+# (node:65151) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/lib/cache.js is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: comment events and secrets cannot invoke the external bot
+ok 7 - comment events and secrets cannot invoke the external bot
+  ---
+  duration_ms: 0.633209
+  type: 'test'
+  ...
+# Subtest: Windows shell integration and prebuilt VSIX are absent
+ok 8 - Windows shell integration and prebuilt VSIX are absent
+  ---
+  duration_ms: 0.52275
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 66.273709
+
+EXIT_CODE=0

@@ -1,0 +1,1498 @@
+{
+  "schema_version": "1.0",
+  "ref": "68330fa01fcdd9a9de22df3f60397f485b3ed490",
+  "base": {
+    "status": "AVAILABLE",
+    "value": "aa27bd11cab95d5235ba90b5c82e6c9baddceb7e",
+    "unavailable_reason": null,
+    "evidence": [
+      {
+        "class": "COMMAND",
+        "citation": "proof/ref.txt:1"
+      }
+    ]
+  },
+  "scope": {
+    "changed_paths": [
+      ".github/workflows/codeql.yml",
+      ".github/workflows/dependabot-auto-merge.yml",
+      ".github/workflows/manavarya-bot.yml",
+      ".github/workflows/test.yml",
+      ".npmrc",
+      "README.md",
+      "SECURITY.md",
+      "github-action/action.yml",
+      "marketplace/SUBMISSION-PLAYBOOK.md",
+      "marketplace/vscode-listing.md",
+      "package-lock.json",
+      "package.json",
+      "raycast-extension/.npmrc",
+      "raycast-extension/README.md",
+      "raycast-extension/package-lock.json",
+      "raycast-extension/package.json",
+      "raycast-extension/scripts/dev-setup.sh",
+      "raycast-extension/src/copy-cli.tsx",
+      "raycast-extension/src/extract.tsx",
+      "raycast-extension/src/score.tsx",
+      "smithery.dockerfile",
+      "smithery.yaml",
+      "src/classifiers/smart.js",
+      "src/formatters/agent-prompt.js",
+      "src/formatters/agent-rules.js",
+      "src/formatters/markdown.js",
+      "src/formatters/prompt-pack.js",
+      "src/mcp/resources.js",
+      "src/mcp/tools.js",
+      "src/security/prompt-data.js",
+      "tests/dependency-security.test.js",
+      "tests/export-security.test.js",
+      "tests/fixtures/prompt-design.js",
+      "tests/formatters.test.js",
+      "tests/integration-security.test.js",
+      "tests/prompt-security.test.js",
+      "tests/smart.test.js",
+      "vscode-extension/.vscodeignore",
+      "vscode-extension/README.md",
+      "vscode-extension/designlang-vscode-0.1.0.vsix",
+      "vscode-extension/extension.js",
+      "vscode-extension/icon.png",
+      "vscode-extension/package-lock.json",
+      "vscode-extension/package.json",
+      "website/.npmrc",
+      "website/lib/cache.js",
+      "website/lib/rate-limit.js",
+      "website/lib/reel.js",
+      "website/package-lock.json",
+      "website/package.json",
+      "website/public/README.md"
+    ],
+    "captured_diff_paths": [
+      ".github/workflows/codeql.yml",
+      ".github/workflows/dependabot-auto-merge.yml",
+      ".github/workflows/manavarya-bot.yml",
+      ".github/workflows/test.yml",
+      ".npmrc",
+      "README.md",
+      "SECURITY.md",
+      "github-action/action.yml",
+      "marketplace/SUBMISSION-PLAYBOOK.md",
+      "marketplace/vscode-listing.md",
+      "package-lock.json",
+      "package.json",
+      "raycast-extension/.npmrc",
+      "raycast-extension/README.md",
+      "raycast-extension/package-lock.json",
+      "raycast-extension/package.json",
+      "raycast-extension/scripts/dev-setup.sh",
+      "raycast-extension/src/copy-cli.tsx",
+      "raycast-extension/src/extract.tsx",
+      "raycast-extension/src/score.tsx",
+      "smithery.dockerfile",
+      "smithery.yaml",
+      "src/classifiers/smart.js",
+      "src/formatters/agent-prompt.js",
+      "src/formatters/agent-rules.js",
+      "src/formatters/markdown.js",
+      "src/formatters/prompt-pack.js",
+      "src/mcp/resources.js",
+      "src/mcp/tools.js",
+      "src/security/prompt-data.js",
+      "tests/dependency-security.test.js",
+      "tests/export-security.test.js",
+      "tests/fixtures/prompt-design.js",
+      "tests/formatters.test.js",
+      "tests/integration-security.test.js",
+      "tests/prompt-security.test.js",
+      "tests/smart.test.js",
+      "vscode-extension/.vscodeignore",
+      "vscode-extension/README.md",
+      "vscode-extension/designlang-vscode-0.1.0.vsix",
+      "vscode-extension/extension.js",
+      "vscode-extension/icon.png",
+      "vscode-extension/package-lock.json",
+      "vscode-extension/package.json",
+      "website/.npmrc",
+      "website/lib/cache.js",
+      "website/lib/rate-limit.js",
+      "website/lib/reel.js",
+      "website/package-lock.json",
+      "website/package.json",
+      "website/public/README.md"
+    ],
+    "path_classification": [
+      {
+        "path": ".github/workflows/codeql.yml",
+        "surfaces": [
+          "authorization",
+          "secrets",
+          "export"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": ".github/workflows/codeql.yml:1"
+          }
+        ]
+      },
+      {
+        "path": ".github/workflows/dependabot-auto-merge.yml",
+        "surfaces": [
+          "authorization",
+          "secrets",
+          "export"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": ".github/workflows/dependabot-auto-merge.yml:1"
+          }
+        ]
+      },
+      {
+        "path": ".github/workflows/manavarya-bot.yml",
+        "surfaces": [
+          "authorization",
+          "secrets",
+          "export"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": ".github/workflows/manavarya-bot.yml:1"
+          }
+        ]
+      },
+      {
+        "path": ".github/workflows/test.yml",
+        "surfaces": [
+          "authorization",
+          "secrets",
+          "export"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": ".github/workflows/test.yml:1"
+          }
+        ]
+      },
+      {
+        "path": ".npmrc",
+        "surfaces": [
+          "authorization",
+          "untrusted-input"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": ".npmrc:1"
+          }
+        ]
+      },
+      {
+        "path": "README.md",
+        "surfaces": [],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "README.md:1"
+          }
+        ]
+      },
+      {
+        "path": "SECURITY.md",
+        "surfaces": [
+          "authorization",
+          "export"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "SECURITY.md:1"
+          }
+        ]
+      },
+      {
+        "path": "github-action/action.yml",
+        "surfaces": [
+          "authorization",
+          "secrets",
+          "export"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "github-action/action.yml:1"
+          }
+        ]
+      },
+      {
+        "path": "marketplace/SUBMISSION-PLAYBOOK.md",
+        "surfaces": [],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "marketplace/SUBMISSION-PLAYBOOK.md:1"
+          }
+        ]
+      },
+      {
+        "path": "marketplace/vscode-listing.md",
+        "surfaces": [],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "marketplace/vscode-listing.md:1"
+          }
+        ]
+      },
+      {
+        "path": "package-lock.json",
+        "surfaces": [
+          "authorization",
+          "untrusted-input"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "package-lock.json:1"
+          }
+        ]
+      },
+      {
+        "path": "package.json",
+        "surfaces": [
+          "authorization",
+          "untrusted-input"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "package.json:1"
+          }
+        ]
+      },
+      {
+        "path": "raycast-extension/.npmrc",
+        "surfaces": [
+          "authorization",
+          "untrusted-input"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "raycast-extension/.npmrc:1"
+          }
+        ]
+      },
+      {
+        "path": "raycast-extension/README.md",
+        "surfaces": [],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "raycast-extension/README.md:1"
+          }
+        ]
+      },
+      {
+        "path": "raycast-extension/package-lock.json",
+        "surfaces": [
+          "authorization",
+          "untrusted-input"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "raycast-extension/package-lock.json:1"
+          }
+        ]
+      },
+      {
+        "path": "raycast-extension/package.json",
+        "surfaces": [
+          "authorization",
+          "untrusted-input"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "raycast-extension/package.json:1"
+          }
+        ]
+      },
+      {
+        "path": "raycast-extension/scripts/dev-setup.sh",
+        "surfaces": [
+          "authorization",
+          "untrusted-input"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "raycast-extension/scripts/dev-setup.sh:1"
+          }
+        ]
+      },
+      {
+        "path": "raycast-extension/src/copy-cli.tsx",
+        "surfaces": [
+          "authorization",
+          "untrusted-input"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "raycast-extension/src/copy-cli.tsx:1"
+          }
+        ]
+      },
+      {
+        "path": "raycast-extension/src/extract.tsx",
+        "surfaces": [
+          "authorization",
+          "untrusted-input"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "raycast-extension/src/extract.tsx:1"
+          }
+        ]
+      },
+      {
+        "path": "raycast-extension/src/score.tsx",
+        "surfaces": [
+          "authorization",
+          "untrusted-input"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "raycast-extension/src/score.tsx:1"
+          }
+        ]
+      },
+      {
+        "path": "smithery.dockerfile",
+        "surfaces": [
+          "authorization",
+          "untrusted-input"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "smithery.dockerfile:1"
+          }
+        ]
+      },
+      {
+        "path": "smithery.yaml",
+        "surfaces": [
+          "authorization",
+          "untrusted-input"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "smithery.yaml:1"
+          }
+        ]
+      },
+      {
+        "path": "src/classifiers/smart.js",
+        "surfaces": [
+          "authorization",
+          "export"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "src/classifiers/smart.js:1"
+          }
+        ]
+      },
+      {
+        "path": "src/formatters/agent-prompt.js",
+        "surfaces": [
+          "prompt-injection",
+          "untrusted-input",
+          "export"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "src/formatters/agent-prompt.js:1"
+          }
+        ]
+      },
+      {
+        "path": "src/formatters/agent-rules.js",
+        "surfaces": [
+          "prompt-injection",
+          "untrusted-input",
+          "export"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "src/formatters/agent-rules.js:1"
+          }
+        ]
+      },
+      {
+        "path": "src/formatters/markdown.js",
+        "surfaces": [
+          "prompt-injection",
+          "untrusted-input",
+          "export"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "src/formatters/markdown.js:1"
+          }
+        ]
+      },
+      {
+        "path": "src/formatters/prompt-pack.js",
+        "surfaces": [
+          "prompt-injection",
+          "untrusted-input",
+          "export"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "src/formatters/prompt-pack.js:1"
+          }
+        ]
+      },
+      {
+        "path": "src/mcp/resources.js",
+        "surfaces": [
+          "prompt-injection",
+          "untrusted-input",
+          "export"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "src/mcp/resources.js:1"
+          }
+        ]
+      },
+      {
+        "path": "src/mcp/tools.js",
+        "surfaces": [
+          "prompt-injection",
+          "untrusted-input",
+          "export"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "src/mcp/tools.js:1"
+          }
+        ]
+      },
+      {
+        "path": "src/security/prompt-data.js",
+        "surfaces": [
+          "prompt-injection",
+          "untrusted-input",
+          "export"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "src/security/prompt-data.js:1"
+          }
+        ]
+      },
+      {
+        "path": "tests/dependency-security.test.js",
+        "surfaces": [],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "tests/dependency-security.test.js:1"
+          }
+        ]
+      },
+      {
+        "path": "tests/export-security.test.js",
+        "surfaces": [],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "tests/export-security.test.js:1"
+          }
+        ]
+      },
+      {
+        "path": "tests/fixtures/prompt-design.js",
+        "surfaces": [],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "tests/fixtures/prompt-design.js:1"
+          }
+        ]
+      },
+      {
+        "path": "tests/formatters.test.js",
+        "surfaces": [],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "tests/formatters.test.js:1"
+          }
+        ]
+      },
+      {
+        "path": "tests/integration-security.test.js",
+        "surfaces": [],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "tests/integration-security.test.js:1"
+          }
+        ]
+      },
+      {
+        "path": "tests/prompt-security.test.js",
+        "surfaces": [],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "tests/prompt-security.test.js:1"
+          }
+        ]
+      },
+      {
+        "path": "tests/smart.test.js",
+        "surfaces": [],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "tests/smart.test.js:1"
+          }
+        ]
+      },
+      {
+        "path": "vscode-extension/.vscodeignore",
+        "surfaces": [
+          "authorization",
+          "untrusted-input"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "proof/independent-high.md:1"
+          }
+        ]
+      },
+      {
+        "path": "vscode-extension/README.md",
+        "surfaces": [],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "proof/independent-high.md:1"
+          }
+        ]
+      },
+      {
+        "path": "vscode-extension/designlang-vscode-0.1.0.vsix",
+        "surfaces": [],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "proof/independent-high.md:1"
+          }
+        ]
+      },
+      {
+        "path": "vscode-extension/extension.js",
+        "surfaces": [
+          "authorization",
+          "untrusted-input"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "proof/independent-high.md:1"
+          }
+        ]
+      },
+      {
+        "path": "vscode-extension/icon.png",
+        "surfaces": [],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "proof/independent-high.md:1"
+          }
+        ]
+      },
+      {
+        "path": "vscode-extension/package-lock.json",
+        "surfaces": [
+          "authorization",
+          "untrusted-input"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "proof/independent-high.md:1"
+          }
+        ]
+      },
+      {
+        "path": "vscode-extension/package.json",
+        "surfaces": [
+          "authorization",
+          "untrusted-input"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "proof/independent-high.md:1"
+          }
+        ]
+      },
+      {
+        "path": "website/.npmrc",
+        "surfaces": [
+          "authorization",
+          "untrusted-input"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "website/.npmrc:1"
+          }
+        ]
+      },
+      {
+        "path": "website/lib/cache.js",
+        "surfaces": [
+          "authorization",
+          "export"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "website/lib/cache.js:1"
+          }
+        ]
+      },
+      {
+        "path": "website/lib/rate-limit.js",
+        "surfaces": [
+          "authorization",
+          "export"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "website/lib/rate-limit.js:1"
+          }
+        ]
+      },
+      {
+        "path": "website/lib/reel.js",
+        "surfaces": [
+          "authorization",
+          "export"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "website/lib/reel.js:1"
+          }
+        ]
+      },
+      {
+        "path": "website/package-lock.json",
+        "surfaces": [
+          "authorization",
+          "untrusted-input"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "website/package-lock.json:1"
+          }
+        ]
+      },
+      {
+        "path": "website/package.json",
+        "surfaces": [
+          "authorization",
+          "untrusted-input"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "website/package.json:1"
+          }
+        ]
+      },
+      {
+        "path": "website/public/README.md",
+        "surfaces": [],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "website/public/README.md:1"
+          }
+        ]
+      }
+    ],
+    "sensitive_surfaces": [
+      "authorization",
+      "export",
+      "prompt-injection",
+      "secrets",
+      "untrusted-input"
+    ],
+    "diff_command_id": "CMD-001",
+    "evidence": [
+      {
+        "class": "COMMAND",
+        "citation": "proof/diff.txt:1"
+      }
+    ]
+  },
+  "commands": [
+    {
+      "id": "CMD-001",
+      "purpose": "diff",
+      "command": "git diff --name-only aa27bd11cab95d5235ba90b5c82e6c9baddceb7e...68330fa01fcdd9a9de22df3f60397f485b3ed490",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "scope": "aa27bd11cab95d5235ba90b5c82e6c9baddceb7e...68330fa01fcdd9a9de22df3f60397f485b3ed490",
+      "evidence": [
+        {
+          "class": "COMMAND",
+          "citation": "proof/diff.txt:1"
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "id": "CMD-002",
+      "purpose": "secrets-scan",
+      "command": "gitleaks detect --source . --no-banner --redact --log-opts aa27bd11cab95d5235ba90b5c82e6c9baddceb7e..68330fa01fcdd9a9de22df3f60397f485b3ed490",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "scope": "aa27bd11cab95d5235ba90b5c82e6c9baddceb7e..68330fa01fcdd9a9de22df3f60397f485b3ed490",
+      "evidence": [
+        {
+          "class": "COMMAND",
+          "citation": "proof/gitleaks.txt:1"
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "id": "CMD-003",
+      "purpose": "recheck:SEC-001",
+      "command": "node --test tests/network-safety.test.js website/lib/url-safety.test.js",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "scope": "SEC-001",
+      "evidence": [
+        {
+          "class": "COMMAND",
+          "citation": "proof/sec-001-recheck.txt:1"
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "id": "CMD-004",
+      "purpose": "recheck:SEC-002",
+      "command": "node --test tests/clone-security.test.js",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "scope": "SEC-002",
+      "evidence": [
+        {
+          "class": "COMMAND",
+          "citation": "proof/sec-002-recheck.txt:1"
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "id": "CMD-005",
+      "purpose": "recheck:SEC-003",
+      "command": "node --test tests/prompt-security.test.js tests/mcp.test.js tests/formatters.test.js",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "scope": "SEC-003",
+      "evidence": [
+        {
+          "class": "COMMAND",
+          "citation": "proof/sec-003-recheck.txt:1"
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "id": "CMD-006",
+      "purpose": "recheck:SEC-004",
+      "command": "node --test tests/export-security.test.js tests/smart.test.js",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "scope": "SEC-004",
+      "evidence": [
+        {
+          "class": "COMMAND",
+          "citation": "proof/sec-004-recheck.txt:1"
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "id": "CMD-007",
+      "purpose": "recheck:SEC-005",
+      "command": "node --test tests/integration-security.test.js tests/dependency-security.test.js",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "scope": "SEC-005",
+      "evidence": [
+        {
+          "class": "COMMAND",
+          "citation": "proof/sec-005-recheck.txt:1"
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "id": "CMD-008",
+      "purpose": "recheck:SEC-006",
+      "command": "node --test tests/integration-security.test.js",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "scope": "SEC-006",
+      "evidence": [
+        {
+          "class": "COMMAND",
+          "citation": "proof/sec-006-recheck.txt:1"
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "id": "CMD-009",
+      "purpose": "recheck:SEC-007",
+      "command": "node --test tests/dependency-security.test.js",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "scope": "SEC-007",
+      "evidence": [
+        {
+          "class": "COMMAND",
+          "citation": "proof/sec-007-recheck.txt:1"
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "id": "CMD-010",
+      "purpose": "recheck:SEC-008",
+      "command": "node --test tests/dependency-security.test.js",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "scope": "SEC-008",
+      "evidence": [
+        {
+          "class": "COMMAND",
+          "citation": "proof/sec-008-recheck.txt:1"
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "id": "CMD-011",
+      "purpose": "container-runtime",
+      "command": "docker info --format {{.ServerVersion}}",
+      "outcome": "ERROR",
+      "exit_code": 1,
+      "scope": "SEC-009",
+      "evidence": [
+        {
+          "class": "COMMAND",
+          "citation": "proof/docker-runtime.txt:1"
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "id": "CMD-012",
+      "purpose": "recheck:SEC-010",
+      "command": "node --test tests/dependency-security.test.js",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "scope": "SEC-010",
+      "evidence": [
+        {
+          "class": "COMMAND",
+          "citation": "proof/sec-010-recheck.txt:1"
+        }
+      ],
+      "unavailable_reason": null
+    }
+  ],
+  "exports": {
+    "state": "LISTED",
+    "items": [
+      {
+        "id": "EXP-001",
+        "destination": "Operator-selected local files and stdio MCP client",
+        "data_classes": [
+          "measured design tokens",
+          "local raw extraction artifacts"
+        ],
+        "initiating_identity": "Local operator explicitly invoking CLI or MCP",
+        "authorization_evidence": [
+          {
+            "class": "STATIC",
+            "citation": "SECURITY.md:1"
+          }
+        ],
+        "recipient_scope": "Local operator and explicitly selected stdio client",
+        "retention_redaction": "Operator controls local retention; agent-facing output strips arbitrary text; raw files require review before sharing or execution",
+        "failure_behavior": "No external model or public storage fallback",
+        "policy_basis": {
+          "status": "ALLOWLISTED",
+          "citation": "SECURITY.md:8",
+          "owner": null,
+          "reason": null
+        }
+      },
+      {
+        "id": "EXP-002",
+        "destination": "Operator-selected public website",
+        "data_classes": [
+          "Requested public URL",
+          "Browser request metadata"
+        ],
+        "initiating_identity": "Local operator invoking extraction",
+        "authorization_evidence": [
+          {
+            "class": "STATIC",
+            "citation": "SECURITY.md:1"
+          }
+        ],
+        "recipient_scope": "Requested public website and public subresources through IP-pinning proxy",
+        "retention_redaction": "Avoid sensitive query strings; no provider storage export",
+        "failure_behavior": "Private, non-HTTP and nonstandard-port destinations rejected",
+        "policy_basis": {
+          "status": "ALLOWLISTED",
+          "citation": "SECURITY.md:8",
+          "owner": null,
+          "reason": null
+        }
+      },
+      {
+        "id": "EXP-003",
+        "destination": "Same-repository GitHub PR comment when explicitly enabled",
+        "data_classes": [
+          "Extracted design diff"
+        ],
+        "initiating_identity": "Repository-owned workflow explicitly setting comment true",
+        "authorization_evidence": [
+          {
+            "class": "STATIC",
+            "citation": "SECURITY.md:1"
+          }
+        ],
+        "recipient_scope": "Workflow repository and PR fixed by GitHub context",
+        "retention_redaction": "Review diff before opting into publication; default is disabled",
+        "failure_behavior": "No external reusable workflow; scoped token used only for comment",
+        "policy_basis": {
+          "status": "ALLOWLISTED",
+          "citation": "SECURITY.md:8",
+          "owner": null,
+          "reason": null
+        }
+      }
+    ],
+    "evidence": [
+      {
+        "class": "STATIC",
+        "citation": "proof/export-review.md:1"
+      }
+    ],
+    "unavailable_reason": null
+  },
+  "secrets_scan": {
+    "result": "PASS",
+    "command_id": "CMD-002",
+    "scope": "RANGE",
+    "comparison": "aa27bd11cab95d5235ba90b5c82e6c9baddceb7e..68330fa01fcdd9a9de22df3f60397f485b3ed490",
+    "evidence": [
+      {
+        "class": "COMMAND",
+        "citation": "proof/gitleaks.txt:1"
+      }
+    ],
+    "unavailable_reason": null
+  },
+  "export_policy": {
+    "result": "PASS",
+    "evidence": [
+      {
+        "class": "STATIC",
+        "citation": "proof/export-review.md:1"
+      }
+    ],
+    "unavailable_reason": null
+  },
+  "coverage": [
+    {
+      "surface": "prompt-injection",
+      "state": "REVIEWED",
+      "evidence": [
+        {
+          "class": "STATIC",
+          "citation": "proof/scope.md:1"
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "surface": "secrets",
+      "state": "REVIEWED",
+      "evidence": [
+        {
+          "class": "COMMAND",
+          "citation": "proof/gitleaks.txt:1"
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "surface": "authentication",
+      "state": "NOT-APPLICABLE",
+      "evidence": [
+        {
+          "class": "STATIC",
+          "citation": "proof/scope.md:1"
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "surface": "authorization",
+      "state": "REVIEWED",
+      "evidence": [
+        {
+          "class": "STATIC",
+          "citation": "proof/scope.md:1"
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "surface": "untrusted-input",
+      "state": "REVIEWED",
+      "evidence": [
+        {
+          "class": "STATIC",
+          "citation": "proof/scope.md:1"
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "surface": "export",
+      "state": "REVIEWED",
+      "evidence": [
+        {
+          "class": "STATIC",
+          "citation": "proof/scope.md:1"
+        }
+      ],
+      "unavailable_reason": null
+    }
+  ],
+  "findings": [
+    {
+      "id": "SEC-001",
+      "origin": "MANUAL",
+      "severity": "BLOCKER",
+      "surface": "untrusted-input",
+      "evidence": [
+        {
+          "class": "STATIC",
+          "citation": "README.md:1"
+        }
+      ],
+      "exploit_or_failure": "Preserved existing DNS/IP-pinned browser proxy, private-network and redirect/subresource rejection. Original focused SSRF regressions remain passing.",
+      "disposition": "FIXED",
+      "recheck": {
+        "status": "PASS",
+        "command_id": "CMD-003",
+        "evidence": [
+          {
+            "class": "COMMAND",
+            "citation": "proof/sec-001-recheck.txt:1"
+          }
+        ],
+        "unavailable_reason": null
+      },
+      "owner": {
+        "status": "NOT-REQUIRED",
+        "name": null,
+        "evidence": [],
+        "unavailable_reason": null
+      },
+      "acceptance": {
+        "status": "NOT-REQUIRED",
+        "evidence": [],
+        "unavailable_reason": null
+      },
+      "compensating_control": null
+    },
+    {
+      "id": "SEC-002",
+      "origin": "MANUAL",
+      "severity": "BLOCKER",
+      "surface": "untrusted-input",
+      "evidence": [
+        {
+          "class": "STATIC",
+          "citation": "README.md:1"
+        }
+      ],
+      "exploit_or_failure": "Preserved JSON-serialized generated metadata and JSX, bounded numeric typography; original generated-code exploit remains blocked.",
+      "disposition": "FIXED",
+      "recheck": {
+        "status": "PASS",
+        "command_id": "CMD-004",
+        "evidence": [
+          {
+            "class": "COMMAND",
+            "citation": "proof/sec-002-recheck.txt:1"
+          }
+        ],
+        "unavailable_reason": null
+      },
+      "owner": {
+        "status": "NOT-REQUIRED",
+        "name": null,
+        "evidence": [],
+        "unavailable_reason": null
+      },
+      "acceptance": {
+        "status": "NOT-REQUIRED",
+        "evidence": [],
+        "unavailable_reason": null
+      },
+      "compensating_control": null
+    },
+    {
+      "id": "SEC-003",
+      "origin": "MANUAL",
+      "severity": "HIGH",
+      "surface": "prompt-injection",
+      "evidence": [
+        {
+          "class": "STATIC",
+          "citation": "README.md:1"
+        }
+      ],
+      "exploit_or_failure": "Scraped titles, headings, arbitrary fonts, model prose and dynamic names could enter agent authority. Agent prompts, prompt packs, rules, Markdown and MCP now project bounded numeric and closed-vocabulary data. Initial Markdown/MCP verifier failures were repaired and independently rechecked.",
+      "disposition": "FIXED",
+      "recheck": {
+        "status": "PASS",
+        "command_id": "CMD-005",
+        "evidence": [
+          {
+            "class": "COMMAND",
+            "citation": "proof/sec-003-recheck.txt:1"
+          }
+        ],
+        "unavailable_reason": null
+      },
+      "owner": {
+        "status": "NOT-REQUIRED",
+        "name": null,
+        "evidence": [],
+        "unavailable_reason": null
+      },
+      "acceptance": {
+        "status": "NOT-REQUIRED",
+        "evidence": [],
+        "unavailable_reason": null
+      },
+      "compensating_control": null
+    },
+    {
+      "id": "SEC-004",
+      "origin": "MANUAL",
+      "severity": "HIGH",
+      "surface": "export",
+      "evidence": [
+        {
+          "class": "STATIC",
+          "citation": "README.md:1"
+        }
+      ],
+      "exploit_or_failure": "Removed public Blob cache/reel/counter reads and writes and external LLM requests. Credentials cannot reactivate these paths. Hosted quota checks fail closed; local writes and stdio exports are covered by SECURITY.md. Historical public objects were not inspected or removed.",
+      "disposition": "FIXED",
+      "recheck": {
+        "status": "PASS",
+        "command_id": "CMD-006",
+        "evidence": [
+          {
+            "class": "COMMAND",
+            "citation": "proof/sec-004-recheck.txt:1"
+          }
+        ],
+        "unavailable_reason": null
+      },
+      "owner": {
+        "status": "NOT-REQUIRED",
+        "name": null,
+        "evidence": [],
+        "unavailable_reason": null
+      },
+      "acceptance": {
+        "status": "NOT-REQUIRED",
+        "evidence": [],
+        "unavailable_reason": null
+      },
+      "compensating_control": null
+    },
+    {
+      "id": "SEC-005",
+      "origin": "MANUAL",
+      "severity": "HIGH",
+      "surface": "authorization",
+      "evidence": [
+        {
+          "class": "STATIC",
+          "citation": "README.md:1"
+        }
+      ],
+      "exploit_or_failure": "External privileged bot is disabled: no comment/PR trigger, secrets or reusable workflow. Remaining Actions use owner-verified immutable commits.",
+      "disposition": "FIXED",
+      "recheck": {
+        "status": "PASS",
+        "command_id": "CMD-007",
+        "evidence": [
+          {
+            "class": "COMMAND",
+            "citation": "proof/sec-005-recheck.txt:1"
+          }
+        ],
+        "unavailable_reason": null
+      },
+      "owner": {
+        "status": "NOT-REQUIRED",
+        "name": null,
+        "evidence": [],
+        "unavailable_reason": null
+      },
+      "acceptance": {
+        "status": "NOT-REQUIRED",
+        "evidence": [],
+        "unavailable_reason": null
+      },
+      "compensating_control": null
+    },
+    {
+      "id": "SEC-006",
+      "origin": "MANUAL",
+      "severity": "HIGH",
+      "surface": "untrusted-input",
+      "evidence": [
+        {
+          "class": "STATIC",
+          "citation": "README.md:1"
+        }
+      ],
+      "exploit_or_failure": "VS Code integration was self-contained; removed executable source, manifest, lock and packaged VSIX. Only historical changelog and explicitly retired marketplace references remain.",
+      "disposition": "FIXED",
+      "recheck": {
+        "status": "PASS",
+        "command_id": "CMD-008",
+        "evidence": [
+          {
+            "class": "COMMAND",
+            "citation": "proof/sec-006-recheck.txt:1"
+          }
+        ],
+        "unavailable_reason": null
+      },
+      "owner": {
+        "status": "NOT-REQUIRED",
+        "name": null,
+        "evidence": [],
+        "unavailable_reason": null
+      },
+      "acceptance": {
+        "status": "NOT-REQUIRED",
+        "evidence": [],
+        "unavailable_reason": null
+      },
+      "compensating_control": null
+    },
+    {
+      "id": "SEC-007",
+      "origin": "MANUAL",
+      "severity": "MEDIUM",
+      "surface": "authorization",
+      "evidence": [
+        {
+          "class": "STATIC",
+          "citation": "README.md:1"
+        }
+      ],
+      "exploit_or_failure": "Removed automatic install hook and mutable npx/global installation paths. Root/website/Raycast manifests and locks pin packages; npmrc disables hooks. Actions and Smithery execute checked-in code. Raycast calls local CLI and setup installation is disabled.",
+      "disposition": "FIXED",
+      "recheck": {
+        "status": "PASS",
+        "command_id": "CMD-009",
+        "evidence": [
+          {
+            "class": "COMMAND",
+            "citation": "proof/sec-007-recheck.txt:1"
+          }
+        ],
+        "unavailable_reason": null
+      },
+      "owner": {
+        "status": "NOT-REQUIRED",
+        "name": null,
+        "evidence": [],
+        "unavailable_reason": null
+      },
+      "acceptance": {
+        "status": "NOT-REQUIRED",
+        "evidence": [],
+        "unavailable_reason": null
+      },
+      "compensating_control": null
+    },
+    {
+      "id": "SEC-008",
+      "origin": "MANUAL",
+      "severity": "MEDIUM",
+      "surface": "untrusted-input",
+      "evidence": [
+        {
+          "class": "STATIC",
+          "citation": "README.md:1"
+        }
+      ],
+      "exploit_or_failure": "qs upgraded and overridden to 6.16.0. Both bracket/comma array-limit and attacker-controlled isBuffer regressions pass; root audit reports zero vulnerabilities.",
+      "disposition": "FIXED",
+      "recheck": {
+        "status": "PASS",
+        "command_id": "CMD-010",
+        "evidence": [
+          {
+            "class": "COMMAND",
+            "citation": "proof/sec-008-recheck.txt:1"
+          }
+        ],
+        "unavailable_reason": null
+      },
+      "owner": {
+        "status": "NOT-REQUIRED",
+        "name": null,
+        "evidence": [],
+        "unavailable_reason": null
+      },
+      "acceptance": {
+        "status": "NOT-REQUIRED",
+        "evidence": [],
+        "unavailable_reason": null
+      },
+      "compensating_control": null
+    },
+    {
+      "id": "SEC-009",
+      "origin": "MANUAL",
+      "severity": "MEDIUM",
+      "surface": "authorization",
+      "evidence": [
+        {
+          "class": "STATIC",
+          "citation": "README.md:1"
+        }
+      ],
+      "exploit_or_failure": "Source repaired: digest-pinned Smithery image, node-owned /app, USER node before npm ci and runtime, checked-in code, no apt/browser/global install. Container build and runtime UID verification are blocked by unavailable Docker daemon.",
+      "disposition": "STOPPED",
+      "recheck": {
+        "status": "UNAVAILABLE",
+        "command_id": "CMD-011",
+        "evidence": [
+          {
+            "class": "COMMAND",
+            "citation": "proof/docker-runtime.txt:1"
+          }
+        ],
+        "unavailable_reason": "Docker daemon socket unavailable; source regression passes but build/runtime unverified."
+      },
+      "owner": {
+        "status": "NOT-REQUIRED",
+        "name": null,
+        "evidence": [],
+        "unavailable_reason": null
+      },
+      "acceptance": {
+        "status": "NOT-REQUIRED",
+        "evidence": [],
+        "unavailable_reason": null
+      },
+      "compensating_control": null
+    },
+    {
+      "id": "SEC-010",
+      "origin": "MANUAL",
+      "severity": "HIGH",
+      "surface": "untrusted-input",
+      "evidence": [
+        {
+          "class": "STATIC",
+          "citation": "README.md:1"
+        }
+      ],
+      "exploit_or_failure": "Review of previously unlocked Raycast graph exposed vulnerable minimatch and esbuild. Scoped overrides pin minimatch 9.0.7 and esbuild 0.28.1; locked-tree audit is clean. Raycast build/runtime not executed.",
+      "disposition": "FIXED",
+      "recheck": {
+        "status": "PASS",
+        "command_id": "CMD-012",
+        "evidence": [
+          {
+            "class": "COMMAND",
+            "citation": "proof/sec-010-recheck.txt:1"
+          }
+        ],
+        "unavailable_reason": null
+      },
+      "owner": {
+        "status": "NOT-REQUIRED",
+        "name": null,
+        "evidence": [],
+        "unavailable_reason": null
+      },
+      "acceptance": {
+        "status": "NOT-REQUIRED",
+        "evidence": [],
+        "unavailable_reason": null
+      },
+      "compensating_control": null
+    }
+  ],
+  "verdict": "STOPPED"
+}

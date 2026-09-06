@@ -1,0 +1,19 @@
+$ node --test tests/clone-security.test.js
+TAP version 13
+# Subtest: generated clone keeps malicious URL and page copy as inert values
+ok 1 - generated clone keeps malicious URL and page copy as inert values
+  ---
+  duration_ms: 4.908042
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 51.720083
+
+EXIT_CODE=0

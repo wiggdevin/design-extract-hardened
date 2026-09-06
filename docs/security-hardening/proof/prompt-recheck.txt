@@ -1,0 +1,1431 @@
+TAP version 13
+# Subtest: formatMarkdown
+    # Subtest: returns a string
+    ok 1 - returns a string
+      ---
+      duration_ms: 14.323667
+      type: 'test'
+      ...
+    # Subtest: omits untrusted site title from AI-readable output
+    ok 2 - omits untrusted site title from AI-readable output
+      ---
+      duration_ms: 0.400083
+      type: 'test'
+      ...
+    # Subtest: contains color palette section
+    ok 3 - contains color palette section
+      ---
+      duration_ms: 0.41125
+      type: 'test'
+      ...
+    # Subtest: contains typography section
+    ok 4 - contains typography section
+      ---
+      duration_ms: 0.348333
+      type: 'test'
+      ...
+    # Subtest: contains spacing section
+    ok 5 - contains spacing section
+      ---
+      duration_ms: 0.292292
+      type: 'test'
+      ...
+    # Subtest: contains the primary color hex
+    ok 6 - contains the primary color hex
+      ---
+      duration_ms: 0.274667
+      type: 'test'
+      ...
+    # Subtest: contains font family names
+    ok 7 - contains font family names
+      ---
+      duration_ms: 2.585875
+      type: 'test'
+      ...
+    # Subtest: contains component patterns section
+    ok 8 - contains component patterns section
+      ---
+      duration_ms: 0.456792
+      type: 'test'
+      ...
+    # Subtest: contains design system score section
+    ok 9 - contains design system score section
+      ---
+      duration_ms: 0.388167
+      type: 'test'
+      ...
+    # Subtest: contains layout section
+    ok 10 - contains layout section
+      ---
+      duration_ms: 0.501708
+      type: 'test'
+      ...
+    # Subtest: issue \#135: object stringification + class truncation
+        # Subtest: never emits literal [object Object]
+        ok 1 - never emits literal [object Object]
+          ---
+          duration_ms: 0.309875
+          type: 'test'
+          ...
+        # Subtest: omits arbitrary CSS variable names from agent context
+        ok 2 - omits arbitrary CSS variable names from agent context
+          ---
+          duration_ms: 0.234792
+          type: 'test'
+          ...
+        # Subtest: renders easing function values, not objects (1b)
+        ok 3 - renders easing function values, not objects (1b)
+          ---
+          duration_ms: 0.214333
+          type: 'test'
+          ...
+        # Subtest: omits freeform issue prose from agent context
+        ok 4 - omits freeform issue prose from agent context
+          ---
+          duration_ms: 0.219125
+          type: 'test'
+          ...
+        # Subtest: keeps full component class names (bug 2)
+        ok 5 - keeps full component class names (bug 2)
+          ---
+          duration_ms: 0.208375
+          type: 'test'
+          ...
+        1..5
+    ok 11 - issue \#135: object stringification + class truncation
+      ---
+      duration_ms: 1.281291
+      type: 'suite'
+      ...
+    1..11
+ok 1 - formatMarkdown
+  ---
+  duration_ms: 22.226417
+  type: 'suite'
+  ...
+# Subtest: formatTokens
+    # Subtest: returns valid JSON
+    ok 1 - returns valid JSON
+      ---
+      duration_ms: 0.679291
+      type: 'test'
+      ...
+    # Subtest: contains color tokens
+    ok 2 - contains color tokens
+      ---
+      duration_ms: 0.091041
+      type: 'test'
+      ...
+    # Subtest: contains fontFamily tokens
+    ok 3 - contains fontFamily tokens
+      ---
+      duration_ms: 0.222875
+      type: 'test'
+      ...
+    # Subtest: contains spacing tokens
+    ok 4 - contains spacing tokens
+      ---
+      duration_ms: 0.108375
+      type: 'test'
+      ...
+    # Subtest: contains borderRadius tokens
+    ok 5 - contains borderRadius tokens
+      ---
+      duration_ms: 0.067833
+      type: 'test'
+      ...
+    # Subtest: contains shadow tokens
+    ok 6 - contains shadow tokens
+      ---
+      duration_ms: 0.054042
+      type: 'test'
+      ...
+    # Subtest: contains breakpoint tokens
+    ok 7 - contains breakpoint tokens
+      ---
+      duration_ms: 0.052208
+      type: 'test'
+      ...
+    1..7
+ok 2 - formatTokens
+  ---
+  duration_ms: 1.37375
+  type: 'suite'
+  ...
+# Subtest: formatDtcgTokens
+    # Subtest: emits $value/$type for every leaf
+    ok 1 - emits $value/$type for every leaf
+      ---
+      duration_ms: 0.111833
+      type: 'test'
+      ...
+    # Subtest: emits semantic aliases referencing primitives
+    ok 2 - emits semantic aliases referencing primitives
+      ---
+      duration_ms: 0.125916
+      type: 'test'
+      ...
+    # Subtest: emits composite typography tokens
+    ok 3 - emits composite typography tokens
+      ---
+      duration_ms: 0.0465
+      type: 'test'
+      ...
+    # Subtest: round-trips through JSON unchanged
+    ok 4 - round-trips through JSON unchanged
+      ---
+      duration_ms: 0.688709
+      type: 'test'
+      ...
+    1..4
+ok 3 - formatDtcgTokens
+  ---
+  duration_ms: 1.024375
+  type: 'suite'
+  ...
+# Subtest: formatTailwind
+    # Subtest: returns a string
+    ok 1 - returns a string
+      ---
+      duration_ms: 0.49225
+      type: 'test'
+      ...
+    # Subtest: contains export default
+    ok 2 - contains export default
+      ---
+      duration_ms: 0.107583
+      type: 'test'
+      ...
+    # Subtest: contains primary color
+    ok 3 - contains primary color
+      ---
+      duration_ms: 0.328334
+      type: 'test'
+      ...
+    # Subtest: contains font family
+    ok 4 - contains font family
+      ---
+      duration_ms: 0.126958
+      type: 'test'
+      ...
+    # Subtest: contains spacing values
+    ok 5 - contains spacing values
+      ---
+      duration_ms: 0.08375
+      type: 'test'
+      ...
+    # Subtest: contains screen breakpoints
+    ok 6 - contains screen breakpoints
+      ---
+      duration_ms: 0.075541
+      type: 'test'
+      ...
+    1..6
+ok 4 - formatTailwind
+  ---
+  duration_ms: 1.288
+  type: 'suite'
+  ...
+# Subtest: formatCssVars
+    # Subtest: returns a string
+    ok 1 - returns a string
+      ---
+      duration_ms: 0.278292
+      type: 'test'
+      ...
+    # Subtest: starts with :root {
+    ok 2 - starts with :root {
+      ---
+      duration_ms: 0.045209
+      type: 'test'
+      ...
+    # Subtest: ends with closing brace
+    ok 3 - ends with closing brace
+      ---
+      duration_ms: 0.093458
+      type: 'test'
+      ...
+    # Subtest: contains color variables
+    ok 4 - contains color variables
+      ---
+      duration_ms: 0.047208
+      type: 'test'
+      ...
+    # Subtest: contains spacing variables
+    ok 5 - contains spacing variables
+      ---
+      duration_ms: 0.334167
+      type: 'test'
+      ...
+    # Subtest: contains font variables
+    ok 6 - contains font variables
+      ---
+      duration_ms: 0.052541
+      type: 'test'
+      ...
+    # Subtest: contains radius variables
+    ok 7 - contains radius variables
+      ---
+      duration_ms: 0.038333
+      type: 'test'
+      ...
+    # Subtest: contains shadow variables
+    ok 8 - contains shadow variables
+      ---
+      duration_ms: 0.035334
+      type: 'test'
+      ...
+    1..8
+ok 5 - formatCssVars
+  ---
+  duration_ms: 1.004209
+  type: 'suite'
+  ...
+# Subtest: formatPreview
+    # Subtest: returns a string
+    ok 1 - returns a string
+      ---
+      duration_ms: 0.496125
+      type: 'test'
+      ...
+    # Subtest: returns valid HTML with doctype
+    ok 2 - returns valid HTML with doctype
+      ---
+      duration_ms: 0.061917
+      type: 'test'
+      ...
+    # Subtest: contains html and body tags
+    ok 3 - contains html and body tags
+      ---
+      duration_ms: 0.110041
+      type: 'test'
+      ...
+    # Subtest: contains the site title
+    ok 4 - contains the site title
+      ---
+      duration_ms: 0.055292
+      type: 'test'
+      ...
+    # Subtest: contains color swatches section
+    ok 5 - contains color swatches section
+      ---
+      duration_ms: 0.049084
+      type: 'test'
+      ...
+    # Subtest: contains typography section
+    ok 6 - contains typography section
+      ---
+      duration_ms: 0.04675
+      type: 'test'
+      ...
+    1..6
+ok 6 - formatPreview
+  ---
+  duration_ms: 0.882209
+  type: 'suite'
+  ...
+# Subtest: formatFigma
+    # Subtest: returns valid JSON
+    ok 1 - returns valid JSON
+      ---
+      duration_ms: 0.313
+      type: 'test'
+      ...
+    # Subtest: has collections array with Brand collection
+    ok 2 - has collections array with Brand collection
+      ---
+      duration_ms: 0.124458
+      type: 'test'
+      ...
+    # Subtest: has Typography and Spacing collections
+    ok 3 - has Typography and Spacing collections
+      ---
+      duration_ms: 0.267291
+      type: 'test'
+      ...
+    # Subtest: contains color variables with normalized RGB in light mode
+    ok 4 - contains color variables with normalized RGB in light mode
+      ---
+      duration_ms: 0.121084
+      type: 'test'
+      ...
+    # Subtest: contains spacing variables
+    ok 5 - contains spacing variables
+      ---
+      duration_ms: 0.090709
+      type: 'test'
+      ...
+    # Subtest: contains radius variables
+    ok 6 - contains radius variables
+      ---
+      duration_ms: 0.083208
+      type: 'test'
+      ...
+    1..6
+ok 7 - formatFigma
+  ---
+  duration_ms: 1.074584
+  type: 'suite'
+  ...
+# Subtest: formatReactTheme
+    # Subtest: returns a string
+    ok 1 - returns a string
+      ---
+      duration_ms: 0.369125
+      type: 'test'
+      ...
+    # Subtest: contains export const theme
+    ok 2 - contains export const theme
+      ---
+      duration_ms: 0.077875
+      type: 'test'
+      ...
+    # Subtest: contains export default theme
+    ok 3 - contains export default theme
+      ---
+      duration_ms: 0.066959
+      type: 'test'
+      ...
+    # Subtest: contains the primary color
+    ok 4 - contains the primary color
+      ---
+      duration_ms: 0.1625
+      type: 'test'
+      ...
+    # Subtest: contains font family
+    ok 5 - contains font family
+      ---
+      duration_ms: 0.191125
+      type: 'test'
+      ...
+    # Subtest: contains spacing values
+    ok 6 - contains spacing values
+      ---
+      duration_ms: 0.076292
+      type: 'test'
+      ...
+    # Subtest: contains the embedded JSON as valid JS
+    ok 7 - contains the embedded JSON as valid JS
+      ---
+      duration_ms: 0.111292
+      type: 'test'
+      ...
+    1..7
+ok 8 - formatReactTheme
+  ---
+  duration_ms: 1.132917
+  type: 'suite'
+  ...
+# Subtest: formatShadcnTheme
+    # Subtest: returns a string
+    ok 1 - returns a string
+      ---
+      duration_ms: 0.223583
+      type: 'test'
+      ...
+    # Subtest: contains @layer base
+    ok 2 - contains @layer base
+      ---
+      duration_ms: 0.046666
+      type: 'test'
+      ...
+    # Subtest: contains :root
+    ok 3 - contains :root
+      ---
+      duration_ms: 0.08
+      type: 'test'
+      ...
+    # Subtest: contains --primary variable
+    ok 4 - contains --primary variable
+      ---
+      duration_ms: 0.036334
+      type: 'test'
+      ...
+    # Subtest: contains --background variable
+    ok 5 - contains --background variable
+      ---
+      duration_ms: 0.047875
+      type: 'test'
+      ...
+    # Subtest: contains --radius variable
+    ok 6 - contains --radius variable
+      ---
+      duration_ms: 0.033875
+      type: 'test'
+      ...
+    # Subtest: contains shadcn/ui comment
+    ok 7 - contains shadcn/ui comment
+      ---
+      duration_ms: 0.031541
+      type: 'test'
+      ...
+    1..7
+ok 9 - formatShadcnTheme
+  ---
+  duration_ms: 0.575916
+  type: 'suite'
+  ...
+# Subtest: resolveRef
+    # Subtest: returns the raw $value for non-reference tokens
+    ok 1 - returns the raw $value for non-reference tokens
+      ---
+      duration_ms: 0.053
+      type: 'test'
+      ...
+    # Subtest: follows one-level references
+    ok 2 - follows one-level references
+      ---
+      duration_ms: 0.037375
+      type: 'test'
+      ...
+    # Subtest: follows chained references
+    ok 3 - follows chained references
+      ---
+      duration_ms: 0.030417
+      type: 'test'
+      ...
+    # Subtest: returns undefined for missing paths
+    ok 4 - returns undefined for missing paths
+      ---
+      duration_ms: 0.029166
+      type: 'test'
+      ...
+    # Subtest: resolves dimension tokens
+    ok 5 - resolves dimension tokens
+      ---
+      duration_ms: 0.027083
+      type: 'test'
+      ...
+    1..5
+ok 10 - resolveRef
+  ---
+  duration_ms: 0.230834
+  type: 'suite'
+  ...
+# Subtest: formatIosSwiftUI
+    # Subtest: emits import SwiftUI and extension Color
+    ok 1 - emits import SwiftUI and extension Color
+      ---
+      duration_ms: 0.53575
+      type: 'test'
+      ...
+    # Subtest: emits actionPrimary with resolved primitive hex
+    ok 2 - emits actionPrimary with resolved primitive hex
+      ---
+      duration_ms: 0.100416
+      type: 'test'
+      ...
+    # Subtest: resolves semantic references (no raw {...} strings in output)
+    ok 3 - resolves semantic references (no raw {...} strings in output)
+      ---
+      duration_ms: 0.226291
+      type: 'test'
+      ...
+    # Subtest: is idempotent
+    ok 4 - is idempotent
+      ---
+      duration_ms: 0.149458
+      type: 'test'
+      ...
+    1..4
+ok 11 - formatIosSwiftUI
+  ---
+  duration_ms: 1.059792
+  type: 'suite'
+  ...
+# Subtest: formatAndroidCompose
+    # Subtest: Theme.kt contains object DesignTokens and ActionPrimary
+    ok 1 - Theme.kt contains object DesignTokens and ActionPrimary
+      ---
+      duration_ms: 0.509541
+      type: 'test'
+      ...
+    # Subtest: colors.xml has <color name="action_primary">
+    ok 2 - colors.xml has <color name="action_primary">
+      ---
+      duration_ms: 0.224292
+      type: 'test'
+      ...
+    # Subtest: dimens.xml has <dimen name="spacing_s0"> with dp unit
+    ok 3 - dimens.xml has <dimen name="spacing_s0"> with dp unit
+      ---
+      duration_ms: 0.367625
+      type: 'test'
+      ...
+    1..3
+ok 12 - formatAndroidCompose
+  ---
+  duration_ms: 1.158833
+  type: 'suite'
+  ...
+# Subtest: formatFlutterDart
+    # Subtest: contains class DesignTokens
+    ok 1 - contains class DesignTokens
+      ---
+      duration_ms: 0.484458
+      type: 'test'
+      ...
+    # Subtest: emits actionPrimary with resolved ARGB hex
+    ok 2 - emits actionPrimary with resolved ARGB hex
+      ---
+      duration_ms: 0.612792
+      type: 'test'
+      ...
+    1..2
+ok 13 - formatFlutterDart
+  ---
+  duration_ms: 1.162417
+  type: 'suite'
+  ...
+# Subtest: formatWordPressTheme
+    # Subtest: theme.json parses and has color palette with at least one entry
+    ok 1 - theme.json parses and has color palette with at least one entry
+      ---
+      duration_ms: 0.116375
+      type: 'test'
+      ...
+    # Subtest: theme.json is version 3
+    ok 2 - theme.json is version 3
+      ---
+      duration_ms: 0.047167
+      type: 'test'
+      ...
+    # Subtest: style.css contains Theme Name and --action-primary custom prop
+    ok 3 - style.css contains Theme Name and --action-primary custom prop
+      ---
+      duration_ms: 0.034542
+      type: 'test'
+      ...
+    # Subtest: functions.php starts with <?php
+    ok 4 - functions.php starts with <?php
+      ---
+      duration_ms: 0.028917
+      type: 'test'
+      ...
+    1..4
+ok 14 - formatWordPressTheme
+  ---
+  duration_ms: 0.286375
+  type: 'suite'
+  ...
+# Subtest: formatAgentRules
+    # Subtest: emits all four files, each non-empty
+    ok 1 - emits all four files, each non-empty
+      ---
+      duration_ms: 0.053416
+      type: 'test'
+      ...
+    # Subtest: Cursor .mdc begins with frontmatter containing alwaysApply: true
+    ok 2 - Cursor .mdc begins with frontmatter containing alwaysApply: true
+      ---
+      duration_ms: 0.034792
+      type: 'test'
+      ...
+    # Subtest: all four files omit the source URL from instruction files
+    ok 3 - all four files omit the source URL from instruction files
+      ---
+      duration_ms: 0.042875
+      type: 'test'
+      ...
+    # Subtest: all four files contain resolved hex for semantic.color.action.primary
+    ok 4 - all four files contain resolved hex for semantic.color.action.primary
+      ---
+      duration_ms: 0.063416
+      type: 'test'
+      ...
+    1..4
+ok 15 - formatAgentRules
+  ---
+  duration_ms: 0.236125
+  type: 'suite'
+  ...
+# Subtest: formatGrade
+    # Subtest: returns a self-contained HTML document with the grade letter and score
+    ok 1 - returns a self-contained HTML document with the grade letter and score
+      ---
+      duration_ms: 0.871417
+      type: 'test'
+      ...
+    # Subtest: embeds evidence from the audited design (palette, type, dimensions)
+    ok 2 - embeds evidence from the audited design (palette, type, dimensions)
+      ---
+      duration_ms: 0.237625
+      type: 'test'
+      ...
+    # Subtest: escapes user-controlled content to prevent HTML injection
+    ok 3 - escapes user-controlled content to prevent HTML injection
+      ---
+      duration_ms: 0.183958
+      type: 'test'
+      ...
+    # Subtest: handles typography scale entries shaped as objects ({size, weight, ...})
+    ok 4 - handles typography scale entries shaped as objects ({size, weight, ...})
+      ---
+      duration_ms: 0.113167
+      type: 'test'
+      ...
+    # Subtest: surfaces a low-confidence note when primary.confidence < 0.5 (v12.10)
+    ok 5 - surfaces a low-confidence note when primary.confidence < 0.5 (v12.10)
+      ---
+      duration_ms: 0.215917
+      type: 'test'
+      ...
+    # Subtest: omits the confidence note when primary.confidence >= 0.5 or missing
+    ok 6 - omits the confidence note when primary.confidence >= 0.5 or missing
+      ---
+      duration_ms: 0.273083
+      type: 'test'
+      ...
+    # Subtest: throws a clear error when score is missing
+    ok 7 - throws a clear error when score is missing
+      ---
+      duration_ms: 0.198417
+      type: 'test'
+      ...
+    1..7
+ok 16 - formatGrade
+  ---
+  duration_ms: 2.175958
+  type: 'suite'
+  ...
+# Subtest: formatGradeMarkdown
+    # Subtest: produces a markdown report with grade, dimensions table, strengths, and fixes
+    ok 1 - produces a markdown report with grade, dimensions table, strengths, and fixes
+      ---
+      duration_ms: 0.186833
+      type: 'test'
+      ...
+    1..1
+ok 17 - formatGradeMarkdown
+  ---
+  duration_ms: 0.211708
+  type: 'suite'
+  ...
+# Subtest: compareScores
+    # Subtest: counts wins per side using a 3-point gap threshold
+    ok 1 - counts wins per side using a 3-point gap threshold
+      ---
+      duration_ms: 0.177958
+      type: 'test'
+      ...
+    # Subtest: returns tie when overall deltas are within 3 points
+    ok 2 - returns tie when overall deltas are within 3 points
+      ---
+      duration_ms: 0.174584
+      type: 'test'
+      ...
+    # Subtest: skips dimensions missing on either side
+    ok 3 - skips dimensions missing on either side
+      ---
+      duration_ms: 0.050583
+      type: 'test'
+      ...
+    1..3
+ok 18 - compareScores
+  ---
+  duration_ms: 0.454083
+  type: 'suite'
+  ...
+# Subtest: formatBattle
+    # Subtest: returns a self-contained HTML document with both grades and a verdict
+    ok 1 - returns a self-contained HTML document with both grades and a verdict
+      ---
+      duration_ms: 0.585167
+      type: 'test'
+      ...
+    # Subtest: uses paddings + bars for both sides (no NaN, both colors present)
+    ok 2 - uses paddings + bars for both sides (no NaN, both colors present)
+      ---
+      duration_ms: 0.132375
+      type: 'test'
+      ...
+    # Subtest: throws a clear error when either design is missing a score
+    ok 3 - throws a clear error when either design is missing a score
+      ---
+      duration_ms: 0.109083
+      type: 'test'
+      ...
+    1..3
+ok 19 - formatBattle
+  ---
+  duration_ms: 0.871083
+  type: 'suite'
+  ...
+# Subtest: formatBattleMarkdown
+    # Subtest: emits a battle table with overall row and per-dimension rows
+    ok 1 - emits a battle table with overall row and per-dimension rows
+      ---
+      duration_ms: 0.146
+      type: 'test'
+      ...
+    1..1
+ok 20 - formatBattleMarkdown
+  ---
+  duration_ms: 0.170084
+  type: 'suite'
+  ...
+# Subtest: formatBadge
+    # Subtest: returns valid SVG with both label and value sections
+    ok 1 - returns valid SVG with both label and value sections
+      ---
+      duration_ms: 0.132333
+      type: 'test'
+      ...
+    # Subtest: picks color from grade letter
+    ok 2 - picks color from grade letter
+      ---
+      duration_ms: 0.043125
+      type: 'test'
+      ...
+    # Subtest: escapes user-controlled text
+    ok 3 - escapes user-controlled text
+      ---
+      duration_ms: 0.05175
+      type: 'test'
+      ...
+    # Subtest: handles missing/unknown grade with a fallback color
+    ok 4 - handles missing/unknown grade with a fallback color
+      ---
+      duration_ms: 0.034417
+      type: 'test'
+      ...
+    1..4
+ok 21 - formatBadge
+  ---
+  duration_ms: 0.305042
+  type: 'suite'
+  ...
+# Subtest: formatScoreBadge
+    # Subtest: shows "grade · overall" derived from a design.score object
+    ok 1 - shows "grade · overall" derived from a design.score object
+      ---
+      duration_ms: 0.053875
+      type: 'test'
+      ...
+    # Subtest: returns an em-dash badge when score is missing
+    ok 2 - returns an em-dash badge when score is missing
+      ---
+      duration_ms: 0.029416
+      type: 'test'
+      ...
+    1..2
+ok 22 - formatScoreBadge
+  ---
+  duration_ms: 0.108708
+  type: 'suite'
+  ...
+# Subtest: vocabularies
+    # Subtest: exposes six built-in vocabularies
+    ok 1 - exposes six built-in vocabularies
+      ---
+      duration_ms: 0.053292
+      type: 'test'
+      ...
+    # Subtest: listVocabularies returns id + name + blurb for each
+    ok 2 - listVocabularies returns id + name + blurb for each
+      ---
+      duration_ms: 0.058583
+      type: 'test'
+      ...
+    # Subtest: every vocabulary defines tokens, fonts, and css
+    ok 3 - every vocabulary defines tokens, fonts, and css
+      ---
+      duration_ms: 0.048917
+      type: 'test'
+      ...
+    # Subtest: getVocabulary returns the vocab by id
+    ok 4 - getVocabulary returns the vocab by id
+      ---
+      duration_ms: 0.0375
+      type: 'test'
+      ...
+    # Subtest: getVocabulary throws on unknown id with a helpful message
+    ok 5 - getVocabulary throws on unknown id with a helpful message
+      ---
+      duration_ms: 0.076292
+      type: 'test'
+      ...
+    1..5
+ok 23 - vocabularies
+  ---
+  duration_ms: 0.323125
+  type: 'suite'
+  ...
+# Subtest: formatRemix
+    # Subtest: returns a self-contained HTML document with the host name and vocab name
+    ok 1 - returns a self-contained HTML document with the host name and vocab name
+      ---
+      duration_ms: 0.5755
+      type: 'test'
+      ...
+    # Subtest: embeds vocabulary tokens as CSS custom properties
+    ok 2 - embeds vocabulary tokens as CSS custom properties
+      ---
+      duration_ms: 0.186125
+      type: 'test'
+      ...
+    # Subtest: imports each vocabulary's display font from Google Fonts
+    ok 3 - imports each vocabulary's display font from Google Fonts
+      ---
+      duration_ms: 0.207666
+      type: 'test'
+      ...
+    # Subtest: omits nav and footer sections from the body
+    ok 4 - omits nav and footer sections from the body
+      ---
+      duration_ms: 0.073417
+      type: 'test'
+      ...
+    # Subtest: dedupes sections that share a heading (real-world SPA pattern)
+    ok 5 - dedupes sections that share a heading (real-world SPA pattern)
+      ---
+      duration_ms: 0.070041
+      type: 'test'
+      ...
+    # Subtest: does not re-shift a section heading from the voice pool (no duplicate render)
+    ok 6 - does not re-shift a section heading from the voice pool (no duplicate render)
+      ---
+      duration_ms: 0.134666
+      type: 'test'
+      ...
+    # Subtest: synthesizes a believable artifact when no sections are extracted
+    ok 7 - synthesizes a believable artifact when no sections are extracted
+      ---
+      duration_ms: 0.090625
+      type: 'test'
+      ...
+    # Subtest: escapes user-controlled section content
+    ok 8 - escapes user-controlled section content
+      ---
+      duration_ms: 0.144834
+      type: 'test'
+      ...
+    # Subtest: throws clear errors on missing inputs
+    ok 9 - throws clear errors on missing inputs
+      ---
+      duration_ms: 0.095417
+      type: 'test'
+      ...
+    1..9
+ok 24 - formatRemix
+  ---
+  duration_ms: 1.660584
+  type: 'suite'
+  ...
+# Subtest: buildPack
+    # Subtest: produces a complete bundle with all expected top-level directories
+    ok 1 - produces a complete bundle with all expected top-level directories
+      ---
+      duration_ms: 10.998416
+      type: 'test'
+      ...
+    # Subtest: writes valid token files (DTCG, Tailwind, CSS vars, Figma vars, motion)
+    ok 2 - writes valid token files (DTCG, Tailwind, CSS vars, Figma vars, motion)
+      ---
+      duration_ms: 8.231416
+      type: 'test'
+      ...
+    # Subtest: writes a README that references the source URL and grade
+    ok 3 - writes a README that references the source URL and grade
+      ---
+      duration_ms: 6.700583
+      type: 'test'
+      ...
+    # Subtest: writes a starter index.html that links to tokens/variables.css
+    ok 4 - writes a starter index.html that links to tokens/variables.css
+      ---
+      duration_ms: 6.292708
+      type: 'test'
+      ...
+    # Subtest: writes recipe files with proper names (not array indices)
+    ok 5 - writes recipe files with proper names (not array indices)
+      ---
+      duration_ms: 7.08225
+      type: 'test'
+      ...
+    # Subtest: throws a clear error when outDir is missing
+    ok 6 - throws a clear error when outDir is missing
+      ---
+      duration_ms: 0.064083
+      type: 'test'
+      ...
+    # Subtest: coerces non-string emitter outputs to JSON without throwing
+    ok 7 - coerces non-string emitter outputs to JSON without throwing
+      ---
+      duration_ms: 7.13375
+      type: 'test'
+      ...
+    1..7
+ok 25 - buildPack
+  ---
+  duration_ms: 49.162541
+  type: 'suite'
+  ...
+# Subtest: recolorDesign
+    # Subtest: pins the source primary slot to the user's exact target hex
+    ok 1 - pins the source primary slot to the user's exact target hex
+      ---
+      duration_ms: 0.992791
+      type: 'test'
+      ...
+    # Subtest: preserves spacing, typography, and neutrals untouched
+    ok 2 - preserves spacing, typography, and neutrals untouched
+      ---
+      duration_ms: 0.246833
+      type: 'test'
+      ...
+    # Subtest: rotates non-neutral colours by the hue delta
+    ok 3 - rotates non-neutral colours by the hue delta
+      ---
+      duration_ms: 0.13475
+      type: 'test'
+      ...
+    # Subtest: throws a clear error when --primary is missing or malformed
+    ok 4 - throws a clear error when --primary is missing or malformed
+      ---
+      duration_ms: 0.072083
+      type: 'test'
+      ...
+    # Subtest: respects --from override when source primary is misclassified
+    ok 5 - respects --from override when source primary is misclassified
+      ---
+      duration_ms: 0.158333
+      type: 'test'
+      ...
+    # Subtest: records the swap in design.meta.themeSwap
+    ok 6 - records the swap in design.meta.themeSwap
+      ---
+      duration_ms: 0.267625
+      type: 'test'
+      ...
+    1..6
+ok 26 - recolorDesign
+  ---
+  duration_ms: 2.991292
+  type: 'suite'
+  ...
+# Subtest: formatThemeSwap
+    # Subtest: renders both palettes and a verdict line in self-contained HTML
+    ok 1 - renders both palettes and a verdict line in self-contained HTML
+      ---
+      duration_ms: 0.502375
+      type: 'test'
+      ...
+    # Subtest: escapes user-controlled content
+    ok 2 - escapes user-controlled content
+      ---
+      duration_ms: 0.242875
+      type: 'test'
+      ...
+    # Subtest: throws when either design is missing
+    ok 3 - throws when either design is missing
+      ---
+      duration_ms: 0.054625
+      type: 'test'
+      ...
+    1..3
+ok 27 - formatThemeSwap
+  ---
+  duration_ms: 0.922917
+  type: 'suite'
+  ...
+# Subtest: formatThemeSwapMarkdown
+    # Subtest: produces a markdown report with from→to header and palette diff table
+    ok 1 - produces a markdown report with from→to header and palette diff table
+      ---
+      duration_ms: 0.195
+      type: 'test'
+      ...
+    1..1
+ok 28 - formatThemeSwapMarkdown
+  ---
+  duration_ms: 0.352833
+  type: 'suite'
+  ...
+# Subtest: formatBrandBook
+    # Subtest: returns a self-contained HTML document with all 13 chapter sections
+    ok 1 - returns a self-contained HTML document with all 13 chapter sections
+      ---
+      duration_ms: 2.380958
+      type: 'test'
+      ...
+    # Subtest: renders the host name + brand colors + type scale from the design
+    ok 2 - renders the host name + brand colors + type scale from the design
+      ---
+      duration_ms: 0.729459
+      type: 'test'
+      ...
+    # Subtest: escapes user-controlled strings to prevent HTML injection
+    ok 3 - escapes user-controlled strings to prevent HTML injection
+      ---
+      duration_ms: 0.7155
+      type: 'test'
+      ...
+    # Subtest: handles missing/sparse design fields without throwing
+    ok 4 - handles missing/sparse design fields without throwing
+      ---
+      duration_ms: 0.253042
+      type: 'test'
+      ...
+    # Subtest: coerces non-array slot/variant fields without crashing (real extractor returns mixed shapes)
+    ok 5 - coerces non-array slot/variant fields without crashing (real extractor returns mixed shapes)
+      ---
+      duration_ms: 0.69525
+      type: 'test'
+      ...
+    # Subtest: throws a clear error when design is missing
+    ok 6 - throws a clear error when design is missing
+      ---
+      duration_ms: 0.049167
+      type: 'test'
+      ...
+    1..6
+ok 29 - formatBrandBook
+  ---
+  duration_ms: 6.115292
+  type: 'suite'
+  ...
+# Subtest: formatBrandBookMarkdown
+    # Subtest: produces a multi-section markdown document
+    ok 1 - produces a multi-section markdown document
+      ---
+      duration_ms: 0.225583
+      type: 'test'
+      ...
+    1..1
+ok 30 - formatBrandBookMarkdown
+  ---
+  duration_ms: 0.331375
+  type: 'suite'
+  ...
+# Subtest: fuseDesigns
+    # Subtest: exposes the seven canonical axes
+    ok 1 - exposes the seven canonical axes
+      ---
+      duration_ms: 0.056709
+      type: 'test'
+      ...
+    # Subtest: uses the documented default split — visual from A, voice + type + components from B
+    ok 2 - uses the documented default split — visual from A, voice + type + components from B
+      ---
+      duration_ms: 0.36525
+      type: 'test'
+      ...
+    # Subtest: honours per-axis overrides
+    ok 3 - honours per-axis overrides
+      ---
+      duration_ms: 0.187833
+      type: 'test'
+      ...
+    # Subtest: strips score / cssHealth (they belong to the source extractions, not the fusion)
+    ok 4 - strips score / cssHealth (they belong to the source extractions, not the fusion)
+      ---
+      duration_ms: 0.113125
+      type: 'test'
+      ...
+    # Subtest: synthesises a pair-specific meta URL and title
+    ok 5 - synthesises a pair-specific meta URL and title
+      ---
+      duration_ms: 0.126667
+      type: 'test'
+      ...
+    # Subtest: does not mutate the source designs
+    ok 6 - does not mutate the source designs
+      ---
+      duration_ms: 0.112875
+      type: 'test'
+      ...
+    # Subtest: throws clearly when either design is missing
+    ok 7 - throws clearly when either design is missing
+      ---
+      duration_ms: 0.058542
+      type: 'test'
+      ...
+    1..7
+ok 31 - fuseDesigns
+  ---
+  duration_ms: 1.443375
+  type: 'suite'
+  ...
+# Subtest: formatPair
+    # Subtest: renders both source hosts + the fused identity in self-contained HTML
+    ok 1 - renders both source hosts + the fused identity in self-contained HTML
+      ---
+      duration_ms: 0.546833
+      type: 'test'
+      ...
+    # Subtest: uses the fused designs sample heading in the specimen when available
+    ok 2 - uses the fused designs sample heading in the specimen when available
+      ---
+      duration_ms: 0.179209
+      type: 'test'
+      ...
+    # Subtest: escapes user-controlled strings (XSS)
+    ok 3 - escapes user-controlled strings (XSS)
+      ---
+      duration_ms: 0.263417
+      type: 'test'
+      ...
+    # Subtest: throws when any of the three designs is missing
+    ok 4 - throws when any of the three designs is missing
+      ---
+      duration_ms: 0.207417
+      type: 'test'
+      ...
+    1..4
+ok 32 - formatPair
+  ---
+  duration_ms: 1.614833
+  type: 'suite'
+  ...
+# Subtest: formatPairMarkdown
+    # Subtest: emits a per-axis source table
+    ok 1 - emits a per-axis source table
+      ---
+      duration_ms: 0.210625
+      type: 'test'
+      ...
+    1..1
+ok 33 - formatPairMarkdown
+  ---
+  duration_ms: 0.287875
+  type: 'suite'
+  ...
+# Subtest: MCP resources
+    # Subtest: lists five URIs
+    ok 1 - lists five URIs
+      ---
+      duration_ms: 1.160875
+      type: 'test'
+      ...
+    # Subtest: reads semantic tokens
+    ok 2 - reads semantic tokens
+      ---
+      duration_ms: 0.148667
+      type: 'test'
+      ...
+    # Subtest: throws for unknown uri
+    ok 3 - throws for unknown uri
+      ---
+      duration_ms: 0.208834
+      type: 'test'
+      ...
+    1..3
+ok 34 - MCP resources
+  ---
+  duration_ms: 2.024459
+  type: 'suite'
+  ...
+# Subtest: MCP tools
+    # Subtest: search_tokens finds semantic token by substring
+    ok 1 - search_tokens finds semantic token by substring
+      ---
+      duration_ms: 0.299667
+      type: 'test'
+      ...
+    # Subtest: find_nearest_color returns a palette color passing AA
+    ok 2 - find_nearest_color returns a palette color passing AA
+      ---
+      duration_ms: 0.436583
+      type: 'test'
+      ...
+    # Subtest: get_region returns hero
+    ok 3 - get_region returns hero
+      ---
+      duration_ms: 0.529417
+      type: 'test'
+      ...
+    # Subtest: get_component returns button cluster
+    ok 4 - get_component returns button cluster
+      ---
+      duration_ms: 0.259584
+      type: 'test'
+      ...
+    # Subtest: list_failing_contrast_pairs returns remediation array
+    ok 5 - list_failing_contrast_pairs returns remediation array
+      ---
+      duration_ms: 0.313833
+      type: 'test'
+      ...
+    # Subtest: throws on unknown tool
+    ok 6 - throws on unknown tool
+      ---
+      duration_ms: 0.320667
+      type: 'test'
+      ...
+    1..6
+ok 35 - MCP tools
+  ---
+  duration_ms: 2.642125
+  type: 'suite'
+  ...
+# (node:38144) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/lib/cache.js is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/zero-suminc./Documents/Codex/2026-09-05/please-scan-this-repository-for-any/work/design-extract-repo/website/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: raw titles, headings, fonts, model prose and anatomy cannot enter agent prompts
+ok 36 - raw titles, headings, fonts, model prose and anatomy cannot enter agent prompts
+  ---
+  duration_ms: 2.342875
+  type: 'test'
+  ...
+# Subtest: complete extraction formats while hostile Markdown fields are omitted
+ok 37 - complete extraction formats while hostile Markdown fields are omitted
+  ---
+  duration_ms: 13.802542
+  type: 'test'
+  ...
+# Subtest: MCP omits page text and arbitrary token keys
+ok 38 - MCP omits page text and arbitrary token keys
+  ---
+  duration_ms: 0.602958
+  type: 'test'
+  ...
+# Subtest: v10: page intent
+    # Subtest: classifies /pricing as pricing with high confidence
+    ok 1 - classifies /pricing as pricing with high confidence
+      ---
+      duration_ms: 2.192042
+      type: 'test'
+      ...
+    # Subtest: classifies / with hero+features as landing
+    ok 2 - classifies / with hero+features as landing
+      ---
+      duration_ms: 0.834875
+      type: 'test'
+      ...
+    # Subtest: classifies docs URL as docs
+    ok 3 - classifies docs URL as docs
+      ---
+      duration_ms: 0.152625
+      type: 'test'
+      ...
+    1..3
+ok 39 - v10: page intent
+  ---
+  duration_ms: 3.714625
+  type: 'suite'
+  ...
+# Subtest: v10: section roles
+    # Subtest: labels hero/features/pricing/footer
+    ok 1 - labels hero/features/pricing/footer
+      ---
+      duration_ms: 1.022709
+      type: 'test'
+      ...
+    1..1
+ok 40 - v10: section roles
+  ---
+  duration_ms: 1.092083
+  type: 'suite'
+  ...
+# Subtest: v10: component library detection
+    # Subtest: detects shadcn via shadcn css tokens
+    ok 1 - detects shadcn via shadcn css tokens
+      ---
+      duration_ms: 0.980125
+      type: 'test'
+      ...
+    # Subtest: detects MUI via Mui*-root classes
+    ok 2 - detects MUI via Mui*-root classes
+      ---
+      duration_ms: 0.333625
+      type: 'test'
+      ...
+    # Subtest: falls back to tailwindcss when only utility density present
+    ok 3 - falls back to tailwindcss when only utility density present
+      ---
+      duration_ms: 0.347875
+      type: 'test'
+      ...
+    1..3
+ok 41 - v10: component library detection
+  ---
+  duration_ms: 1.877125
+  type: 'suite'
+  ...
+# Subtest: v10: material language
+    # Subtest: flags brutalist via hard shadows + sharp corners + saturation
+    ok 1 - flags brutalist via hard shadows + sharp corners + saturation
+      ---
+      duration_ms: 0.6645
+      type: 'test'
+      ...
+    # Subtest: flags flat when no shadows and simple radii
+    ok 2 - flags flat when no shadows and simple radii
+      ---
+      duration_ms: 0.237042
+      type: 'test'
+      ...
+    1..2
+ok 42 - v10: material language
+  ---
+  duration_ms: 1.118041
+  type: 'suite'
+  ...
+# Subtest: v10: imagery style
+    # Subtest: flags flat-illustration when svg dominant
+    ok 1 - flags flat-illustration when svg dominant
+      ---
+      duration_ms: 0.778875
+      type: 'test'
+      ...
+    # Subtest: flags photography when raster + photo filename hints
+    ok 2 - flags photography when raster + photo filename hints
+      ---
+      duration_ms: 0.095416
+      type: 'test'
+      ...
+    1..2
+ok 43 - v10: imagery style
+  ---
+  duration_ms: 0.923167
+  type: 'suite'
+  ...
+# Subtest: v10: multipage discovery
+    # Subtest: picks canonical pages from nav links by URL + anchor
+    ok 1 - picks canonical pages from nav links by URL + anchor
+      ---
+      duration_ms: 0.962083
+      type: 'test'
+      ...
+    # Subtest: computes cross-page consistency
+    ok 2 - computes cross-page consistency
+      ---
+      duration_ms: 0.33325
+      type: 'test'
+      ...
+    1..2
+ok 44 - v10: multipage discovery
+  ---
+  duration_ms: 1.33375
+  type: 'suite'
+  ...
+# Subtest: v10: prompt pack
+    # Subtest: builds prompts with inlined tokens
+    ok 1 - builds prompts with inlined tokens
+      ---
+      duration_ms: 1.331417
+      type: 'test'
+      ...
+    # Subtest: v0 prompt is non-empty even with a minimal design
+    ok 2 - v0 prompt is non-empty even with a minimal design
+      ---
+      duration_ms: 0.060875
+      type: 'test'
+      ...
+    1..2
+ok 45 - v10: prompt pack
+  ---
+  duration_ms: 1.429167
+  type: 'suite'
+  ...
+1..45
+# tests 186
+# suites 43
+# pass 186
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 282.361833
