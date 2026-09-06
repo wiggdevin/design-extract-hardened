@@ -83,7 +83,7 @@ function Hero() {
             </p>
             <div className="hero-cta">
               <a href="#extract" className="btn btn-primary">Watch it read a site</a>
-              <a href="https://github.com/Manavarya09/design-extract" className="btn btn-ghost" target="_blank" rel="noreferrer">View source</a>
+              <a href="https://github.com/wiggdevin/design-extract-hardened" className="btn btn-ghost" target="_blank" rel="noreferrer">View source</a>
             </div>
             <div style={{ marginTop: 26 }}>
               <CopyCmd cmd="npx designlang stripe.com" hint="— no install, no account" />

@@ -52,13 +52,13 @@ export default function MobileMenu({ stars }) {
               <a href="/build"     onClick={() => setOpen(false)}>Build</a>
             </nav>
             <div className="nav-sheet-meta">
-              <a href="https://github.com/Manavarya09/design-extract" target="_blank" rel="noreferrer" className="nav-sheet-row">
+              <a href="https://github.com/wiggdevin/design-extract-hardened" target="_blank" rel="noreferrer" className="nav-sheet-row">
                 <span>GitHub</span>
                 <span className="mono">★ {stars ?? '—'}</span>
               </a>
-              <a href="https://www.npmjs.com/package/designlang" target="_blank" rel="noreferrer" className="nav-sheet-row">
+              <a href="https://github.com/wiggdevin/design-extract-hardened#run-this-fork-locally" target="_blank" rel="noreferrer" className="nav-sheet-row">
                 <span>npm</span>
-                <span className="mono">npm i designlang ↗</span>
+                <span className="mono">Install hardened fork ↗</span>
               </a>
             </div>
           </div>

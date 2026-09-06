@@ -79,7 +79,7 @@ export const viewport = {
 
 async function fetchStars() {
   try {
-    const res = await fetch('https://api.github.com/repos/Manavarya09/design-extract', {
+    const res = await fetch('https://api.github.com/repos/wiggdevin/design-extract-hardened', {
       headers: { 'Accept': 'application/vnd.github+json', 'User-Agent': 'designlang-website' },
       next: { revalidate: 1800 },
     });
@@ -121,7 +121,7 @@ async function Nav() {
 
         <div className="nav-right">
           <a
-            href="https://github.com/Manavarya09/design-extract"
+            href="https://github.com/wiggdevin/design-extract-hardened"
             target="_blank"
             rel="noreferrer"
             className="nav-stars"
@@ -132,8 +132,8 @@ async function Nav() {
             </svg>
             <span className="mono">{formatStars(stars)}</span>
           </a>
-          <a href="https://www.npmjs.com/package/designlang" target="_blank" rel="noreferrer" className="nav-cta">
-            <span>npm i designlang</span>
+          <a href="https://github.com/wiggdevin/design-extract-hardened#run-this-fork-locally" target="_blank" rel="noreferrer" className="nav-cta">
+            <span>Install hardened fork</span>
             <span className="nav-cta-glyph" aria-hidden>↗</span>
           </a>
           <MobileMenu stars={formatStars(stars)} />
@@ -158,8 +158,8 @@ function Footer() {
             Reverse-engineer any website into a complete design system. CLI, MCP, studio, brand books — one command.
           </p>
           <div className="ftr-actions">
-            <a className="btn btn-primary btn-sm" href="https://www.npmjs.com/package/designlang" target="_blank" rel="noreferrer">npm i designlang</a>
-            <a className="btn btn-ghost btn-sm" href="https://github.com/Manavarya09/design-extract" target="_blank" rel="noreferrer">GitHub</a>
+            <a className="btn btn-primary btn-sm" href="https://github.com/wiggdevin/design-extract-hardened#run-this-fork-locally" target="_blank" rel="noreferrer">Install hardened fork</a>
+            <a className="btn btn-ghost btn-sm" href="https://github.com/wiggdevin/design-extract-hardened" target="_blank" rel="noreferrer">GitHub</a>
           </div>
         </div>
 
@@ -174,10 +174,10 @@ function Footer() {
           </div>
           <div className="ftr-col">
             <span className="ftr-title">Install</span>
-            <a href="https://www.npmjs.com/package/designlang" target="_blank" rel="noreferrer">npm</a>
-            <a href="https://github.com/Manavarya09/design-extract" target="_blank" rel="noreferrer">GitHub source</a>
-            <a href="https://github.com/Manavarya09/design-extract/releases" target="_blank" rel="noreferrer">Releases</a>
-            <a href="https://github.com/Manavarya09/design-extract/blob/main/CHANGELOG.md" target="_blank" rel="noreferrer">Changelog</a>
+            <a href="https://github.com/wiggdevin/design-extract-hardened#run-this-fork-locally" target="_blank" rel="noreferrer">npm</a>
+            <a href="https://github.com/wiggdevin/design-extract-hardened" target="_blank" rel="noreferrer">GitHub source</a>
+            <a href="https://github.com/wiggdevin/design-extract-hardened/releases" target="_blank" rel="noreferrer">Releases</a>
+            <a href="https://github.com/wiggdevin/design-extract-hardened/blob/hardened/CHANGELOG.md" target="_blank" rel="noreferrer">Changelog</a>
           </div>
           <div className="ftr-col">
             <span className="ftr-title">Integrations</span>
@@ -239,6 +239,9 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <Nav />
+        <aside aria-label="Hardened build">
+          <p>Hardened local build. <a href="https://github.com/wiggdevin/design-extract-hardened#run-this-fork-locally">Install from this repository</a>; upstream npm commands in older examples do not include these fixes. Public sharing and external LLM exports are disabled.</p>
+        </aside>
         {children}
         <Footer />
         <SponsorSlot />
