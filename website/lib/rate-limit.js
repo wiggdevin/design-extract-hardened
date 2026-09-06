@@ -29,80 +29,11 @@ export function _resetRateLimit() {
   hits.clear();
 }
 
-// ─── Blob-backed persistent rate limiter ─────────────────────
-//
-// The in-memory limiter above resets on every cold start, so on Vercel Fluid
-// it doesn't actually bound traffic. checkRateBlob persists per-key state in
-// Vercel Blob (already used for the extraction cache), giving a real
-// cross-instance counter without adding Upstash/KV.
-//
-// Layout: ratelimit/{sha256(key)}.json containing { count, firstAt }.
-// Cost: a few hundred bytes per IP per day. Negligible.
-
-import { createHash } from 'node:crypto';
-
-function rlPath(key) {
-  return `ratelimit/${createHash('sha256').update(String(key)).digest('hex')}.json`;
-}
-
-async function readBlobJson(path) {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return null;
-  try {
-    const { list } = await import('@vercel/blob');
-    const result = await list({ prefix: path, limit: 1 });
-    const blob = result.blobs?.find((b) => b.pathname === path);
-    if (!blob) return null;
-    const res = await fetch(blob.url, { cache: 'no-store' });
-    if (!res.ok) return null;
-    return await res.json();
-  } catch { return null; }
-}
-
-async function writeBlobJson(path, payload) {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return;
-  try {
-    const { put } = await import('@vercel/blob');
-    await put(path, JSON.stringify(payload), {
-      access: 'public',
-      contentType: 'application/json',
-      addRandomSuffix: false,
-      allowOverwrite: true,
-    });
-  } catch { /* swallow — better to allow than 500 on Blob outage */ }
-}
-
-export async function checkRateBlob(
-  key,
-  { limit = 1, windowMs = 24 * 60 * 60 * 1000 } = {}
-) {
-  const now = Date.now();
-  const path = rlPath(key);
-
-  // No Blob configured (local dev) → permissive fallback.
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    return { allowed: true, remaining: limit - 1, resetAt: now + windowMs, persistent: false };
+// Public Blob counters were neither private nor atomic. Hosted requests fail
+// closed until an authenticated, atomic quota store is implemented.
+export async function checkRateBlob(key, options = {}) {
+  if (process.env.NODE_ENV === 'production') {
+    return { allowed: false, remaining: 0, resetAt: Date.now() + 60000, persistent: false };
   }
-
-  const entry = await readBlobJson(path);
-
-  if (!entry || typeof entry.firstAt !== 'number' || now - entry.firstAt >= windowMs) {
-    await writeBlobJson(path, { count: 1, firstAt: now });
-    return { allowed: true, remaining: Math.max(0, limit - 1), resetAt: now + windowMs, persistent: true };
-  }
-
-  const newCount = (entry.count || 0) + 1;
-  const resetAt = entry.firstAt + windowMs;
-  const allowed = newCount <= limit;
-
-  // Only write back if we're allowing — denies don't need state updates.
-  if (allowed) {
-    await writeBlobJson(path, { count: newCount, firstAt: entry.firstAt });
-  }
-
-  return {
-    allowed,
-    remaining: Math.max(0, limit - newCount),
-    resetAt,
-    persistent: true,
-  };
+  return { ...checkRate(key, options), persistent: false };
 }
