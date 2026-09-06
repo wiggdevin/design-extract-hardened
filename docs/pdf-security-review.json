@@ -1,0 +1,285 @@
+{
+  "schema_version": "1.0",
+  "ref": "dafc307bb442ab929ef654bbb72b53bfcfb0363b",
+  "base": {
+    "status": "AVAILABLE",
+    "value": "0d5a807e32bb118e719217fc66e84b43781aef10",
+    "unavailable_reason": null,
+    "evidence": [
+      {
+        "class": "COMMAND",
+        "citation": "docs/pdf-review-evidence.md:5"
+      }
+    ]
+  },
+  "scope": {
+    "changed_paths": [
+      "scripts/security/check-pdf-download.mjs",
+      "tests/website-pdf.test.js",
+      "website/app/api/pdf/route.js",
+      "website/app/components/ShareExtractionButton.js",
+      "website/lib/pdf.js"
+    ],
+    "captured_diff_paths": [
+      "scripts/security/check-pdf-download.mjs",
+      "tests/website-pdf.test.js",
+      "website/app/api/pdf/route.js",
+      "website/app/components/ShareExtractionButton.js",
+      "website/lib/pdf.js"
+    ],
+    "path_classification": [
+      {
+        "path": "scripts/security/check-pdf-download.mjs",
+        "surfaces": [
+          "untrusted-input",
+          "export"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "scripts/security/check-pdf-download.mjs:1"
+          }
+        ]
+      },
+      {
+        "path": "tests/website-pdf.test.js",
+        "surfaces": [
+          "untrusted-input",
+          "export"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "tests/website-pdf.test.js:1"
+          }
+        ]
+      },
+      {
+        "path": "website/app/api/pdf/route.js",
+        "surfaces": [
+          "untrusted-input",
+          "export"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "website/app/api/pdf/route.js:1"
+          }
+        ]
+      },
+      {
+        "path": "website/app/components/ShareExtractionButton.js",
+        "surfaces": [
+          "untrusted-input",
+          "export"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "website/app/components/ShareExtractionButton.js:1"
+          }
+        ]
+      },
+      {
+        "path": "website/lib/pdf.js",
+        "surfaces": [
+          "untrusted-input",
+          "export"
+        ],
+        "evidence": [
+          {
+            "class": "STATIC",
+            "citation": "website/lib/pdf.js:1"
+          }
+        ]
+      }
+    ],
+    "sensitive_surfaces": [
+      "export",
+      "untrusted-input"
+    ],
+    "diff_command_id": "CMD-001",
+    "evidence": [
+      {
+        "class": "COMMAND",
+        "citation": "docs/pdf-review-evidence.md:5"
+      }
+    ]
+  },
+  "commands": [
+    {
+      "id": "CMD-001",
+      "purpose": "diff",
+      "command": "git diff --name-only 0d5a807e32bb118e719217fc66e84b43781aef10...dafc307bb442ab929ef654bbb72b53bfcfb0363b",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "scope": "0d5a807e32bb118e719217fc66e84b43781aef10...dafc307bb442ab929ef654bbb72b53bfcfb0363b",
+      "evidence": [
+        {
+          "class": "COMMAND",
+          "citation": "docs/pdf-review-evidence.md:5"
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "id": "CMD-002",
+      "purpose": "secrets-scan",
+      "command": "gitleaks detect --source . --no-banner --redact --log-opts 0d5a807e32bb118e719217fc66e84b43781aef10..dafc307bb442ab929ef654bbb72b53bfcfb0363b",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "scope": "0d5a807e32bb118e719217fc66e84b43781aef10..dafc307bb442ab929ef654bbb72b53bfcfb0363b",
+      "evidence": [
+        {
+          "class": "COMMAND",
+          "citation": "docs/pdf-review-evidence.md:17"
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "id": "CMD-003",
+      "purpose": "focused-verification",
+      "command": "node --test tests/website-pdf.test.js tests/network-safety.test.js tests/export-security.test.js",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "scope": "PDF rendering, network policy and export regression",
+      "evidence": [
+        {
+          "class": "COMMAND",
+          "citation": "docs/pdf-review-evidence.md:25"
+        }
+      ],
+      "unavailable_reason": null
+    }
+  ],
+  "exports": {
+    "state": "LISTED",
+    "items": [
+      {
+        "id": "EXP-001",
+        "destination": "HTTP PDF attachment returned to the initiating local browser",
+        "data_classes": [
+          "Caller-supplied brand HTML rendered offline",
+          "Sanitized host label"
+        ],
+        "initiating_identity": "Local operator explicitly requesting PDF download",
+        "authorization_evidence": [
+          {
+            "class": "STATIC",
+            "citation": "docs/pdf-download-verification.md:3"
+          }
+        ],
+        "recipient_scope": "Same requesting local HTTP client; no third-party recipient or remote browser",
+        "retention_redaction": "Response cache-control no-store; operator controls downloaded file retention; generic server failure text; remote resources and page scripts disabled",
+        "failure_behavior": "Generic 500 JSON error without browser internals; bounded UI alert",
+        "policy_basis": {
+          "status": "OWNER-APPROVED",
+          "citation": "docs/pdf-download-verification.md:3",
+          "owner": "Devin",
+          "reason": null
+        }
+      }
+    ],
+    "evidence": [
+      {
+        "class": "STATIC",
+        "citation": "docs/pdf-download-verification.md:3"
+      }
+    ],
+    "unavailable_reason": null
+  },
+  "secrets_scan": {
+    "result": "PASS",
+    "command_id": "CMD-002",
+    "scope": "RANGE",
+    "comparison": "0d5a807e32bb118e719217fc66e84b43781aef10..dafc307bb442ab929ef654bbb72b53bfcfb0363b",
+    "evidence": [
+      {
+        "class": "COMMAND",
+        "citation": "docs/pdf-review-evidence.md:17"
+      }
+    ],
+    "unavailable_reason": null
+  },
+  "export_policy": {
+    "result": "PASS",
+    "evidence": [
+      {
+        "class": "STATIC",
+        "citation": "docs/pdf-download-verification.md:3"
+      }
+    ],
+    "unavailable_reason": null
+  },
+  "coverage": [
+    {
+      "surface": "prompt-injection",
+      "state": "NOT-APPLICABLE",
+      "evidence": [
+        {
+          "class": "STATIC",
+          "citation": "docs/pdf-download-verification.md:3"
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "surface": "secrets",
+      "state": "REVIEWED",
+      "evidence": [
+        {
+          "class": "COMMAND",
+          "citation": "docs/pdf-review-evidence.md:17"
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "surface": "authentication",
+      "state": "NOT-APPLICABLE",
+      "evidence": [
+        {
+          "class": "STATIC",
+          "citation": "docs/pdf-download-verification.md:3"
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "surface": "authorization",
+      "state": "NOT-APPLICABLE",
+      "evidence": [
+        {
+          "class": "STATIC",
+          "citation": "docs/pdf-download-verification.md:3"
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "surface": "untrusted-input",
+      "state": "REVIEWED",
+      "evidence": [
+        {
+          "class": "STATIC",
+          "citation": "docs/pdf-download-verification.md:3"
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "surface": "export",
+      "state": "REVIEWED",
+      "evidence": [
+        {
+          "class": "STATIC",
+          "citation": "docs/pdf-download-verification.md:3"
+        }
+      ],
+      "unavailable_reason": null
+    }
+  ],
+  "findings": [],
+  "verdict": "PASS"
+}

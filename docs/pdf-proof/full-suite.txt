@@ -1,0 +1,12 @@
+Command: npm test
+Exit: 0
+  ...
+1..201
+# tests 650
+# suites 151
+# pass 650
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 25810.235666

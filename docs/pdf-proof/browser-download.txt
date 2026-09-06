@@ -1,0 +1,2 @@
+PASS real PDF download: 18 pages, example.com-brand.pdf
+PASS forced PDF failure: stable button, bounded alert, results retained, no overflow at 375/1280px
