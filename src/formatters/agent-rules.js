@@ -1,3 +1,4 @@
+import { promptData, PROMPT_TRUST_NOTICE } from '../security/prompt-data.js';
 // Agent rules emitter. Produces ready-to-drop files that teach coding agents
 // (Cursor, Claude Code, generic) to prefer the extracted design tokens
 // instead of inventing new colors/typography.
@@ -13,7 +14,7 @@ function hostFromUrl(url) {
 // Resolve a semantic token path to its concrete leaf value, or fall back.
 function resolveSemantic(tokens, path, fallback) {
   const v = resolveRef(tokens, path);
-  return (typeof v === 'string' && v) ? v : fallback;
+  return promptData(v) || fallback;
 }
 
 function firstFontFamily(tokens) {
@@ -21,7 +22,7 @@ function firstFontFamily(tokens) {
   const keys = Object.keys(fam);
   if (!keys.length) return 'system-ui';
   const v = fam[keys[0]]?.$value;
-  return typeof v === 'string' ? v : 'system-ui';
+  return promptData(v) || 'system-ui';
 }
 
 function buildBody({ url, tokens, design, iso }) {
@@ -31,7 +32,7 @@ function buildBody({ url, tokens, design, iso }) {
   const radiusControl = resolveSemantic(tokens, 'semantic.radius.control', '0px');
   const fontFamily = firstFontFamily(tokens);
 
-  const lines = [];
+  const lines = [PROMPT_TRUST_NOTICE, ''];
   lines.push(`Source: ${url}`);
   lines.push(`Extracted by designlang v7.0.0 on ${iso}`);
   lines.push('');
@@ -103,8 +104,9 @@ function agentsMdFile({ url, body }) {
 }
 
 export function formatAgentRules({ design, tokens, url }) {
-  const resolvedUrl = url || tokens?.$metadata?.source || design?.meta?.url || 'unknown';
-  const iso = tokens?.$metadata?.generatedAt || new Date().toISOString();
+  const resolvedUrl = 'source omitted';
+  design = promptData(design);
+  const iso = new Date().toISOString();
   const { body } = buildBody({ url: resolvedUrl, tokens, design: design || {}, iso });
 
   return {

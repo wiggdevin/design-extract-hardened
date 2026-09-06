@@ -1,7 +1,9 @@
+import { promptData, PROMPT_TRUST_NOTICE } from '../security/prompt-data.js';
 import { pxToRem } from '../utils.js';
 
 export function formatMarkdown(design) {
-  const lines = [];
+  design = promptData(design);
+  const lines = [PROMPT_TRUST_NOTICE, ''];
   const { meta, colors, typography, spacing, shadows, borders, variables, breakpoints, animations, components } = design;
   const componentClusters = Array.isArray(design.componentClusters) ? design.componentClusters : [];
 

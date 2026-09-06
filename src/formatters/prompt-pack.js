@@ -1,3 +1,4 @@
+import { promptData, PROMPT_TRUST_NOTICE } from '../security/prompt-data.js';
 // Generates ready-to-paste prompts for v0, Lovable, Cursor, and Claude
 // Artifacts — plus atomic per-component "recipe cards". The point is to get an
 // LLM to reproduce a site's look without the user having to hand-translate the
@@ -84,8 +85,10 @@ function coreBrief(design, opts = {}) {
 }
 
 export function formatV0Prompt(design) {
+  design = promptData(design);
   const b = coreBrief(design);
   return [
+    PROMPT_TRUST_NOTICE,
     `Build a ${b.intent} page with this exact visual language.`,
     '',
     'COLORS:',
@@ -107,8 +110,10 @@ export function formatV0Prompt(design) {
 }
 
 export function formatLovablePrompt(design) {
+  design = promptData(design);
   const b = coreBrief(design);
   return [
+    PROMPT_TRUST_NOTICE,
     `Clone the design language of this ${b.intent} page and build a fresh equivalent.`,
     '',
     `Visual feel: ${b.material}. ${b.voice || ''}`,
@@ -124,8 +129,10 @@ export function formatLovablePrompt(design) {
 }
 
 export function formatCursorPrompt(design) {
+  design = promptData(design);
   const b = coreBrief(design);
   return [
+    PROMPT_TRUST_NOTICE,
     '# Design brief',
     '',
     `Page type: **${b.intent}**.`,
@@ -151,8 +158,10 @@ export function formatCursorPrompt(design) {
 }
 
 export function formatClaudeArtifactPrompt(design) {
+  design = promptData(design);
   const b = coreBrief(design);
   return [
+    PROMPT_TRUST_NOTICE,
     'Create a React artifact that reproduces this brand\'s design language.',
     '',
     `Page intent: ${b.intent}.`,
@@ -172,6 +181,7 @@ export function formatClaudeArtifactPrompt(design) {
 }
 
 export function formatRecipeCards(design) {
+  design = promptData(design);
   const clusters = design.componentClusters || [];
   if (!clusters.length) return [];
   const b = coreBrief(design);
@@ -185,6 +195,7 @@ export function formatRecipeCards(design) {
     return {
       name,
       content: [
+        PROMPT_TRUST_NOTICE,
         `# Recipe: ${name}`,
         '',
         `Build one ${name} component that matches this brand.`,
