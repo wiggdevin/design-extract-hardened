@@ -9,7 +9,7 @@
 //   { type:'error', error }                      — terminal failure
 
 import { extractDesignLanguage } from '../../../../src/index.js';
-import { validateTargetUrl } from '../../../../website/lib/url-safety.js';
+import { validateResolvedTargetUrl } from '../../../../website/lib/url-safety.js';
 import { checkRate, checkRateBlob } from '../../../../website/lib/rate-limit.js';
 import { cacheKey, getCached, putCached } from '../../../../website/lib/cache.js';
 import { buildFiles, buildSummary } from '../../../../website/lib/build-files.js';
@@ -46,31 +46,7 @@ async function getLocalBrowserOptions() {
 }
 
 async function getBrowserOptions() {
-  // Preferred path: connect to a remote Playwright browser (Browserless v2).
-  // No Chromium binary on the function — cold starts drop from ~3s to ~50ms,
-  // and the heavy work runs on Browserless's infra, not Vercel CPU minutes.
-  if (process.env.BROWSERLESS_TOKEN) {
-    const region = process.env.BROWSERLESS_REGION || 'production-sfo';
-    return {
-      wsEndpoint: `wss://${region}.browserless.io/?token=${process.env.BROWSERLESS_TOKEN}`,
-    };
-  }
   return getLocalBrowserOptions();
-}
-
-// A Browserless failure (quota exhausted → 401, region down, ws error)
-// should not break extraction — it just means we fall back to the
-// bundled Chromium for that request.
-function isBrowserlessFailure(err) {
-  const m = String(err?.message || err || '').toLowerCase();
-  return (
-    m.includes('browserless') ||
-    m.includes('401') ||
-    m.includes('unauthorized') ||
-    m.includes('usage limit') ||
-    m.includes('connectovercdp') ||
-    m.includes('websocket')
-  );
 }
 
 function ndjson(obj) {
@@ -143,7 +119,7 @@ export async function POST(request) {
     return Response.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
 
-  const validation = validateTargetUrl(body?.url);
+  const validation = await validateResolvedTargetUrl(body?.url);
   if (!validation.ok) {
     return Response.json({ error: validation.reason }, { status: validation.status });
   }
@@ -229,21 +205,7 @@ export async function POST(request) {
           ? { onScreencastFrame, screencastOpts: THEATRE_SCREENCAST_OPTS }
           : {};
 
-        let design;
-        try {
-          design = await extractDesignLanguage(targetUrl, { ...browserOpts, ...theatreOpts });
-        } catch (err) {
-          // Browserless quota / auth / connection failure — retry once on
-          // the bundled Chromium so a dead remote browser never takes the
-          // whole extractor down.
-          if (browserOpts.wsEndpoint && isBrowserlessFailure(err)) {
-            console.warn('[extract] browserless failed, falling back to bundled chromium', err?.message);
-            const fallback = await getLocalBrowserOptions();
-            design = await extractDesignLanguage(targetUrl, { ...fallback, ...theatreOpts });
-          } else {
-            throw err;
-          }
-        }
+        const design = await extractDesignLanguage(targetUrl, { ...browserOpts, ...theatreOpts });
 
         // Post-stage markers once extraction resolves.
         for (const stage of STAGES.slice(1)) {

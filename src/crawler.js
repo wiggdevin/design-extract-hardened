@@ -3,8 +3,19 @@ import { mkdirSync } from 'fs';
 import { join } from 'path';
 import { extractMediaDarkColors } from './extractors/dark-mode-pair.js';
 import { startScreencast } from './screencast.js';
+import { startSafeBrowsingProxy } from './security/safe-proxy.js';
 
 const MAX_ELEMENTS = 5000;
+const NETWORK_OVERRIDE_FLAGS = [
+  '--host-resolver-rules',
+  '--no-proxy-server',
+  '--proxy-bypass-list',
+  '--proxy-server',
+];
+
+function keepsNetworkPolicy(browserArg) {
+  return !NETWORK_OVERRIDE_FLAGS.some((flag) => browserArg === flag || browserArg.startsWith(`${flag}=`));
+}
 
 async function gotoWithRetry(page, url, opts, retries = 3) {
   for (let i = 0; i < retries; i++) {
@@ -29,13 +40,13 @@ export async function crawlPage(url, options = {}) {
     motionRuntime = false,
     selector,
     channel,
-    wsEndpoint,  // Remote browser (e.g. Browserless). When set, skips local launch.
+    wsEndpoint,
     onScreencastFrame,  // Theatre: opt-in live frame sink. When set, a throttled
     screencastOpts,     // CDP screencast streams what the page paints during load.
   } = options;
 
   const launchArgs = [
-    ...(browserArgs || []),
+    ...(browserArgs || []).filter(keepsNetworkPolicy),
     // Common flags that help with dev environments and CI. Insecure-only flags
     // are added below when the user opts in.
     '--disable-dev-shm-usage',
@@ -44,24 +55,33 @@ export async function crawlPage(url, options = {}) {
     launchArgs.push('--ignore-certificate-errors', '--ignore-ssl-errors');
   }
 
-  // Prefer remote browser when wsEndpoint is provided (Browserless v2 / any
-  // Playwright-protocol WSS). Skips the @sparticuz/chromium 150MB cold-start
-  // tax on Vercel Functions entirely.
-  const usingRemote = !!wsEndpoint;
-  // Browserless v2 speaks CDP at the root endpoint — connectOverCDP works
-  // across Browserless and any other CDP-compatible service. connect() would
-  // require Playwright's protocol on a path like /playwright/chromium.
-  const browser = usingRemote
-    ? await chromium.connectOverCDP(wsEndpoint, { timeout: 30000 })
-    : await chromium.launch({
-        headless: true,
-        ...(executablePath && { executablePath }),
-        // channel: 'chrome' forces Playwright to use the system Chrome install
-        // instead of the 150MB bundled Chromium — see --system-chrome.
-        ...(channel && { channel }),
-        args: launchArgs,
-      });
+  // A browser running on another host can reach networks this process cannot
+  // police. Fail closed until the remote service can enforce the same policy.
+  if (wsEndpoint) {
+    throw new Error('Remote browser endpoints are disabled because private-network egress cannot be enforced');
+  }
+
+  // Chromium sends every top-level navigation, redirect, and subresource
+  // through this proxy. The proxy resolves each destination itself, rejects
+  // any private/special-use answer, and connects to the validated IP rather
+  // than allowing a second DNS lookup (DNS-rebinding protection).
+  const safeProxy = await startSafeBrowsingProxy();
+  let browser;
   try {
+    browser = await chromium.launch({
+      headless: true,
+      ...(executablePath && { executablePath }),
+      // channel: 'chrome' forces Playwright to use the system Chrome install
+      // instead of the 150MB bundled Chromium — see --system-chrome.
+      ...(channel && { channel }),
+      args: [
+        ...launchArgs,
+        '--disable-quic',
+        '--force-webrtc-ip-handling-policy=disable_non_proxied_udp',
+        '--proxy-bypass-list=<-loopback>',
+      ],
+      proxy: { server: safeProxy.url },
+    });
     const context = await browser.newContext({
       viewport: { width, height },
       colorScheme: 'light',
@@ -248,7 +268,11 @@ export async function crawlPage(url, options = {}) {
       componentScreenshots,
     };
   } finally {
-    await browser.close();
+    try {
+      if (browser) await browser.close();
+    } finally {
+      await safeProxy.close();
+    }
   }
 }
 

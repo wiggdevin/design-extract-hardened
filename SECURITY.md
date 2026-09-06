@@ -10,6 +10,25 @@
 
 Only the latest minor of each supported major receives fixes.
 
+## Network safety boundary
+
+Website extraction runs Chromium behind a loopback-only safety proxy. Each
+top-level navigation, redirect, and subresource hostname is resolved by that
+proxy; extraction proceeds only when every DNS answer is a public address, and
+the proxy connects to the validated address to prevent DNS rebinding. HTTP is
+limited to port 80 and HTTPS to port 443. Local, private, link-local,
+special-purpose, credential-bearing, and non-HTTP(S) targets are rejected.
+
+Remote browser endpoints, including Browserless connections supplied through
+`wsEndpoint`, are rejected because this process cannot enforce the same network
+boundary on a browser running elsewhere. Hosted deployments therefore use a
+locally launched browser; configuring `BROWSERLESS_TOKEN` does not enable a
+remote path.
+
+The shared address policy lives in `src/security/url-safety.js`; the pinning
+proxy is `src/security/safe-proxy.js`, and `src/crawler.js` owns the enforced
+browser launch boundary.
+
 ## Reporting a vulnerability
 
 **Please don't open a public issue.** Use GitHub's private vulnerability reporting instead:

@@ -11,10 +11,10 @@
 import { extractDesignLanguage } from '../../../../src/index.js';
 import { formatDtcgTokens } from '../../../../src/formatters/dtcg-tokens.js';
 import { studioHtml } from '../../../../src/studio.js';
-import { validateTargetUrl } from '../../../../website/lib/url-safety.js';
+import { validateResolvedTargetUrl } from '../../../../website/lib/url-safety.js';
 import { checkRate, checkRateBlob } from '../../../../website/lib/rate-limit.js';
 import { cacheKey, getCached, putCached } from '../../../../website/lib/cache.js';
-import { getBrowserOptions, getLocalBrowserOptions, isBrowserlessFailure } from '../../../../website/lib/browser.js';
+import { getBrowserOptions } from '../../../../website/lib/browser.js';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -64,7 +64,7 @@ export async function POST(request) {
   try { body = await request.json(); }
   catch { return Response.json({ error: 'Invalid JSON body' }, { status: 400 }); }
 
-  const validation = validateTargetUrl(body?.url);
+  const validation = await validateResolvedTargetUrl(body?.url);
   if (!validation.ok) return Response.json({ error: validation.reason }, { status: validation.status });
   const targetUrl = validation.url;
   const ip = extractIp(request);
@@ -87,16 +87,7 @@ export async function POST(request) {
       if (!blobRate.allowed) return rateLimited(targetUrl, blobRate.resetAt);
 
       const browserOpts = await getBrowserOptions();
-      try {
-        design = await extractDesignLanguage(targetUrl, browserOpts);
-      } catch (err) {
-        // Browserless quota/auth/connection failure — retry once on bundled Chromium.
-        if (browserOpts.wsEndpoint && isBrowserlessFailure(err)) {
-          design = await extractDesignLanguage(targetUrl, await getLocalBrowserOptions());
-        } else {
-          throw err;
-        }
-      }
+      design = await extractDesignLanguage(targetUrl, browserOpts);
       await putCached(key, { design });
     }
 

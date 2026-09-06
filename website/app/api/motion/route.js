@@ -7,10 +7,10 @@
 // ready-to-copy exports.
 
 import { extractDesignLanguage } from '../../../../src/index.js';
-import { validateTargetUrl } from '../../../lib/url-safety.js';
+import { validateResolvedTargetUrl } from '../../../lib/url-safety.js';
 import { checkRate, checkRateBlob } from '../../../lib/rate-limit.js';
 import { cacheKey, getCached, putCached } from '../../../lib/cache.js';
-import { getBrowserOptions, getLocalBrowserOptions, isBrowserlessFailure } from '../../../lib/browser.js';
+import { getBrowserOptions } from '../../../lib/browser.js';
 import { formatMotionTokens } from '../../../../src/formatters/motion-tokens.js';
 import { formatFramerMotion } from '../../../../src/formatters/framer-motion.js';
 import { formatMotionCss } from '../../../../src/formatters/motion-css.js';
@@ -57,7 +57,7 @@ export async function POST(request) {
   let body;
   try { body = await request.json(); } catch { return err(400, 'Invalid JSON body'); }
 
-  const validation = validateTargetUrl(body?.url);
+  const validation = await validateResolvedTargetUrl(body?.url);
   if (!validation.ok) return err(validation.status, validation.reason);
   const targetUrl = validation.url;
 
@@ -81,11 +81,7 @@ export async function POST(request) {
   try {
     design = await extractDesignLanguage(targetUrl, browserOpts);
   } catch (e) {
-    if (browserOpts.wsEndpoint && isBrowserlessFailure(e)) {
-      design = await extractDesignLanguage(targetUrl, await getLocalBrowserOptions());
-    } else {
-      return err(500, e?.message || 'Extraction failed');
-    }
+    return err(500, e?.message || 'Extraction failed');
   }
 
   // Persist to the shared cache so the home page / permalink / PDF all hit it.

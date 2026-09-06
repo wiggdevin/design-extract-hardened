@@ -20,12 +20,18 @@ function dedupeConsecutive(order) {
   return out;
 }
 
-function sanitize(str, fallback = '') {
-  // Escape backslash FIRST so the subsequent escapes don't get re-escaped.
-  return String(str ?? fallback)
-    .replace(/\\/g, '\\\\')
-    .replace(/`/g, '\\`')
-    .replace(/\$\{/g, '\\${');
+function jsString(value, fallback = '') {
+  return JSON.stringify(String(value ?? fallback));
+}
+
+function jsxText(value, fallback = '') {
+  return `{${jsString(value, fallback)}}`;
+}
+
+function finiteNumber(value, fallback, min, max) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return fallback;
+  return Math.min(max, Math.max(min, number));
 }
 
 function titleFromUrl(url = '') {
@@ -67,24 +73,27 @@ function renderHero(ctx) {
   const lede = pickHeading(voice, `A ${intent || 'product'} that deserves its own design system.`);
   const primary = primaryCta(voice);
   const secondary = secondaryCta(voice);
-  const h0 = headings[0] || { size: 56, weight: 700, lineHeight: '1.05' };
+  const h0 = headings[0] || {};
+  const h0Size = finiteNumber(h0.size, 56, 8, 240);
+  const h0Weight = finiteNumber(h0.weight, 700, 100, 1000);
+  const h0LineHeight = jsString(h0.lineHeight, '1.05');
   return `
       <section style={{ padding: '96px 0 72px', textAlign: 'left', maxWidth: '880px' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--color-neutral-1)', marginBottom: 24 }}>
-          cloned · ${sanitize(titleFromUrl(url))}
+          cloned · ${jsxText(titleFromUrl(url))}
         </div>
-        <h1 style={{ fontSize: 'clamp(40px, 6vw, ${h0.size}px)', fontWeight: ${h0.weight}, lineHeight: '${h0.lineHeight}', letterSpacing: '-0.025em', marginBottom: 24 }}>
-          ${sanitize(lede)}
+        <h1 style={{ fontSize: 'clamp(40px, 6vw, ${h0Size}px)', fontWeight: ${h0Weight}, lineHeight: ${h0LineHeight}, letterSpacing: '-0.025em', marginBottom: 24 }}>
+          ${jsxText(lede)}
         </h1>
         <p style={{ fontSize: ${bodySize + 4}, lineHeight: 1.55, color: 'var(--color-neutral-1)', maxWidth: '52ch', marginBottom: 32 }}>
           Every token, section, button verb and shadow on this page was extracted from the live site — nothing invented.
         </p>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
           <button style={{ background: 'var(--color-primary)', color: '#fff', border: '${mat.border === 'none' ? 'none' : '1px solid var(--color-primary)'}', padding: '14px 22px', borderRadius: '${mat.radius}', boxShadow: '${mat.shadow}', fontSize: ${bodySize}, fontWeight: 600, cursor: 'pointer' }}>
-            ${sanitize(primary)}
+            ${jsxText(primary)}
           </button>
           <button style={{ background: 'transparent', color: 'var(--color-foreground)', border: '1px solid var(--color-foreground)', padding: '14px 22px', borderRadius: '${mat.radius}', fontSize: ${bodySize}, fontWeight: 500, cursor: 'pointer' }}>
-            ${sanitize(secondary)}
+            ${jsxText(secondary)}
           </button>
         </div>
       </section>`;
@@ -105,7 +114,9 @@ function renderLogoWall() {
 function renderFeatureGrid(ctx) {
   const { voice, mat, headings, bodySize } = ctx;
   const heading = pickHeading(voice, 'What it actually does.');
-  const h1 = headings[1] || { size: 36, weight: 600 };
+  const h1 = headings[1] || {};
+  const h1Size = finiteNumber(h1.size, 36, 8, 240);
+  const h1Weight = finiteNumber(h1.weight, 600, 100, 1000);
   const features = [
     { t: 'Primitives', b: 'Every color, type, shadow and spacing value lifted from the source.' },
     { t: 'Anatomy', b: 'Variants, sizes and states inferred from real DOM — not guessed.' },
@@ -116,7 +127,7 @@ function renderFeatureGrid(ctx) {
   ];
   return `
       <section style={{ padding: '96px 0' }}>
-        <h2 style={{ fontSize: ${h1.size}, fontWeight: ${h1.weight}, letterSpacing: '-0.02em', marginBottom: 48, maxWidth: '20ch' }}>${sanitize(heading)}</h2>
+        <h2 style={{ fontSize: ${h1Size}, fontWeight: ${h1Weight}, letterSpacing: '-0.02em', marginBottom: 48, maxWidth: '20ch' }}>${jsxText(heading)}</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 24 }}>
           {${JSON.stringify(features)}.map(f => (
             <div key={f.t} style={{ padding: 24, borderRadius: '${mat.radius}', border: '${mat.cardBorder}', boxShadow: '${mat.shadow}', background: 'var(--color-background)' }}>
@@ -173,7 +184,7 @@ function renderPricing(ctx) {
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', opacity: 0.7 }}>{tier.t}</div>
               <div style={{ fontSize: 40, fontWeight: 700, margin: '12px 0', letterSpacing: '-0.02em' }}>{tier.p}<span style={{ fontSize: 14, fontWeight: 400, opacity: 0.7 }}> / mo</span></div>
               <p style={{ fontSize: ${bodySize - 1}, lineHeight: 1.55, marginBottom: 24, opacity: 0.85 }}>{tier.b}</p>
-              <button style={{ width: '100%', background: i === 1 ? 'var(--color-background)' : 'var(--color-primary)', color: i === 1 ? 'var(--color-foreground)' : '#fff', border: 'none', padding: '12px 16px', borderRadius: '${mat.radius}', fontSize: ${bodySize}, fontWeight: 600, cursor: 'pointer' }}>${sanitize(cta)}</button>
+              <button style={{ width: '100%', background: i === 1 ? 'var(--color-background)' : 'var(--color-primary)', color: i === 1 ? 'var(--color-foreground)' : '#fff', border: 'none', padding: '12px 16px', borderRadius: '${mat.radius}', fontSize: ${bodySize}, fontWeight: 600, cursor: 'pointer' }}>${jsxText(cta)}</button>
             </div>
           ))}
         </div>
@@ -263,7 +274,7 @@ function renderCta(ctx) {
         <h2 style={{ fontSize: 44, fontWeight: 700, letterSpacing: '-0.025em', marginBottom: 24 }}>Ready when you are.</h2>
         <p style={{ fontSize: ${bodySize + 2}, color: 'var(--color-neutral-1)', marginBottom: 32, maxWidth: '46ch', margin: '0 auto 32px' }}>One command. A full project. No keys, no account.</p>
         <button style={{ background: 'var(--color-primary)', color: '#fff', border: 'none', padding: '16px 28px', borderRadius: '${mat.radius}', boxShadow: '${mat.shadow}', fontSize: ${bodySize + 2}, fontWeight: 600, cursor: 'pointer' }}>
-          ${sanitize(primary)}
+          ${jsxText(primary)}
         </button>
       </section>`;
 }
@@ -271,7 +282,7 @@ function renderCta(ctx) {
 function renderFooter(url) {
   return `
       <footer style={{ padding: '48px 0 32px', borderTop: '1px solid var(--color-neutral-2)', fontSize: 13, color: 'var(--color-neutral-1)', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
-        <div>Cloned from <a href="${sanitize(url)}" style={{ color: 'var(--color-primary)' }}>${sanitize(titleFromUrl(url))}</a> · structure + tokens only</div>
+        <div>Cloned from <a href=${jsxText(url)} style={{ color: 'var(--color-primary)' }}>${jsxText(titleFromUrl(url))}</a> · structure + tokens only</div>
         <div style={{ fontFamily: 'var(--font-mono)' }}>designlang clone</div>
       </footer>`;
 }
@@ -304,6 +315,8 @@ export function generateClone(design, outDir) {
   const materialLanguage = design.materialLanguage || {};
   const pageIntent = design.pageIntent || {};
   const url = design.meta?.url || '';
+  const metadataTitle = `${design.meta?.title || 'Cloned Design'} · cloned`;
+  const metadataDescription = `Design cloned from ${url} with designlang.`;
 
   const primaryHex = colors.primary?.hex || '#3b82f6';
   const secondaryHex = colors.secondary?.hex || '#8b5cf6';
@@ -356,8 +369,8 @@ button { font-family: inherit; }
 
   // layout.js
   writeFileSync(join(projectDir, 'src/app/layout.js'), `export const metadata = {
-  title: '${(design.meta.title || 'Cloned Design').replace(/\\/g, '\\\\').replace(/'/g, "\\'")} · cloned',
-  description: 'Design cloned from ${url} with designlang.',
+  title: ${jsString(metadataTitle)},
+  description: ${jsString(metadataDescription)},
 };
 
 export default function RootLayout({ children }) {
@@ -387,7 +400,7 @@ export default function RootLayout({ children }) {
     url,
     mat: materialPreset(materialLanguage),
     headings: typography.headings || [],
-    bodySize: typography.body?.size || 16,
+    bodySize: finiteNumber(typography.body?.size, 16, 8, 72),
   };
 
   const sections = order

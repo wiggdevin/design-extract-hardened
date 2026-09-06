@@ -10,7 +10,7 @@
 
 import { extractDesignLanguage } from '../../../../../src/index.js';
 import { formatScoreBadge } from '../../../../../src/formatters/badge.js';
-import { validateTargetUrl } from '../../../../lib/url-safety.js';
+import { validateResolvedTargetUrl } from '../../../../lib/url-safety.js';
 import { cacheKey, getCached, putCached } from '../../../../lib/cache.js';
 
 export const runtime = 'nodejs';
@@ -30,10 +30,6 @@ const ERROR_HEADERS = {
 };
 
 async function getBrowserOptions() {
-  if (process.env.BROWSERLESS_TOKEN) {
-    const region = process.env.BROWSERLESS_REGION || 'production-sfo';
-    return { wsEndpoint: `wss://${region}.browserless.io/?token=${process.env.BROWSERLESS_TOKEN}` };
-  }
   if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
     const chromium = (await import('@sparticuz/chromium')).default;
     return {
@@ -59,7 +55,7 @@ export async function GET(_request, { params }) {
   }
 
   const targetUrl = `https://${cleanHost}`;
-  const validation = validateTargetUrl(targetUrl);
+  const validation = await validateResolvedTargetUrl(targetUrl);
   if (!validation.ok) {
     return svgResponse(
       formatScoreBadge(null, { label: 'design' }),

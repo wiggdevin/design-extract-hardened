@@ -6,7 +6,7 @@
 // already holds — no Blob round-trip — so a just-finished extraction
 // can never fail with "extraction not found".
 
-import { getBrowserOptions, getLocalBrowserOptions, openBrowser } from './browser.js';
+import { getBrowserOptions, openBrowser } from './browser.js';
 
 // Subresource allowlist for the untrusted POST path. The brand book is
 // self-contained inline CSS plus Google Fonts, so we allow only data:
@@ -24,18 +24,11 @@ function footerTemplate(host) {
 
 // Render brand-book HTML to a PDF Buffer. `trusted` (server-generated
 // HTML from the cache) renders as-is; untrusted client HTML gets the
-// subresource allowlist above. Falls back from a dead Browserless to the
-// bundled Chromium so a remote outage never breaks the download.
+// subresource allowlist above.
 export async function renderBrandPdf(html, host, { trusted = false } = {}) {
   const { chromium } = await import('playwright-core');
   const opts = await getBrowserOptions();
-  let browser;
-  try {
-    browser = await openBrowser(chromium, opts);
-  } catch (e) {
-    if (opts.wsEndpoint) browser = await openBrowser(chromium, await getLocalBrowserOptions());
-    else throw e;
-  }
+  const browser = await openBrowser(chromium, opts);
 
   try {
     const page = await browser.newPage();
