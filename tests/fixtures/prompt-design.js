@@ -1,0 +1,116 @@
+export const promptDesign = {
+  meta: {
+    url: 'https://example.com',
+    title: 'Test Site',
+    timestamp: new Date().toISOString(),
+    elementCount: 100,
+    pagesAnalyzed: 1,
+  },
+  colors: {
+    primary: { hex: '#0066cc', rgb: { r: 0, g: 102, b: 204 }, hsl: { h: 210, s: 100, l: 40 }, count: 50 },
+    secondary: { hex: '#cc6600', rgb: { r: 204, g: 102, b: 0 }, hsl: { h: 30, s: 100, l: 40 }, count: 25 },
+    accent: { hex: '#00cc66', rgb: { r: 0, g: 204, b: 102 }, hsl: { h: 150, s: 100, l: 40 }, count: 10 },
+    neutrals: [
+      { hex: '#333333', rgb: { r: 51, g: 51, b: 51 }, hsl: { h: 0, s: 0, l: 20 }, count: 30 },
+      { hex: '#666666', rgb: { r: 102, g: 102, b: 102 }, hsl: { h: 0, s: 0, l: 40 }, count: 20 },
+    ],
+    backgrounds: ['#ffffff', '#f5f5f5'],
+    text: ['#333333', '#666666'],
+    gradients: ['linear-gradient(to right, #0066cc, #00cc66)'],
+    all: [
+      { hex: '#0066cc', rgb: { r: 0, g: 102, b: 204 }, hsl: { h: 210, s: 100, l: 40 }, count: 50, contexts: ['text', 'background'] },
+      { hex: '#333333', rgb: { r: 51, g: 51, b: 51 }, hsl: { h: 0, s: 0, l: 20 }, count: 30, contexts: ['text'] },
+    ],
+  },
+  typography: {
+    families: [
+      { name: 'Inter', count: 80, usage: 'all' },
+      { name: 'Playfair Display', count: 20, usage: 'headings' },
+    ],
+    scale: [
+      { size: 48, weight: '700', lineHeight: '1.2', letterSpacing: '-0.02em', tags: ['h1'], count: 5 },
+      { size: 36, weight: '700', lineHeight: '1.3', letterSpacing: 'normal', tags: ['h2'], count: 8 },
+      { size: 24, weight: '600', lineHeight: '1.4', letterSpacing: 'normal', tags: ['h3'], count: 12 },
+      { size: 16, weight: '400', lineHeight: '1.5', letterSpacing: 'normal', tags: ['p', 'span'], count: 60 },
+    ],
+    headings: [
+      { size: 48, weight: '700', lineHeight: '1.2', letterSpacing: '-0.02em', tags: ['h1'], count: 5 },
+      { size: 36, weight: '700', lineHeight: '1.3', letterSpacing: 'normal', tags: ['h2'], count: 8 },
+    ],
+    body: { size: 16, weight: '400', lineHeight: '1.5', letterSpacing: 'normal', tags: ['p'], count: 60 },
+    weights: [{ weight: '400', count: 60 }, { weight: '600', count: 12 }, { weight: '700', count: 13 }],
+  },
+  spacing: {
+    base: 4,
+    scale: [4, 8, 12, 16, 24, 32, 48, 64],
+    tokens: { '1': '4px', '2': '8px', '3': '12px', '4': '16px', '6': '24px', '8': '32px', '12': '48px', '16': '64px' },
+    raw: [4, 8, 12, 16, 24, 32, 48, 64],
+  },
+  shadows: {
+    values: [
+      { raw: '0 1px 3px rgba(0,0,0,0.1)', blur: 3, inset: false, label: 'sm' },
+      { raw: '0 4px 12px rgba(0,0,0,0.15)', blur: 12, inset: false, label: 'md' },
+    ],
+  },
+  borders: {
+    radii: [
+      { value: 4, label: 'sm', count: 20 },
+      { value: 8, label: 'md', count: 15 },
+      { value: 16, label: 'lg', count: 5 },
+    ],
+    widths: [1, 2],
+    styles: ['solid'],
+  },
+  variables: { colors: { '--color-primary': '#0066cc' }, spacing: {}, typography: {} },
+  breakpoints: [
+    { value: 640, label: 'mobile', type: 'min-width' },
+    { value: 768, label: 'tablet', type: 'min-width' },
+    { value: 1024, label: 'desktop', type: 'min-width' },
+  ],
+  animations: {
+    transitions: ['all 0.2s ease', 'opacity 0.3s ease-in-out'],
+    keyframes: [],
+    easings: ['ease', 'ease-in-out'],
+    durations: ['0.2s', '0.3s'],
+  },
+  components: {
+    buttons: {
+      count: 10,
+      baseStyle: { backgroundColor: '#0066cc', color: '#ffffff', borderRadius: '4px', fontSize: '14px' },
+    },
+  },
+  accessibility: { score: 90, passCount: 45, failCount: 5, totalPairs: 50, pairs: [] },
+  layout: {
+    gridCount: 5,
+    flexCount: 20,
+    gridColumns: [{ columns: 3, count: 5 }],
+    flexDirections: { 'row/nowrap': 15, 'column/nowrap': 5 },
+    justifyPatterns: {},
+    alignPatterns: {},
+    containerWidths: [{ maxWidth: '1200px', padding: '16px' }],
+    gaps: ['16px', '24px'],
+    topGrids: [{ columns: 'repeat(3, 1fr)', rows: 'none', gap: '24px' }],
+    topFlex: [],
+  },
+  gradients: { count: 0, gradients: [] },
+  zIndex: { allValues: [], layers: [], issues: [], scale: [] },
+  icons: { icons: [], count: 0 },
+  fonts: { fonts: [], systemFonts: [] },
+  images: { patterns: [], aspectRatios: [] },
+  componentScreenshots: {},
+  score: {
+    overall: 85,
+    grade: 'B',
+    scores: {
+      colorDiscipline: 85,
+      typographyConsistency: 100,
+      spacingSystem: 90,
+      shadowConsistency: 100,
+      radiusConsistency: 100,
+      accessibility: 90,
+      tokenization: 50,
+    },
+    issues: ['No CSS custom properties found'],
+    strengths: ['Tight, disciplined color palette'],
+  },
+};

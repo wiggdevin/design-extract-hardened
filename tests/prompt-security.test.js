@@ -17,3 +17,29 @@ test('raw titles, headings, fonts, model prose and anatomy cannot enter agent pr
   assert.ok(output.includes('#123456'));
   assert.ok(output.includes('SECURITY:'));
 });
+import { formatMarkdown } from '../src/formatters/markdown.js';
+import { buildResources } from '../src/mcp/resources.js';
+import { buildTools } from '../src/mcp/tools.js';
+import { promptDesign } from './fixtures/prompt-design.js';
+test('complete extraction formats while hostile Markdown fields are omitted', () => {
+ const design=structuredClone(promptDesign);
+ design.meta.title=attack; design.colors.gradients.push(attack);
+ design.typography.families.push({name:attack});
+ design.score.issues.push(attack);
+ design.components[attack]={baseStyle:{color:'#123456'}};
+ const output=formatMarkdown(design);
+ assert.ok(output.includes('## Color Palette'));
+ assert.ok(output.includes('#0066cc'));
+ assert.ok(!output.includes('PRIVATE_MARKER'));
+});
+test('MCP omits page text and arbitrary token keys', async () => {
+ const design={regions:[{role:'hero',heading:attack}], componentClusters:[{kind:'button',sampleText:attack}], colors:{all:['#123456']}};
+ const tokens={primitive:{fontFamily:{body:{$value:attack}},color:{brand:{primary:{$value:'#123456'}}}},semantic:{[attack]:{$value:attack}}};
+ const resources=buildResources({design,tokens});
+ for(const {uri} of resources.list()) assert.ok(!resources.read(uri).text.includes('PRIVATE_MARKER'));
+ const tools=buildTools({design,tokens});
+ for(const [name,args] of [['get_region',{name:'hero'}],['get_component',{name:'button'}],['search_tokens',{query:''}]]) {
+  assert.ok(!JSON.stringify(await tools.call(name,args)).includes('PRIVATE_MARKER'));
+ }
+ assert.ok(resources.read('designlang://tokens/primitive').text.includes('#123456'));
+});

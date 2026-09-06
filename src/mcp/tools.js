@@ -1,3 +1,4 @@
+import { promptData } from '../security/prompt-data.js';
 // MCP tools builder. Pure/testable — returns { list, call } over the
 // loaded design + tokens. No transport concerns here.
 
@@ -84,6 +85,8 @@ const TOOL_DEFS = [
 ];
 
 export function buildTools({ design, tokens }) {
+  design = promptData(design);
+  tokens = promptData(tokens);
   // Pre-flatten for search.
   const flat = [];
   flattenTokens(tokens?.primitive, 'primitive', flat);

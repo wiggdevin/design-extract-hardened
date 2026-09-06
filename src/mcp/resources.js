@@ -1,3 +1,4 @@
+import { promptData } from '../security/prompt-data.js';
 // MCP resources builder. Pure/testable — returns { list, read } over the
 // loaded design + tokens. No transport concerns here.
 
@@ -31,6 +32,8 @@ function rpcError(code, message) {
 }
 
 export function buildResources({ design, tokens }) {
+  design = promptData(design);
+  tokens = promptData(tokens);
   function payloadFor(uri) {
     switch (uri) {
       case 'designlang://tokens/primitive': return tokens?.primitive ?? null;

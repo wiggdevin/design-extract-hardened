@@ -147,9 +147,10 @@ describe('formatMarkdown', () => {
     assert.equal(typeof result, 'string');
   });
 
-  it('contains the site title', () => {
+  it('omits untrusted site title from AI-readable output', () => {
     const result = formatMarkdown(mockDesign);
-    assert.ok(result.includes('Test Site'));
+    assert.ok(!result.includes('Test Site'));
+    assert.ok(result.includes('SECURITY:'));
   });
 
   it('contains color palette section', () => {
@@ -221,17 +222,17 @@ describe('formatMarkdown', () => {
       assert.ok(!formatMarkdown(design).includes('[object Object]'));
     });
 
-    it('renders nested semantic vars as their inner values (1a)', () => {
+    it('omits arbitrary CSS variable names from agent context', () => {
       const r = formatMarkdown(design);
-      assert.ok(r.includes('--color-success: #0a0;'), 'semantic leaf rendered');
+      assert.ok(!r.includes('--color-success'), 'arbitrary source name omitted');
     });
 
     it('renders easing function values, not objects (1b)', () => {
       assert.ok(formatMarkdown(design).includes('cubic-bezier(0.4, 0, 0.2, 1)'));
     });
 
-    it('renders z-index issue messages, not objects (1c)', () => {
-      assert.ok(formatMarkdown(design).includes('Very high z-index values: 9999'));
+    it('omits freeform issue prose from agent context', () => {
+      assert.ok(!formatMarkdown(design).includes('Very high z-index values: 9999'));
     });
 
     it('keeps full component class names (bug 2)', () => {
@@ -746,9 +747,10 @@ describe('formatAgentRules', () => {
     assert.ok(fm.includes('alwaysApply: true'), 'expected alwaysApply: true');
   });
 
-  it('all four files reference the source URL', () => {
+  it('all four files omit the source URL from instruction files', () => {
     for (const key of Object.keys(out)) {
-      assert.ok(out[key].includes(url), `${key} missing url`);
+      assert.ok(!out[key].includes(url), `${key} leaked source URL`);
+      assert.ok(out[key].includes('SECURITY:'));
     }
   });
 
