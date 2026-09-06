@@ -1,7 +1,7 @@
 {
   "name": "designlang",
   "version": "13.2.0",
-  "description": "Extract the complete design language from any website and ship it — clone to a working Next.js starter, guard tokens with a CI drift bot, or browse everything in a local studio. Outputs W3C DTCG tokens, motion tokens, typed anatomy stubs, Tailwind config, and ready-to-paste v0 / Lovable / Cursor / Claude-Artifacts prompts.",
+  "description": "Extract the complete design language from any website and ship it \u2014 clone to a working Next.js starter, guard tokens with a CI drift bot, or browse everything in a local studio. Outputs W3C DTCG tokens, motion tokens, typed anatomy stubs, Tailwind config, and ready-to-paste v0 / Lovable / Cursor / Claude-Artifacts prompts.",
   "type": "module",
   "bin": {
     "designlang": "./bin/design-extract.js"
@@ -14,20 +14,20 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "postinstall": "npx playwright install chromium --with-deps 2>/dev/null || npx playwright install chromium",
     "start": "node bin/design-extract.js",
     "check-plugin": "node scripts/check-plugin-version.mjs",
-    "test": "node --test tests/*.test.js"
+    "test": "node --test tests/*.test.js",
+    "install-browser": "node node_modules/playwright/cli.js install chromium"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.29.0",
-    "chalk": "^5.3.0",
-    "commander": "^15.0.0",
-    "ora": "^9.4.0",
-    "pdf-lib": "^1.17.1",
-    "pixelmatch": "^7.2.0",
-    "playwright": "^1.61.0",
-    "pngjs": "^7.0.0"
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "chalk": "5.6.2",
+    "commander": "15.0.0",
+    "ora": "9.4.0",
+    "pdf-lib": "1.17.1",
+    "pixelmatch": "7.2.0",
+    "playwright": "1.61.0",
+    "pngjs": "7.0.0"
   },
   "engines": {
     "node": ">=20"
@@ -59,5 +59,8 @@
     "design-dna"
   ],
   "author": "masyv",
-  "license": "MIT"
+  "license": "MIT",
+  "overrides": {
+    "qs": "6.16.0"
+  }
 }

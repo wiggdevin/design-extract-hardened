@@ -7,6 +7,7 @@ export default async function Command(props: LaunchProps<{ arguments: { url?: st
     return;
   }
   const url = rawUrl.startsWith("http") ? rawUrl : `https://${rawUrl}`;
-  await Clipboard.copy(`npx designlang ${url}`);
-  await showHUD("Copied `npx designlang …` to clipboard");
+  const quoted = "'" + url.replace(/'/g, "'\\''") + "'";
+  await Clipboard.copy(`designlang ${quoted}`);
+  await showHUD("Copied `designlang …` to clipboard");
 }

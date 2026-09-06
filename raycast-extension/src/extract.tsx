@@ -29,8 +29,6 @@ export default function Command() {
   async function run(values: { url: string; full: boolean }) {
     const outDir = resolveOutputDir(prefs.outputDir);
     const args = [
-      "-y",
-      "designlang",
       normalizeUrl(values.url),
       "--out",
       outDir,
@@ -42,7 +40,7 @@ export default function Command() {
       title: "designlang: extracting...",
     });
 
-    execFile("npx", args, { maxBuffer: 50 * 1024 * 1024 }, async (err, stdout, stderr) => {
+    execFile("designlang", args, { maxBuffer: 50 * 1024 * 1024 }, async (err, stdout, stderr) => {
       if (err) {
         toast.style = Toast.Style.Failure;
         toast.title = "Extraction failed";
@@ -73,7 +71,7 @@ export default function Command() {
         onChange={setUrl}
       />
       <Form.Checkbox id="full" label="Full extraction (screenshots + responsive + interactions)" value={full} onChange={setFull} />
-      <Form.Description text="Runs `npx designlang <url>` and opens the output folder when it finishes." />
+      <Form.Description text="Runs the reviewed local `designlang <url>` and opens the output folder when it finishes." />
     </Form>
   );
 }

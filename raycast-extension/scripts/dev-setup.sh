@@ -46,7 +46,8 @@ fi
 # ── 3. Install deps ─────────────────────────────────────────────
 cd "$EXT_DIR"
 ok "Installing dependencies…"
-npm install --silent --no-audit --no-fund
+echo "Automatic installation disabled: review and lock Raycast dependencies first."
+exit 1
 
 # ── 4. Open Raycast (so dev-mode can register) ──────────────────
 if [[ -d "/Applications/Raycast.app" ]]; then

@@ -17,20 +17,20 @@ jobs:
         node: [20, 22]
     name: node ${{ matrix.node }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
         with:
           node-version: ${{ matrix.node }}
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       # One test (ci.test.js) exercises the extraction failure path, which
       # launches Chromium — make sure the browser + system deps are present.
       - name: Install Playwright Chromium
-        run: npx playwright install --with-deps chromium
+        run: node node_modules/playwright/cli.js install --with-deps chromium
 
       - name: Run tests
         run: npm test

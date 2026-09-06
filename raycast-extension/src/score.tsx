@@ -14,8 +14,8 @@ export default function Command() {
   async function run(values: { url: string }) {
     const toast = await showToast({ style: Toast.Style.Animated, title: "designlang: scoring..." });
     execFile(
-      "npx",
-      ["-y", "designlang", "score", normalizeUrl(values.url)],
+      "designlang",
+      ["score", normalizeUrl(values.url)],
       { maxBuffer: 20 * 1024 * 1024 },
       (err, stdout, stderr) => {
         if (err) {

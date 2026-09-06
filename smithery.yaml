@@ -10,8 +10,8 @@ startCommand:
     required: []
   commandFunction: |-
     (config) => ({
-      command: 'npx',
-      args: ['-y', 'designlang', 'mcp', '--output-dir', config.outputDir || './design-extract-output'],
+      command: 'node',
+      args: ['/app/bin/design-extract.js', 'mcp', '--output-dir', config.outputDir || './design-extract-output'],
     })
 
 build:
