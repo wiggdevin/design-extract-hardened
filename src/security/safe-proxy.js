@@ -62,6 +62,7 @@ export async function startSafeBrowsingProxy({ lookup } = {}) {
         if (!response.headersSent) endHttp(response, error);
         else response.destroy(error);
       });
+      response.on('error', () => upstream.destroy());
       request.pipe(upstream);
     } catch (error) {
       endHttp(response, error);
@@ -84,6 +85,11 @@ export async function startSafeBrowsingProxy({ lookup } = {}) {
         clientSocket.pipe(upstreamSocket);
       });
       upstreamSocket.once('error', (error) => endTunnel(clientSocket, error));
+      // The browser may drop its side mid-stream; without a handler the EPIPE
+      // from the pipe above is an unhandled 'error' and kills the process.
+      clientSocket.on('error', () => upstreamSocket.destroy());
+      clientSocket.once('close', () => upstreamSocket.destroy());
+      upstreamSocket.once('close', () => clientSocket.destroy());
     } catch (error) {
       endTunnel(clientSocket, error);
     }
