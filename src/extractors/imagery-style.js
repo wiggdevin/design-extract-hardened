@@ -3,6 +3,8 @@
 // already captured by the crawler. The goal is a fingerprint an LLM can use:
 // "photography-heavy with abstract gradients" vs "flat illustration only".
 
+import { extractMediaSystem } from './media-system.js';
+
 const LABELS = [
   'photography', '3d-render', 'isometric', 'flat-illustration',
   'gradient-mesh', 'icon-only', 'screenshot', 'mixed', 'none',
@@ -100,19 +102,23 @@ function borderRadiusProfile(images) {
   return 'square';
 }
 
-export function extractImageryStyle(images = []) {
-  if (!images.length) {
+export function extractImageryStyle(images = [], options = {}) {
+  // Same defense as media-system.js: one malformed record (null, a
+  // non-object) must be skipped, not crash the whole extraction -- every
+  // preprocessing step below dereferences fields on each element directly.
+  const safeImages = Array.isArray(images) ? images.filter(img => img && typeof img === 'object') : [];
+  if (!safeImages.length) {
     return { label: 'none', confidence: 0, counts: {}, aspectRatios: [], radiusProfile: 'none', signals: [] };
   }
-  const { tally, reasons, counts } = scoreLabels(images);
+  const { tally, reasons, counts } = scoreLabels(safeImages);
   const ranked = Object.entries(tally).sort((a, b) => b[1] - a[1]);
   const [winner, winScore] = ranked[0];
   const [, second] = ranked[1] || [null, 0];
   let label = winScore === 0 ? 'mixed' : winner;
   if (winScore > 0 && second > 0 && (winScore - second) < 0.2) label = 'mixed';
-  const confidence = Math.min(1, winScore / Math.max(1, images.length * 0.3));
+  const confidence = Math.min(1, winScore / Math.max(1, safeImages.length * 0.3));
 
-  return {
+  const result = {
     label,
     confidence: Number(confidence.toFixed(3)),
     counts: {
@@ -123,9 +129,29 @@ export function extractImageryStyle(images = []) {
       screenshot: counts.screenshotCount,
       photoLike: counts.photoish,
     },
-    dominantAspect: dominantAspect(images),
-    radiusProfile: borderRadiusProfile(images),
+    dominantAspect: dominantAspect(safeImages),
+    radiusProfile: borderRadiusProfile(safeImages),
     alternates: ranked.filter(([, s]) => s > 0 && s !== winScore).slice(0, 3).map(([l, s]) => ({ label: l, score: Number(s.toFixed(3)) })),
     signals: reasons.slice(0, 10),
+  };
+
+  // Evidence-rich crawls carry background media or per-image layout data
+  // (top/naturalWidth/currentSrc); when present, hand label/confidence to
+  // the weight-based classifier, which sees far more of the page than a
+  // plain <img> count can.
+  const evidenceRich = (Array.isArray(options.backgroundMedia) && options.backgroundMedia.length > 0) ||
+    safeImages.some(img => typeof img.top === 'number' || typeof img.naturalWidth === 'number' || typeof img.currentSrc === 'string');
+  if (!evidenceRich) return result;
+
+  const media = extractMediaSystem({ images: safeImages, backgroundMedia: options.backgroundMedia || [], viewport: options.viewport || null });
+  return {
+    ...result,
+    label: media.label,
+    confidence: media.confidence,
+    distribution: media.distribution,
+    dominantMedia: media.dominantMedia,
+    coverage: media.coverage,
+    alternatives: media.alternatives,
+    signals: [...new Set([...result.signals, ...media.signals])].slice(0, 10),
   };
 }
