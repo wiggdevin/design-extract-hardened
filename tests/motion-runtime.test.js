@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 
-import { processRuntimeMotion, detectScrollRecipes, nameDuration } from '../src/extractors/motion-runtime.js';
+import { processRuntimeMotion, detectScrollRecipes, nameDuration, detectMotionStack } from '../src/extractors/motion-runtime.js';
 import { detectChoreography } from '../src/extractors/motion-choreography.js';
 
 const rawCapture = {
@@ -104,5 +104,61 @@ describe('nameDuration', () => {
     assert.equal(nameDuration(0), 'instant');
     assert.equal(nameDuration(200), 'sm');
     assert.equal(nameDuration(5000), 'xxl');
+  });
+});
+
+describe('detectMotionStack', () => {
+  // Signals recorded from the odysseycontracting.com capture (Avada theme):
+  // one <lottie-player>, fusion-lottie wrappers, Swiper sliders, fusion-animated reveals.
+  const odyssey = {
+    scripts: [
+      'https://odysseycontracting.com/wp-includes/js/jquery/jquery.min.js?ver=3.7.1',
+      'https://odysseycontracting.com/wp-content/themes/Avada/includes/lib/assets/min/js/general/avada-header.js',
+    ],
+    windowGlobals: ['wp', 'jQuery'],
+    tagCounts: { 'lottie-player': 1, canvas: 0, video: 1 },
+    classNameSample: [
+      'fusion-fullwidth fullwidth-box fusion-builder-row-1',
+      'fusion-layout-column fusion_builder_column fusion-flex-column fusion-animated',
+      'fusion-lottie fusion-lottie-animation',
+      'swiper-container fusion-carousel',
+      'swiper-wrapper',
+      'swiper-slide',
+      'fusion-layout-column fusion-animated',
+    ],
+  };
+
+  it('names lottie, swiper, and theme reveals on the reference records', () => {
+    const stack = detectMotionStack(odyssey);
+    const names = stack.map(s => s.name);
+    assert.ok(names.includes('lottie'), names.join(','));
+    assert.ok(names.includes('swiper'), names.join(','));
+    assert.ok(names.includes('theme-reveal'), names.join(','));
+    const lottie = stack.find(s => s.name === 'lottie');
+    assert.deepEqual([...lottie.evidence].sort(), ['class', 'tag']);
+    assert.equal(lottie.count, 2);
+  });
+
+  it('reads script sources and window globals', () => {
+    const stack = detectMotionStack({
+      scripts: ['https://cdn.example/gsap.min.js', 'https://cdn.example/ScrollTrigger.min.js', '/assets/lenis.js'],
+      windowGlobals: ['gsap', 'ScrollTrigger', 'Lenis'],
+    });
+    assert.deepEqual(stack.map(s => s.name).sort(), ['gsap', 'lenis', 'scrolltrigger']);
+    assert.deepEqual([...stack.find(s => s.name === 'gsap').evidence].sort(), ['global', 'script']);
+  });
+
+  it('returns an empty list when no signal is present', () => {
+    assert.deepEqual(detectMotionStack({ scripts: ['/app.js'], windowGlobals: ['React'], classNameSample: ['btn primary'] }), []);
+    assert.deepEqual(detectMotionStack(), []);
+  });
+
+  it('keeps the observed document top on normalized observations', () => {
+    const model = processRuntimeMotion({ observations: [
+      { trigger: 'scroll', selector: '.a', properties: ['opacity'], duration: 500, top: 1234.6, height: 400 },
+      { trigger: 'scroll', selector: '.b', properties: ['opacity'], duration: 500 },
+    ] });
+    assert.equal(model.observations[0].top, 1235);
+    assert.equal(model.observations[1].top, null);
   });
 });

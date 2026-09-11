@@ -1225,7 +1225,7 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
 
     // Stack fingerprint signals (v7)
     results.stack = {
-      scripts: Array.from(document.scripts).map(s => s.src).filter(Boolean).slice(0, 50),
+      scripts: Array.from(document.scripts).map(s => s.src || s.getAttribute('data-src') || '').filter(Boolean).slice(0, 50),
       metas: Array.from(document.querySelectorAll('meta[name],meta[property]'))
         .map(m => ({ name: m.name || m.getAttribute('property'), content: m.content }))
         .slice(0, 50),
@@ -1233,8 +1233,14 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
         .slice(0, 500)
         .map(e => typeof e.className === 'string' ? e.className : '')
         .filter(Boolean),
-      windowGlobals: ['React', 'Vue', '__NEXT_DATA__', '__NUXT__', '___gatsby', '_remixContext', 'Shopify', 'wp']
+      windowGlobals: ['React', 'Vue', '__NEXT_DATA__', '__NUXT__', '___gatsby', '_remixContext', 'Shopify', 'wp',
+        'gsap', 'ScrollTrigger', 'Lenis', 'LocomotiveScroll', 'AOS', 'lottie', 'bodymovin', 'Swiper', 'Motion']
         .filter(k => typeof window[k] !== 'undefined'),
+      tagCounts: {
+        'lottie-player': document.querySelectorAll('lottie-player').length,
+        canvas: document.querySelectorAll('canvas').length,
+        video: document.querySelectorAll('video').length,
+      },
     };
 
     // SVG icons

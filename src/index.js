@@ -26,7 +26,7 @@ import { extractWideGamut } from './extractors/wide-gamut.js';
 import { extractTokenSources } from './extractors/token-sources.js';
 import { extractInteractionStates } from './extractors/interaction-states.js';
 import { extractMotion } from './extractors/motion.js';
-import { processRuntimeMotion } from './extractors/motion-runtime.js';
+import { processRuntimeMotion, detectMotionStack } from './extractors/motion-runtime.js';
 import { detectChoreography } from './extractors/motion-choreography.js';
 import { extractComponentAnatomy } from './extractors/component-anatomy.js';
 import { extractVoice } from './extractors/voice.js';
@@ -170,6 +170,8 @@ export async function extractDesignLanguage(url, options = {}) {
       design.motion.runtime = runtime;
     }
   }
+
+  design.motion.stack = safeExtract(detectMotionStack, rawData.light.stack || {}) || [];
 
   if (rawData.dark) {
     const darkColors = safeExtract(extractColors, rawData.dark.computedStyles) || { primary: null, secondary: null, accent: null, neutrals: [], backgrounds: [], text: [], gradients: [], all: [] };

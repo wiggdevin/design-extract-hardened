@@ -50,6 +50,7 @@ function normalize(obs) {
       : Math.max(1, Math.round(num(obs.iterations) || 1)),
     properties,
     durationName: nameDuration(duration),
+    top: Number.isFinite(Number(obs.top)) && obs.top !== null ? Math.round(Number(obs.top)) : null,
   };
 }
 
@@ -117,4 +118,41 @@ export function detectScrollRecipes(observations = []) {
     });
   }
   return recipes;
+}
+
+// Motion libraries and theme-level reveal systems, named from what the page
+// loaded (script src), exposed (window globals), rendered (custom tags), and
+// classed (prefixes). A Lottie canvas stays unreadable; this says it exists.
+const MOTION_LIBS = [
+  { name: 'lottie', script: /lottie|bodymovin/i, globals: ['lottie', 'bodymovin'], tag: 'lottie-player', cls: /(^|\s)(fusion-lottie|lottie)(\s|$|-)/ },
+  { name: 'swiper', script: /swiper/i, globals: ['Swiper'], cls: /(^|\s)swiper(\s|$|-)/ },
+  { name: 'gsap', script: /gsap|tweenmax|tweenlite/i, globals: ['gsap', 'TweenMax'] },
+  { name: 'scrolltrigger', script: /scrolltrigger/i, globals: ['ScrollTrigger'] },
+  { name: 'lenis', script: /(^|\/|@)lenis(\W|$)/i, globals: ['Lenis'], cls: /(^|\s)lenis(\s|$|-)/ },
+  { name: 'locomotive', script: /locomotive/i, globals: ['LocomotiveScroll'], cls: /(^|\s)(has-scroll-init|c-scrollbar)(\s|$|-)/ },
+  { name: 'aos', script: /(^|\/)aos(\.min)?\.js/i, globals: ['AOS'], cls: /(^|\s)aos-(init|animate)(\s|$)/ },
+  { name: 'framer-motion', script: /framer-motion/i, globals: [] },
+  { name: 'motion-one', script: /motion\.dev|@motionone|motion-one/i, globals: ['Motion'] },
+  { name: 'theme-reveal', globals: [], cls: /(^|\s)(fusion-animated|wow|animate__animated|reveal|aos-init)(\s|$|-)/ },
+];
+
+export function detectMotionStack({ scripts = [], windowGlobals = [], tagCounts = {}, classNameSample = [] } = {}) {
+  const out = [];
+  for (const lib of MOTION_LIBS) {
+    const evidence = new Set();
+    let count = 0;
+    if (lib.script) {
+      const hits = scripts.filter(s => typeof s === 'string' && lib.script.test(s)).length;
+      if (hits) { evidence.add('script'); count += hits; }
+    }
+    const globalHits = (lib.globals || []).filter(g => windowGlobals.includes(g)).length;
+    if (globalHits) { evidence.add('global'); count += globalHits; }
+    if (lib.tag && Number(tagCounts[lib.tag]) > 0) { evidence.add('tag'); count += Number(tagCounts[lib.tag]); }
+    if (lib.cls) {
+      const hits = classNameSample.filter(c => typeof c === 'string' && lib.cls.test(c)).length;
+      if (hits) { evidence.add('class'); count += hits; }
+    }
+    if (evidence.size) out.push({ name: lib.name, evidence: [...evidence], count });
+  }
+  return out.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 }
