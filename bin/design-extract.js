@@ -2145,7 +2145,7 @@ program
   .option('-o, --out <dir>', 'output directory')
   .option('--min <score>', 'exit non-zero if overall fidelity is below this (CI gate)', parseInt)
   .option('--motion-runtime', 'capture runtime motion (real durations + choreography) on both sides')
-  .option('--clone-local', 'allow a clone served from http://127.0.0.1:<port> or http://localhost:<port> (the only loopback exception; fidelity only)')
+  .option('--clone-local', 'allow a clone served from http://127.0.0.1:<port> or http://localhost:<port> (the only loopback exception; fidelity only); the screenshot lane of this command is not proxied')
   .option('--system-chrome', 'use the system Chrome install instead of bundled Chromium')
   .action(async (original, opts, command) => {
     if (!original.startsWith('http')) original = `https://${original}`;
