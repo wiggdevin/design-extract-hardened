@@ -201,11 +201,30 @@ const HERO_WINDOW = 3;
 // A lazy-loader placeholder: a data: SVG with nothing drawn in it (the
 // lazysizes shape). Base64 SVG drawings and base64 raster images are real
 // inline media and must not count.
+const DRAWING_ELEMENT_RE = /<(path|rect|circle|ellipse|polygon|polyline|line|image|text|g|use)\b/i;
+const BASE64_RASTER_PLACEHOLDER_BYTES = 200;
+
 export function isPlaceholderMediaSrc(src) {
-  if (typeof src !== 'string' || !/^data:image\/svg\+xml/i.test(src) || /;base64,/i.test(src)) return false;
+  if (typeof src !== 'string') return false;
+
+  const base64Svg = /^data:image\/svg\+xml;base64,(.*)$/i.exec(src);
+  if (base64Svg) {
+    let markup;
+    try { markup = Buffer.from(base64Svg[1], 'base64').toString('utf8'); } catch { return false; }
+    return !DRAWING_ELEMENT_RE.test(markup);
+  }
+
+  const base64Raster = /^data:image\/(gif|png|jpeg|jpg|webp|avif);base64,(.*)$/i.exec(src);
+  if (base64Raster) {
+    let bytes;
+    try { bytes = Buffer.from(base64Raster[2], 'base64').length; } catch { return false; }
+    return bytes < BASE64_RASTER_PLACEHOLDER_BYTES;
+  }
+
+  if (!/^data:image\/svg\+xml/i.test(src)) return false;
   let markup = src;
   try { markup = decodeURIComponent(src); } catch { /* keep raw */ }
-  return !/<(path|rect|circle|ellipse|polygon|polyline|line|image|text|g|use)\b/i.test(markup);
+  return !DRAWING_ELEMENT_RE.test(markup);
 }
 
 /** Blueprint gates need no ground truth: they read the extraction alone. */

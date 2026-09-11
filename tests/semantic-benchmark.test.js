@@ -348,7 +348,7 @@ describe('scoreBlueprintGates', () => {
     assert.deepEqual(r.perSite.find(s => s.id === 'c'), { id: 'c', bands: 4, heroIndex: 3, heroAtTop: false, oversizedDropped: 1, firstRoles: ['nav', 'content', 'content'], placeholderMedia: 0 });
   });
 
-  it('counts sites with a data: placeholder as a band media source', () => {
+  it('counts sites with an empty placeholder as a band media source', () => {
     const r = scoreBlueprintGates({
       a: bp(['hero', 'content'], 0, ['https://a.test/x.png']),
       b: bp(['hero', 'content'], 0, ["data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27576%27%20height%3D%27384%27%3E%3C%2Fsvg%3E"]),
@@ -370,10 +370,15 @@ describe('scoreBlueprintGates', () => {
 });
 
 describe('isPlaceholderMediaSrc', () => {
-  it('flags only an empty, non-base64 SVG data URI as a lazy-loader placeholder', () => {
+  it('flags an empty SVG data URI (percent-encoded or base64) and a tiny base64 raster as placeholders', () => {
     assert.equal(isPlaceholderMediaSrc("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27576%27%20height%3D%27384%27%3E%3C%2Fsvg%3E"), true);
+    // Base64 payload of <svg xmlns="http://www.w3.org/2000/svg" width="576" height="384"></svg>, no drawing element.
+    assert.equal(isPlaceholderMediaSrc('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1NzYiIGhlaWdodD0iMzg0Ij48L3N2Zz4='), true);
+    // 37-byte 1x1 transparent GIF, well under the 200-byte floor.
+    assert.equal(isPlaceholderMediaSrc('data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='), true);
     assert.equal(isPlaceholderMediaSrc('data:image/svg+xml;base64,PHN2Zz48cGF0aCBkPSJNMCAwIi8+PC9zdmc+'), false);
-    assert.equal(isPlaceholderMediaSrc('data:image/jpeg;base64,/9j/4AAQ'), false);
+    // A 249-byte payload standing in for a real photo, past the 200-byte floor.
+    assert.equal(isPlaceholderMediaSrc('data:image/jpeg;base64,' + '/'.repeat(332) + 'w=='), false);
     assert.equal(isPlaceholderMediaSrc('https://a.test/x.png'), false);
     assert.equal(isPlaceholderMediaSrc('data:image/svg+xml,%3Csvg%3E%3Cpath%20d%3D%27M0%200%27%2F%3E%3C%2Fsvg%3E'), false);
     assert.equal(isPlaceholderMediaSrc(undefined), false);
