@@ -108,7 +108,27 @@ function isLocalHostname(hostname) {
     || hostname.endsWith('.local');
 }
 
-export function validateTargetUrl(rawUrl) {
+const LOOPBACK_ORIGIN = /^http:\/\/(127\.0\.0\.1|localhost):(\d{2,5})$/;
+
+// The one loopback allowance: an http origin on 127.0.0.1 or localhost with an
+// explicit port, used only by `designlang fidelity --clone-local`.
+export function loopbackOrigin(rawUrl) {
+  let parsed;
+  try { parsed = new URL(String(rawUrl)); } catch {
+    throw new UnsafeNetworkTargetError('--clone-local needs a URL such as http://127.0.0.1:4173');
+  }
+  if (parsed.username || parsed.password) throw new UnsafeNetworkTargetError('URL credentials are not allowed');
+  if (!LOOPBACK_ORIGIN.test(parsed.origin)) {
+    throw new UnsafeNetworkTargetError('--clone-local accepts only http://127.0.0.1:<port> or http://localhost:<port>');
+  }
+  return parsed.origin;
+}
+
+function allowedByOrigin(parsed, allowOrigin) {
+  return typeof allowOrigin === 'string' && LOOPBACK_ORIGIN.test(allowOrigin) && parsed.origin === allowOrigin;
+}
+
+export function validateTargetUrl(rawUrl, { allowOrigin } = {}) {
   if (typeof rawUrl !== 'string' || !rawUrl.trim()) {
     return { ok: false, reason: 'URL is required', status: 400 };
   }
@@ -131,6 +151,7 @@ export function validateTargetUrl(rawUrl) {
   if (parsed.username || parsed.password) {
     return { ok: false, reason: 'URL credentials are not allowed', status: 400 };
   }
+  if (allowedByOrigin(parsed, allowOrigin)) return { ok: true, url: parsed.toString() };
 
   const expectedPort = parsed.protocol === 'https:' ? '443' : '80';
   if (parsed.port && parsed.port !== expectedPort) {
@@ -149,15 +170,19 @@ export function validateTargetUrl(rawUrl) {
   return { ok: true, url: parsed.toString() };
 }
 
-export async function resolvePublicTarget(rawUrl, { lookup = defaultLookup } = {}) {
-  const validation = validateTargetUrl(rawUrl);
+export async function resolvePublicTarget(rawUrl, { lookup = defaultLookup, allowOrigin } = {}) {
+  const validation = validateTargetUrl(rawUrl, { allowOrigin });
   if (!validation.ok) throw new UnsafeNetworkTargetError(validation.reason);
 
   const parsed = new URL(validation.url);
   const hostname = normalizeHostname(parsed.hostname);
+  if (allowedByOrigin(parsed, allowOrigin)) {
+    return { url: validation.url, hostname, address: '127.0.0.1', family: 4, port: Number(parsed.port) };
+  }
+  const port = parsed.protocol === 'https:' ? 443 : 80;
   const literalFamily = isIP(hostname);
   if (literalFamily) {
-    return { url: validation.url, hostname, address: hostname, family: literalFamily };
+    return { url: validation.url, hostname, address: hostname, family: literalFamily, port };
   }
 
   let records;
@@ -179,6 +204,7 @@ export async function resolvePublicTarget(rawUrl, { lookup = defaultLookup } = {
     hostname,
     address: selected.address,
     family: selected.family || isIP(selected.address),
+    port,
   };
 }
 

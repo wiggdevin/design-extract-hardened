@@ -34,9 +34,9 @@ function forwardHeaders(headers, host) {
   return forwarded;
 }
 
-export async function startSafeBrowsingProxy({ lookup } = {}) {
+export async function startSafeBrowsingProxy({ lookup, allowOrigin } = {}) {
   const sockets = new Set();
-  const resolutionOptions = lookup ? { lookup } : undefined;
+  const resolutionOptions = (lookup || allowOrigin) ? { ...(lookup && { lookup }), ...(allowOrigin && { allowOrigin }) } : undefined;
 
   const server = createServer(async (request, response) => {
     try {
@@ -49,7 +49,7 @@ export async function startSafeBrowsingProxy({ lookup } = {}) {
       const upstream = httpRequest({
         hostname: target.address,
         family: target.family,
-        port: 80,
+        port: target.port,
         method: request.method,
         path: `${parsed.pathname}${parsed.search}`,
         headers: forwardHeaders(request.headers, parsed.host),
@@ -75,7 +75,7 @@ export async function startSafeBrowsingProxy({ lookup } = {}) {
       const upstreamSocket = connectSocket({
         host: target.address,
         family: target.family,
-        port: 443,
+        port: target.port,
       });
       upstreamSocket.setTimeout(PROXY_TIMEOUT_MS, () => upstreamSocket.destroy(new Error('Upstream timeout')));
       upstreamSocket.once('connect', () => {
