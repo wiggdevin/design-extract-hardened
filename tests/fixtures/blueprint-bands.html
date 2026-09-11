@@ -1,0 +1,51 @@
+<!doctype html>
+<html><head><style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: sans-serif; }
+  .row { width: 100%; }
+  .cols { display: flex; gap: 24px; padding: 40px; }
+  .cols > div { flex: 1; }
+  header { background: #0f2a44; }
+  .hero { height: 700px; background: #f3efe6; position: relative; }
+  .hero img { width: 100%; height: 700px; object-fit: cover; display: block; }
+  .hero h1 { position: absolute; top: 200px; left: 80px; font-size: 56px; color: #fff; margin: 0; }
+  .services { background: #ffffff; }
+  .services img { width: 100%; height: 300px; display: block; }
+  .services h2 { font-size: 36px; }
+  .reviews { background: #0f2a44; color: #fff; padding: 40px; }
+  .reviews li { list-style: none; padding: 16px; margin: 8px 0; background: #163a5c; }
+  .cta { background: #d97a3e; padding: 60px; }
+  .cta a { display: inline-block; padding: 14px 28px; background: #0f2a44; color: #fff; }
+  footer { background: #0f2a44; color: #fff; padding: 40px; }
+  footer nav { width: 100%; }
+</style></head><body>
+<div id="boxed"><div id="wrapper">
+  <header class="fusion-header-wrapper"><div class="fusion-header"><div class="fusion-row" style="display:flex;height:100px;align-items:center;padding:0 40px;gap:40px">
+    <img src="http://fixture.test/img/logo.png" alt="logo" style="width:120px;height:40px">
+    <nav class="fusion-main-menu" style="width:50%"><a href="#">Services</a> <a href="#">About</a> <a href="#">Contact</a></nav>
+  </div></div></header>
+  <main id="main"><div class="fusion-row">
+    <div class="hero fusion-fullwidth"><div class="fusion-builder-row row">
+      <img src="http://fixture.test/img/hero.png" alt="">
+      <h1>Homes built to last</h1>
+    </div></div>
+    <div class="services fusion-fullwidth"><div class="fusion-builder-row row cols">
+      <div><img src="http://fixture.test/img/a.png" alt=""><h2>Kitchens</h2><p>Custom cabinetry and stone.</p></div>
+      <div><img src="http://fixture.test/img/b.png" alt=""><h2>Bathrooms</h2><p>Tile, glass, and light.</p></div>
+    </div></div>
+    <div class="reviews fusion-fullwidth"><div class="fusion-builder-row row">
+      <h2>What clients say</h2>
+      <ul>
+        <li class="card">"They finished on time and the kitchen is stunning." — Jane Doe</li>
+        <li class="card">"Clear pricing, no surprises, great crew." — John Roe</li>
+        <li class="card">"Our second project with them. Would hire again." — Ana Poe</li>
+      </ul>
+    </div></div>
+    <div class="cta fusion-fullwidth"><div class="fusion-builder-row row">
+      <h2>Ready to start?</h2>
+      <a class="fusion-button" href="#">Get started</a>
+    </div></div>
+  </div></main>
+  <footer><nav class="fusion-footer-menu"><a href="#">Privacy</a> <a href="#">Terms</a></nav><p>Odyssey-shaped fixture</p></footer>
+</div></div>
+</body></html>

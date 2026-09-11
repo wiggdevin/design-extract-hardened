@@ -1206,6 +1206,8 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
     }
 
     // Semantic regions (v7): landmark + heading + bounds data for classifier.
+    const BUTTON_SELECTOR = 'button, a[role="button"], .btn, [class*="button"]';
+    const CARD_SELECTOR = 'article, li, [class*="card"], [class*="item"]';
     results.sections = Array.from(document.querySelectorAll(
       'header, nav, main, section, footer, aside, [role="banner"], [role="contentinfo"], [role="complementary"], [role="navigation"]'
     )).slice(0, 100).map(el => {
@@ -1215,13 +1217,160 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
         role: el.getAttribute('role') || '',
         className: typeof el.className === 'string' ? el.className : '',
         id: el.id || '',
+        position: getComputedStyle(el).position,
         text: (el.innerText || '').slice(0, 2000),
         headings: Array.from(el.querySelectorAll('h1,h2,h3')).slice(0, 5).map(h => h.innerText || ''),
-        buttonCount: el.querySelectorAll('button, a[role="button"], .btn, [class*="button"]').length,
-        cardCount: el.querySelectorAll('article, li, [class*="card"], [class*="item"]').length,
-        bounds: { x: r.x, y: r.y, w: r.width, h: r.height },
+        buttonCount: el.querySelectorAll(BUTTON_SELECTOR).length,
+        cardCount: el.querySelectorAll(CARD_SELECTOR).length,
+        bounds: { x: r.x, y: Math.round(r.y + window.scrollY), w: r.width, h: r.height },
       };
     });
+
+    // Section blueprint: full-width bands found by geometry, not by landmark
+    // tags. Walk down from body: an element with two or more full-width tall
+    // children that fill most of it is a container (descend); one such child
+    // of the same height is a wrapper (descend, remember the outer element);
+    // anything else is a band. The outermost element of a wrapper chain is
+    // the band's box; the innermost is where columns are measured.
+    const vw = window.innerWidth;
+    results.pageHeight = Math.max(document.documentElement.scrollHeight, document.body ? document.body.scrollHeight : 0);
+    const BAND_CAP = 40;
+    const SKIP_TAG = /^(script|style|link|template|noscript|svg|img|video|canvas|iframe|picture|source)$/;
+    const isLandmarkBand = (el) => /^(header|nav|footer)$/.test(el.tagName.toLowerCase())
+      || /^(banner|navigation|contentinfo)$/.test(el.getAttribute('role') || '');
+    const isBandBox = (el) => {
+      if (el.nodeType !== 1 || SKIP_TAG.test(el.tagName.toLowerCase())) return false;
+      const r = el.getBoundingClientRect();
+      if (r.width < vw * 0.9) return false;
+      return r.height >= (isLandmarkBand(el) ? 40 : 120);
+    };
+    const leaves = [];
+    let bandsCapped = false;
+    const walk = (el, chain, depth) => {
+      if (leaves.length >= BAND_CAP) { bandsCapped = true; return; }
+      if (depth > 14) return;
+      const kids = Array.from(el.children).filter(isBandBox);
+      const h = el.getBoundingClientRect().height || 1;
+      const kidsH = kids.reduce((n, k) => n + k.getBoundingClientRect().height, 0);
+      if (kids.length >= 2 && kidsH >= h * 0.6) { for (const k of kids) walk(k, [k], depth + 1); return; }
+      if (kids.length === 1 && kids[0].getBoundingClientRect().height >= h * 0.9) { walk(kids[0], chain.length ? chain.concat(kids[0]) : [kids[0]], depth + 1); return; }
+      if (chain.length) leaves.push(chain);
+    };
+    if (document.body) walk(document.body, [], 0);
+
+    const toHex = (color) => {
+      const m = (color || '').match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+      if (!m || (m[4] !== undefined && Number(m[4]) === 0)) return null;
+      return '#' + [m[1], m[2], m[3]].map(n => Number(n).toString(16).padStart(2, '0')).join('');
+    };
+    const bgOf = (el) => {
+      const cs = getComputedStyle(el);
+      const color = toHex(cs.backgroundColor);
+      const url = (cs.backgroundImage || '').match(/url\(["']?([^"')]+)["']?\)/);
+      return { color, imageUrl: url ? url[1].slice(0, 500) : null };
+    };
+    const rectOf = (el) => el.getBoundingClientRect();
+    const areaOf = (el) => { const r = rectOf(el); return r.width * r.height; };
+    const docBox = (el) => {
+      const r = rectOf(el);
+      return { x: Math.round(r.left), y: Math.round(r.top + window.scrollY), w: Math.round(r.width), h: Math.round(r.height) };
+    };
+
+    results.bands = leaves.map((chain) => {
+      const outer = chain[0];
+      const leaf = chain[chain.length - 1];
+      const bounds = docBox(outer);
+      const area = Math.max(1, bounds.w * bounds.h);
+      const descendants = Array.from(outer.querySelectorAll('*')).slice(0, 600);
+
+      // Background: the wrapper chain first, then any descendant painting ≥80% of the band.
+      let background = { color: null, imageUrl: null };
+      for (const el of chain) { const bg = bgOf(el); if (bg.color || bg.imageUrl) { background = bg; break; } }
+      if (!background.color && !background.imageUrl) {
+        for (const el of descendants) {
+          if (areaOf(el) < area * 0.8) continue;
+          const bg = bgOf(el); if (bg.color || bg.imageUrl) { background = bg; break; }
+        }
+      }
+      background.hasVideo = Array.from(outer.querySelectorAll('video')).some(v => areaOf(v) >= area * 0.5);
+
+      // Columns: the widest row of two or more equal-width, side-by-side children.
+      let columns = 1; let bestRowWidth = 0;
+      for (const row of [leaf, ...descendants]) {
+        const rects = Array.from(row.children).map(rectOf).filter(r => r.width >= 40 && r.height >= 40);
+        if (rects.length < 2) continue;
+        const sameRow = rects.filter(r => Math.abs(r.top - rects[0].top) <= 10);
+        if (sameRow.length < 2) continue;
+        const widths = sameRow.map(r => r.width);
+        if (Math.min(...widths) < Math.max(...widths) * 0.9) continue;
+        const total = widths.reduce((n, w) => n + w, 0);
+        if (total > bestRowWidth) { bestRowWidth = total; columns = sameRow.length; }
+      }
+
+      // Media: dominant kind by area among img/video/svg/canvas and background images.
+      const kinds = { photo: 0, video: 0, svg: 0, canvas: 0 };
+      const largest = { photo: null, video: null, svg: null, canvas: null };
+      const consider = (kind, a, src) => {
+        kinds[kind] += a;
+        if (!largest[kind] || a > largest[kind].area) largest[kind] = { area: a, src: src || null };
+      };
+      for (const el of outer.querySelectorAll('img, video, svg, canvas')) {
+        const a = areaOf(el);
+        if (a < 32 * 32) continue;
+        const tag = el.tagName.toLowerCase();
+        if (tag === 'img') {
+          const src = (el.currentSrc || el.getAttribute('src') || el.getAttribute('data-lazy-src') || el.getAttribute('data-src') || '').slice(0, 500);
+          consider(/\.svg(\?|$)/i.test(src) ? 'svg' : 'photo', a, src);
+        } else if (tag === 'video') {
+          const source = el.querySelector('source');
+          consider('video', a, (el.currentSrc || el.getAttribute('src') || (source && source.getAttribute('src')) || el.getAttribute('poster') || '').slice(0, 500));
+        } else {
+          consider(tag, a, null);
+        }
+      }
+      for (const el of [outer, ...descendants]) {
+        const bg = bgOf(el);
+        if (!bg.imageUrl) continue;
+        const a = areaOf(el);
+        if (a >= 100 * 100) consider('photo', a, bg.imageUrl);
+      }
+      const dominant = Object.keys(kinds).sort((p, q) => kinds[q] - kinds[p])[0];
+      const totalMedia = kinds.photo + kinds.video + kinds.svg + kinds.canvas;
+      const kind = totalMedia < area * 0.05 ? 'none' : dominant;
+      const media = {
+        kind,
+        share: kind === 'none' ? 0 : Math.round(Math.min(1, kinds[kind] / area) * 100) / 100,
+        src: kind === 'none' ? null : (largest[kind] && largest[kind].src) || null,
+      };
+
+      // Largest heading by font size.
+      let heading = null;
+      for (const hEl of outer.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+        const size = parseFloat(getComputedStyle(hEl).fontSize) || 0;
+        if (!heading || size > heading.fontSize) {
+          heading = { level: Number(hEl.tagName[1]), fontSize: Math.round(size), text: (hEl.innerText || '').trim().slice(0, 120) };
+        }
+      }
+
+      const text = (outer.innerText || '').slice(0, 2000);
+      return {
+        tag: outer.tagName.toLowerCase(),
+        role: outer.getAttribute('role') || '',
+        className: (typeof outer.className === 'string' ? outer.className : '').slice(0, 300),
+        id: outer.id || '',
+        position: getComputedStyle(outer).position,
+        bounds,
+        background,
+        columns,
+        media,
+        heading,
+        text,
+        textLength: (outer.innerText || '').length,
+        buttonCount: outer.querySelectorAll(BUTTON_SELECTOR).length,
+        cardCount: outer.querySelectorAll(CARD_SELECTOR).length,
+      };
+    }).sort((a, b) => a.bounds.y - b.bounds.y);
+    results.bandsCapped = bandsCapped;
 
     // Stack fingerprint signals (v7)
     results.stack = {
