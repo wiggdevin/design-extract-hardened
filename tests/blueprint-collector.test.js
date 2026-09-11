@@ -33,6 +33,13 @@ test('bands are the full-width leaves, in document order, never the page wrapper
   assert.ok(!data.bands.some(b => b.id === 'boxed' || b.id === 'wrapper' || b.tag === 'main'));
 });
 
+test('stack.classTokens is the unique class-token set, not the whole-string sample', () => {
+  assert.ok(Array.isArray(data.stack.classTokens), 'classTokens must be an array');
+  assert.equal(new Set(data.stack.classTokens).size, data.stack.classTokens.length, 'classTokens must be unique');
+  assert.ok(data.stack.classTokens.includes('fusion-fullwidth'), JSON.stringify(data.stack.classTokens));
+  assert.ok(Array.isArray(data.stack.classNameSample));
+});
+
 test('the hero band carries its photo, largest heading, and background colour', () => {
   const hero = data.bands.find(b => /hero/.test(b.className));
   assert.ok(hero);
@@ -122,4 +129,24 @@ test('the walk sees through pass-through wrappers: display:contents, a zero-heig
   assert.equal(new Set(ys).size, ys.length, `duplicate bounds.y among ${JSON.stringify(ys)}`);
   assert.equal(pt.bandsCapped, false);
   await ptPage.close();
+});
+
+const avadaFixtureHtml = readFileSync(fileURLToPath(new URL('./fixtures/blueprint-avada-rows.html', import.meta.url)), 'utf8');
+
+test('the band-box width test is parent-relative below the top level, so an Avada site-width row decomposes', async () => {
+  const avadaPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  await avadaPage.setContent(avadaFixtureHtml);
+  const avada = await avadaPage.evaluate(collectPageData, COLLECT_OPTS);
+
+  // Row 1 (two 50%-width columns) stays one band — the fullwidth — since a
+  // real side-by-side grid is not decomposed further. Row 2 (three stacked
+  // 100%-of-row columns) decomposes into three bands, one per column, each
+  // reporting the column's own width (1100). Row 3 (one 100%-of-row column)
+  // stays one band — the fullwidth — same as row 1.
+  assert.equal(avada.bands.length, 5, JSON.stringify(avada.bands.map(b => [b.className, b.bounds.w, b.bounds.h])));
+  assert.deepEqual(avada.bands.map(b => b.bounds.w), [1280, 1100, 1100, 1100, 1280]);
+  for (let i = 1; i < avada.bands.length; i++) assert.ok(avada.bands[i].bounds.y >= avada.bands[i - 1].bounds.y);
+  for (const b of avada.bands) assert.ok(b.bounds.h <= 0.8 * avada.pageHeight, `${b.className} is ${b.bounds.h} of ${avada.pageHeight}`);
+  assert.equal(avada.bandsCapped, false);
+  await avadaPage.close();
 });

@@ -117,15 +117,19 @@ describe('detectMotionStack', () => {
     ],
     windowGlobals: ['wp', 'jQuery'],
     tagCounts: { 'lottie-player': 1, canvas: 0, video: 1 },
+    // classNameSample is the first-500-elements sample and holds NONE of the
+    // swiper/lottie classes on purpose — on the live page a header alone
+    // runs hundreds of elements deep, so the sample never reaches them.
     classNameSample: [
       'fusion-fullwidth fullwidth-box fusion-builder-row-1',
       'fusion-layout-column fusion_builder_column fusion-flex-column fusion-animated',
-      'fusion-lottie fusion-lottie-animation',
-      'swiper-container fusion-carousel',
-      'swiper-wrapper',
-      'swiper-slide',
+      'fusion-header-wrapper fusion-logo',
+      'fusion-main-menu fusion-menu-item',
       'fusion-layout-column fusion-animated',
     ],
+    // classTokens is the unique-token set across the first 5000 elements —
+    // where these two actually surface on the real page.
+    classTokens: ['swiper-container', 'swiper-slide', 'fusion-lottie'],
   };
 
   it('names lottie, swiper, and theme reveals on the reference records', () => {
@@ -137,6 +141,9 @@ describe('detectMotionStack', () => {
     const lottie = stack.find(s => s.name === 'lottie');
     assert.deepEqual([...lottie.evidence].sort(), ['class', 'tag']);
     assert.equal(lottie.count, 2);
+    const swiper = stack.find(s => s.name === 'swiper');
+    assert.deepEqual([...swiper.evidence], ['class']);
+    assert.equal(swiper.count, 2);
   });
 
   it('reads script sources and window globals', () => {

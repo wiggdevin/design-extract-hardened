@@ -52,11 +52,11 @@ test('scrollThroughPage honours the step cap and reports what it covered', async
   await page.close();
 });
 
-test('scrollThroughPage calls onStep once per step with the step index', async () => {
+test('scrollThroughPage calls onStep twice per step: early, then settled', async () => {
   const page = await openFixture();
   const seen = [];
-  await scrollThroughPage(page, { maxSteps: 3, onStep: async (i) => { seen.push(i); } });
-  assert.deepEqual(seen, [1, 2, 3]);
+  await scrollThroughPage(page, { maxSteps: 3, onStep: async (i, phase) => { seen.push([i, phase]); } });
+  assert.deepEqual(seen, [[1, 'early'], [1, 'settled'], [2, 'early'], [2, 'settled'], [3, 'early'], [3, 'settled']]);
   await page.close();
 });
 
@@ -91,4 +91,37 @@ test('scrollThroughPage finds pageHeight and scrolls an inner scroll container',
   });
   assert.ok(lastComplete, 'the last lazy image inside the inner scroller finished loading');
   await page.close();
+});
+
+const revealFixtureHtml = readFileSync(fileURLToPath(new URL('./fixtures/scroll-reveal.html', import.meta.url)), 'utf8');
+
+async function openRevealFixture() {
+  const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  await page.setContent(revealFixtureHtml);
+  return page;
+}
+
+test('scrollThroughPage reads a reveal animation while it is still running, not just after it finishes', async () => {
+  const page = await openRevealFixture();
+  const readings = [];
+  await scrollThroughPage(page, {
+    onStep: async (step, phase) => {
+      const r = await page.evaluate(() => ({
+        count: document.getAnimations().length,
+        tops: document.getAnimations().map((a) => Math.round(a.effect.target.getBoundingClientRect().top + window.scrollY)),
+      }));
+      readings.push({ step, phase, ...r });
+    },
+  });
+  await page.close();
+
+  // Block 6 (0-indexed 5th section) spans document y [4000, 4800).
+  const block6Top = 5 * 800;
+  const block6Bottom = 6 * 800;
+  const earlyHit = readings.find((r) => r.phase === 'early' && r.count >= 1
+    && r.tops.some((t) => t >= block6Top && t < block6Bottom));
+  assert.ok(earlyHit, `expected an 'early' reading with a running animation over block 6, got ${JSON.stringify(readings)}`);
+
+  const totalReveals = readings.reduce((n, r) => n + r.count, 0);
+  assert.ok(totalReveals >= 2, `expected at least 2 total reveal readings (blocks 6 and 10), got ${totalReveals}`);
 });

@@ -174,8 +174,12 @@ export async function crawlPage(url, options = {}) {
     const scrollObservations = [];
     if (scrollPass) {
       scroll = await scrollThroughPage(page, {
+        // Called twice per step ('early' and 'settled' — see
+        // scrollThroughPage); pushed both times so a reveal that has already
+        // finished by the settled read is still caught early. Exact
+        // duplicates across the two phases collapse in processRuntimeMotion.
         onStep: motionRuntime
-          ? async () => { scrollObservations.push(...await readRuntimeAnimations(page, 'scroll')); }
+          ? async (_i, _phase) => { scrollObservations.push(...await readRuntimeAnimations(page, 'scroll')); }
           : undefined,
       }).catch(() => null);
       if (scroll) scroll.images = await waitForImages(page);
@@ -480,9 +484,17 @@ export async function scrollThroughPage(page, { stepPx, maxSteps = 60, settleMs 
       if (s && s.isConnected) s.scrollTo(0, y);
       window.scrollTo(0, y);
     }, i * step).catch(() => {});
-    await page.waitForTimeout(settleMs);
+    // Two reads per step: 'early', ~60ms after the scroll, while a
+    // 0.3-1s reveal animation (fadeUp-on-scroll, etc.) is still running, and
+    // 'settled' after the usual settle + networkidle wait, by which point a
+    // short reveal has already finished and document.getAnimations() no
+    // longer lists it. Reading only 'settled' was why reveals came back
+    // empty on pages whose animations are shorter than the settle window.
+    await page.waitForTimeout(60);
+    if (typeof onStep === 'function') await onStep(i, 'early');
+    await page.waitForTimeout(Math.max(0, settleMs - 60));
     await page.waitForLoadState('networkidle', { timeout: idleMs }).catch(() => {});
-    if (typeof onStep === 'function') await onStep(i);
+    if (typeof onStep === 'function') await onStep(i, 'settled');
   }
   await page.evaluate(() => {
     const s = window.__designlangScroller;
@@ -1328,10 +1340,18 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
     const SKIP_TAG = /^(script|style|link|template|noscript|svg|img|video|canvas|iframe|picture|source)$/;
     const isLandmarkBand = (el) => /^(header|nav|footer)$/.test(el.tagName.toLowerCase())
       || /^(banner|navigation|contentinfo)$/.test(el.getAttribute('role') || '');
-    const isBandBox = (el, minWidthShare) => {
+    // refWidth is the width a candidate's own width is measured against: the
+    // viewport at the top level (checking body's children), and the width of
+    // the element whose children are being tested at every level below that
+    // (see the `walk`/`bandKids` call sites). A theme that nests a full-width
+    // wrapper around a site-width row (Avada: fusion-fullwidth 100% vw >
+    // fusion-builder-row ~86-98% of its fullwidth parent) needs the row
+    // measured against ITS parent, not the viewport, or the fullwidth simply
+    // absorbs the row and everything under it into one leaf.
+    const isBandBox = (el, minWidthShare, refWidth) => {
       if (el.nodeType !== 1 || SKIP_TAG.test(el.tagName.toLowerCase())) return false;
       const r = el.getBoundingClientRect();
-      if (r.width < vw * minWidthShare) return false;
+      if (r.width < refWidth * minWidthShare) return false;
       return r.height >= (isLandmarkBand(el) ? 40 : 120);
     };
     // A degenerate-box element paints nothing usable of its own but its
@@ -1366,27 +1386,56 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
       }
       return false;
     };
-    const bandKids = (el, minWidthShare, passDepth) => {
+    const bandKids = (el, minWidthShare, passDepth, refWidth) => {
       const out = [];
       for (const child of el.children) {
-        if (isBandBox(child, minWidthShare)) { out.push(child); continue; }
+        if (isBandBox(child, minWidthShare, refWidth)) { out.push(child); continue; }
         if (passDepth > 0 && isPassThrough(child)) {
-          out.push(...bandKids(child, minWidthShare, passDepth - 1));
+          out.push(...bandKids(child, minWidthShare, passDepth - 1, refWidth));
         }
       }
       return out;
     };
+    // A wrapper with exactly one real (non-skip) child that fills nearly all
+    // of its height is descended into regardless of width — the width test
+    // above is for deciding whether SIBLINGS are separate sections; a lone
+    // child that IS the wrapper's whole content (an Avada site-width row
+    // inside its full-width fullwidth parent, e.g.) is not a sibling
+    // comparison at all.
+    const soleRealChild = (el) => {
+      let only = null;
+      for (const child of el.children) {
+        if (child.nodeType !== 1 || SKIP_TAG.test(child.tagName.toLowerCase())) continue;
+        if (only) return null;
+        only = child;
+      }
+      return only;
+    };
     const leaves = [];
     let bandsCapped = false;
-    const walk = (el, chain, depth, minWidthShare) => {
+    const walk = (el, chain, depth, minWidthShare, refWidth) => {
       if (leaves.length >= BAND_CAP) { bandsCapped = true; return; }
       if (depth > 14) return;
       const share = minWidthShare || MIN_WIDTH_SHARE;
-      const kids = bandKids(el, share, PASS_THROUGH_DEPTH);
+      const kids = bandKids(el, share, PASS_THROUGH_DEPTH, refWidth);
       const h = el.getBoundingClientRect().height || 1;
       const kidsH = kids.reduce((n, k) => n + k.getBoundingClientRect().height, 0);
-      if (kids.length >= 2 && kidsH >= h * 0.6) { for (const k of kids) walk(k, [k], depth + 1, share); return; }
-      if (kids.length === 1 && kids[0].getBoundingClientRect().height >= h * 0.9) { walk(kids[0], chain.length ? chain.concat(kids[0]) : [kids[0]], depth + 1, share); return; }
+      if (kids.length >= 2 && kidsH >= h * 0.6) {
+        for (const k of kids) walk(k, [k], depth + 1, share, k.getBoundingClientRect().width);
+        return;
+      }
+      if (kids.length === 1 && kids[0].getBoundingClientRect().height >= h * 0.9) {
+        const k = kids[0];
+        walk(k, chain.length ? chain.concat(k) : [k], depth + 1, share, k.getBoundingClientRect().width);
+        return;
+      }
+      if (kids.length === 0) {
+        const only = soleRealChild(el);
+        if (only && only.getBoundingClientRect().height >= h * 0.9) {
+          walk(only, chain.length ? chain.concat(only) : [only], depth + 1, share, only.getBoundingClientRect().width);
+          return;
+        }
+      }
       if (!chain.length) return;
       // A leaf that swallows almost the whole page is usually not one real
       // band: either a content wrapper whose real sections sit under the
@@ -1397,16 +1446,16 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
       const leafHeight = el.getBoundingClientRect().height;
       if (share === MIN_WIDTH_SHARE && results.pageHeight > 0 && leafHeight > results.pageHeight * OVERSIZED_LEAF_SHARE) {
         for (const relaxedShare of RELAXED_WIDTH_SHARES) {
-          const relaxedKids = bandKids(el, relaxedShare, PASS_THROUGH_DEPTH);
+          const relaxedKids = bandKids(el, relaxedShare, PASS_THROUGH_DEPTH, refWidth);
           if (relaxedKids.length > 0) {
-            for (const k of relaxedKids) walk(k, [k], depth + 1, relaxedShare);
+            for (const k of relaxedKids) walk(k, [k], depth + 1, relaxedShare, k.getBoundingClientRect().width);
             return;
           }
         }
       }
       leaves.push(chain);
     };
-    if (document.body) walk(document.body, [], 0, MIN_WIDTH_SHARE);
+    if (document.body) walk(document.body, [], 0, MIN_WIDTH_SHARE, vw);
 
     const toHex = (color) => {
       const m = (color || '').match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
@@ -1532,6 +1581,28 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
         .slice(0, 500)
         .map(e => typeof e.className === 'string' ? e.className : '')
         .filter(Boolean),
+      // Unique class tokens across the first 5000 [class] elements, capped at
+      // 2000 tokens. classNameSample (above) is only the first 500 elements'
+      // whole class strings — a large header alone can run hundreds of
+      // elements deep, so a stack signal that only shows up further down the
+      // page (a swiper carousel, a fusion-lottie wrapper) never reaches it.
+      // This is a wider, deduped net for exactly that case; classNameSample
+      // itself is left as-is because component-library/stack-fingerprint
+      // detection already depend on its exact shape.
+      classTokens: (() => {
+        const tokens = new Set();
+        for (const el of Array.from(document.querySelectorAll('[class]')).slice(0, 5000)) {
+          const cls = typeof el.className === 'string' ? el.className : '';
+          if (!cls) continue;
+          for (const tok of cls.split(/\s+/)) {
+            if (!tok) continue;
+            tokens.add(tok);
+            if (tokens.size >= 2000) break;
+          }
+          if (tokens.size >= 2000) break;
+        }
+        return Array.from(tokens);
+      })(),
       windowGlobals: ['React', 'Vue', '__NEXT_DATA__', '__NUXT__', '___gatsby', '_remixContext', 'Shopify', 'wp',
         'gsap', 'ScrollTrigger', 'Lenis', 'LocomotiveScroll', 'AOS', 'lottie', 'bodymovin', 'Swiper', 'Motion']
         .filter(k => typeof window[k] !== 'undefined'),

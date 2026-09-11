@@ -136,7 +136,7 @@ const MOTION_LIBS = [
   { name: 'theme-reveal', globals: [], cls: /(^|\s)(fusion-animated|wow|animate__animated|reveal|aos-init)(\s|$|-)/ },
 ];
 
-export function detectMotionStack({ scripts = [], windowGlobals = [], tagCounts = {}, classNameSample = [] } = {}) {
+export function detectMotionStack({ scripts = [], windowGlobals = [], tagCounts = {}, classNameSample = [], classTokens = [] } = {}) {
   const out = [];
   for (const lib of MOTION_LIBS) {
     const evidence = new Set();
@@ -149,7 +149,14 @@ export function detectMotionStack({ scripts = [], windowGlobals = [], tagCounts 
     if (globalHits) { evidence.add('global'); count += globalHits; }
     if (lib.tag && Number(tagCounts[lib.tag]) > 0) { evidence.add('tag'); count += Number(tagCounts[lib.tag]); }
     if (lib.cls) {
-      const hits = classNameSample.filter(c => typeof c === 'string' && lib.cls.test(c)).length;
+      // classNameSample holds whole class="..." strings from the first 500
+      // elements; classTokens holds unique individual class tokens from the
+      // first 5000. A library whose markup sits past the 500-element sample
+      // (a swiper carousel or a fusion-lottie wrapper below a long header)
+      // only ever shows up in the second.
+      const sampleHits = classNameSample.filter(c => typeof c === 'string' && lib.cls.test(c)).length;
+      const tokenHits = classTokens.filter(c => typeof c === 'string' && lib.cls.test(c)).length;
+      const hits = sampleHits + tokenHits;
       if (hits) { evidence.add('class'); count += hits; }
     }
     if (evidence.size) out.push({ name: lib.name, evidence: [...evidence], count });
