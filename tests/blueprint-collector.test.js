@@ -142,11 +142,26 @@ test('the band-box width test is parent-relative below the top level, so an Avad
   // real side-by-side grid is not decomposed further. Row 2 (three stacked
   // 100%-of-row columns) decomposes into three bands, one per column, each
   // reporting the column's own width (1100). Row 3 (one 100%-of-row column)
-  // stays one band — the fullwidth — same as row 1.
-  assert.equal(avada.bands.length, 5, JSON.stringify(avada.bands.map(b => [b.className, b.bounds.w, b.bounds.h])));
-  assert.deepEqual(avada.bands.map(b => b.bounds.w), [1280, 1100, 1100, 1100, 1280]);
+  // stays one band — the fullwidth — same as row 1. Row 4 (a full-row-width
+  // heading followed by six 50%-width cards wrapping into three rows of two)
+  // also stays one band — the fullwidth — since none of its children pass
+  // the band-box test (the heading fails height, the cards fail width), same
+  // shape as the reference page's band 8.
+  assert.equal(avada.bands.length, 6, JSON.stringify(avada.bands.map(b => [b.className, b.bounds.w, b.bounds.h])));
+  assert.deepEqual(avada.bands.map(b => b.bounds.w), [1280, 1100, 1100, 1100, 1280, 1280]);
   for (let i = 1; i < avada.bands.length; i++) assert.ok(avada.bands[i].bounds.y >= avada.bands[i - 1].bounds.y);
   for (const b of avada.bands) assert.ok(b.bounds.h <= 0.8 * avada.pageHeight, `${b.className} is ${b.bounds.h} of ${avada.pageHeight}`);
   assert.equal(avada.bandsCapped, false);
+
+  // The column rule must group children by row, not anchor on the first
+  // child: row 1's two 50%-width columns are still columns === 2 (this
+  // already worked, since the first child happened to be part of the pair),
+  // and row 4's heading-then-grid band is now also columns === 2 (this is
+  // the fix — anchoring on the heading as rects[0] used to read the whole
+  // grid as one column, reference-page band 8's exact bug).
+  const row1Band = avada.bands.find((b) => /\bfw1\b/.test(b.className));
+  assert.equal(row1Band.columns, 2, JSON.stringify(row1Band));
+  const row4Band = avada.bands.find((b) => /\bfw4\b/.test(b.className));
+  assert.equal(row4Band.columns, 2, JSON.stringify(row4Band));
   await avadaPage.close();
 });

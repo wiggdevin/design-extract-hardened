@@ -1493,17 +1493,28 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
       }
       background.hasVideo = Array.from(outer.querySelectorAll('video')).some(v => areaOf(v) >= area * 0.5);
 
-      // Columns: the widest row of two or more equal-width, side-by-side children.
+      // Columns: the widest row of two or more equal-width, side-by-side
+      // children. Group by rounded top, not anchored on the first child —
+      // anchoring on rects[0] misreads a grid whose first child is a
+      // full-width heading (e.g. a "Services" title above a card grid) as a
+      // single column, since nothing else shares the heading's own top.
       let columns = 1; let bestRowWidth = 0;
       for (const row of [leaf, ...descendants]) {
         const rects = Array.from(row.children).map(rectOf).filter(r => r.width >= 40 && r.height >= 40);
         if (rects.length < 2) continue;
-        const sameRow = rects.filter(r => Math.abs(r.top - rects[0].top) <= 10);
-        if (sameRow.length < 2) continue;
-        const widths = sameRow.map(r => r.width);
-        if (Math.min(...widths) < Math.max(...widths) * 0.9) continue;
-        const total = widths.reduce((n, w) => n + w, 0);
-        if (total > bestRowWidth) { bestRowWidth = total; columns = sameRow.length; }
+        const groups = new Map();
+        for (const r of rects) {
+          const key = Math.round(r.top / 10);
+          const group = groups.get(key);
+          if (group) group.push(r); else groups.set(key, [r]);
+        }
+        for (const group of groups.values()) {
+          if (group.length < 2) continue;
+          const widths = group.map(r => r.width);
+          if (Math.min(...widths) < Math.max(...widths) * 0.9) continue;
+          const total = widths.reduce((n, w) => n + w, 0);
+          if (total > bestRowWidth) { bestRowWidth = total; columns = group.length; }
+        }
       }
 
       // Media: dominant kind by area among img/video/svg/canvas and background images.
