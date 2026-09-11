@@ -4,16 +4,31 @@ Corpus: 10 Refero sites plus 6 stress sites, 1280×800, three workers, `wait: 15
 
 ## Gates
 
-| Gate | Before (prior extractor, scored on the same truth) | v1 (slices 0–4 as implemented) | v4 (DOM only, after live-site and review fixes) | v5 (v4 + pixel lane, 2026-09-10) | Status |
-|---|---|---|---|---|---|
-| Font precision: declaration-shaped or rejected families promoted | `object-fit: contain` promoted on Woven; `Times` on 7 sites | 7/53 | 2/45 | 2/45 | FAIL on count, see disputes |
-| Font recall ≥ 0.95 | not measurable (no rejected list) | 43/43 | 43/43 | 43/43 | PASS |
-| Geometry: square systems survive, incidental flips = 0 | Woven `[50]`, SwimClub `[8, 26]`: square invisible | flips 0, global 6/16 | flips 0, global 7/16, button role 11/16 | unchanged | PASS on the gate |
-| Media top-two recall ≥ 0.90 | Filling Pieces `mixed` with 0 photos among 249 images | 12/16 | 10/16 | 15/16 | PASS |
-| Photography false positives < 0.05 | n/a | 1/16 (Linear) | 0/16 | 0/16 | PASS |
-| Runtime: semantic processing < 20% of crawl | 50 s wall for 10 sites at 3 workers | n/a | 85 s wall for 16 sites at 3 workers; promoters 9–24 ms per page (< 0.5%) | 90 s wall for 16 sites; pixel lane ≤ 1.7 s on a page with a stalled image body, well under 1 s otherwise | PASS |
+| Gate | Before (prior extractor, scored on the same truth) | v1 (slices 0–4 as implemented) | v4 (DOM only, after live-site and review fixes) | v5 (v4 + pixel lane, 2026-09-10) | v6 (v5 + consent step, 2026-09-10) | Status |
+|---|---|---|---|---|---|---|
+| Font precision: declaration-shaped or rejected families promoted | `object-fit: contain` promoted on Woven; `Times` on 7 sites | 7/53 | 2/45 | 2/45 | 2/45 | FAIL on count, see disputes |
+| Font recall ≥ 0.95 | not measurable (no rejected list) | 43/43 | 43/43 | 43/43 | 43/43 | PASS |
+| Geometry: square systems survive, incidental flips = 0 | Woven `[50]`, SwimClub `[8, 26]`: square invisible | flips 0, global 6/16 | flips 0, global 7/16, button role 11/16 | unchanged | scored 28/61 (was 27/61); flips 1 on Emma Lewisham, whose truth label cites the cookie banner's own buttons, see the consent note | PASS on the gate before the consent step; the one flip is a truth-label question for the human review |
+| Media top-two recall ≥ 0.90 | Filling Pieces `mixed` with 0 photos among 249 images | 12/16 | 10/16 | 15/16 | 15/16 | PASS |
+| Photography false positives < 0.05 | n/a | 1/16 (Linear) | 0/16 | 0/16 | 0/16 | PASS |
+| Runtime: semantic processing < 20% of crawl | 50 s wall for 10 sites at 3 workers | n/a | 85 s wall for 16 sites at 3 workers; promoters 9–24 ms per page (< 0.5%) | 90 s wall for 16 sites; pixel lane ≤ 1.7 s on a page with a stalled image body, well under 1 s otherwise | 90 s wall for 16 sites | PASS |
 
-v1 to v4 traded media recall for honesty: v1 called Linear and N26 photography from extensionless URLs and called Aevi and SwimClub screenshots from large PNGs. v4 says `unknown` with a signal in all four cases. v5 adds the pixel lane (`benchmarks/pixel-bakeoff-2026-09-10.md`): the same five sites are now labeled from the pixels of images the page itself loaded, and every other gate is unchanged. The only remaining media miss is Woven's age gate. Sections below are from the v4 run (`benchmarks/results/semantic-v4-2026-09-09`, not tracked); the v5 run is in `semantic-v5-2026-09-10`.
+v1 to v4 traded media recall for honesty: v1 called Linear and N26 photography from extensionless URLs and called Aevi and SwimClub screenshots from large PNGs. v4 says `unknown` with a signal in all four cases. v5 adds the pixel lane (`benchmarks/pixel-bakeoff-2026-09-10.md`): the same five sites are now labeled from the pixels of images the page itself loaded, and every other gate is unchanged. The only remaining media miss is Woven's age gate. Sections below are from the v4 run (`benchmarks/results/semantic-v4-2026-09-09`, not tracked); the v5 run is in `semantic-v5-2026-09-10`, the v6 run in `semantic-v6-2026-09-10`.
+
+### Consent step (v6)
+
+A cookie card was in the capture on 6 of 16 sites. v6 refuses or hides it before anything is measured (`src/consent.js`, `docs/semantic-extraction.md` "Consent banners"). Recorded in `evidence.capture.consent`:
+
+| Site | Tool | Action |
+|---|---|---|
+| N26 | custom, inside a shadow root | rejected |
+| Emma Lewisham | CookieYes | rejected, scroll lock released |
+| Opus One Winery | OneTrust | rejected |
+| Monzo | custom dialog | rejected |
+| Auberge Resorts | OneTrust, no refusal control | hidden |
+| Filling Pieces | Cookieconsent | hidden, scroll lock released |
+
+Woven's age gate is detected and deliberately left alone (`ignored: age-gate`). Three geometry verdicts moved once the banner's own buttons stopped counting: N26 `mixed` to `pill` (truth pill, now correct), Emma Lewisham `mixed` to `rounded`, and Filling Pieces `mixed` to `rounded`. The Emma and Filling Pieces truth labels were made on captures that still had the banner, and Emma's evidence names the banner's Accept and Reject buttons as its square sample. Both are flagged for the human review rather than re-labeled here.
 
 ## Font precision disputes (v4)
 

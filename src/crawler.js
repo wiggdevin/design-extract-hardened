@@ -5,6 +5,7 @@ import { extractMediaDarkColors } from './extractors/dark-mode-pair.js';
 import { startScreencast } from './screencast.js';
 import { startSafeBrowsingProxy } from './security/safe-proxy.js';
 import { createResponseLedger, selectPixelCandidates, collectPixelEvidence } from './pixel-lane.js';
+import { neutralizeConsent } from './consent.js';
 
 const MAX_ELEMENTS = 5000;
 const NETWORK_OVERRIDE_FLAGS = [
@@ -47,6 +48,7 @@ export async function crawlPage(url, options = {}) {
     onScreencastFrame,  // Theatre: opt-in live frame sink. When set, a throttled
     screencastOpts,     // CDP screencast streams what the page paints during load.
     pixelEvidence = true, // Pixel lane: features of images the page loaded (no extra fetch).
+    dismissConsent = true, // Reject or hide a consent banner before measuring. Never accepts.
   } = options;
 
   const launchArgs = [
@@ -137,6 +139,15 @@ export async function crawlPage(url, options = {}) {
     if (wait > 0) await page.waitForTimeout(wait);
     await page.evaluate(() => document.fonts.ready).catch(() => {});
 
+    // Consent banner: refuse or hide it, and release its scroll lock, before
+    // coverage, the scroll pass, the collector, the pixel lane, and screenshots
+    // see the page. See consent.js for what is and is not pressed.
+    let consent = null;
+    if (dismissConsent) {
+      consent = await neutralizeConsent(page);
+      if (consent.action !== 'none') await page.waitForTimeout(250);
+    }
+
     // Capture CSS coverage after the page has settled.
     let cssCoverage = [];
     if (cssCoverageAvailable) {
@@ -169,6 +180,7 @@ export async function crawlPage(url, options = {}) {
 
     const lightData = await extractPageData(page, ignore, selector);
     lightData.cssCoverage = cssCoverage;
+    lightData.consent = consent;
     if (ledger) {
       try {
         const candidates = selectPixelCandidates({
@@ -232,6 +244,7 @@ export async function crawlPage(url, options = {}) {
           await gotoWithRetry(page, link, { waitUntil: 'domcontentloaded', timeout: 20000 });
           await page.waitForLoadState('networkidle').catch(() => {});
           await page.evaluate(() => document.fonts.ready).catch(() => {});
+          if (dismissConsent) await neutralizeConsent(page);
           const pageData = await extractPageData(page);
           additionalPages.push({ url: link, data: pageData });
           try {
@@ -258,6 +271,7 @@ export async function crawlPage(url, options = {}) {
       await gotoWithRetry(darkPage, url, { waitUntil: 'domcontentloaded', timeout: 30000 });
       await darkPage.waitForLoadState('networkidle').catch(() => {});
       await darkPage.evaluate(() => document.fonts.ready).catch(() => {});
+      if (dismissConsent) await neutralizeConsent(darkPage);
       darkData = await extractPageData(darkPage);
       darkData.mediaColors = mediaColors;
       await darkContext.close();

@@ -65,6 +65,16 @@ Candidates the DOM leaves `unknown` get a second look from their pixels (`src/pi
 
 Classification uses entropy bands measured on the benchmark corpus (`benchmarks/pixel-bakeoff-2026-09-10.md`): photographs at entropy ≥ 6.2, renders and screenshots below 5.0, `unknown` in between. A pixel label never overrides a DOM label, because a product render on a white sweep reads as flat pixels but is product photography to the DOM. Resolved candidates carry `pixel: { label, confidence, source }` in `dominantMedia`, keep their DOM signal (`png-ambiguous`, `extensionless-source`, `canvas-rendered`), and add the pixel signal that decided them.
 
+### Consent banners
+
+A cookie card covers part of the first screen on about half of the benchmark sites, locks body scroll, and puts its own fonts, colors, and radii in front of the extractor. The crawler now neutralises it once, after the page settles and before CSS coverage, the scroll pass, the collector, the pixel lane, and screenshots (`src/consent.js`, on by default, `dismissConsent: false` or `--no-dismiss-consent` turns it off).
+
+- Detection: known consent-tool roots (OneTrust, Cookiebot, Usercentrics, Didomi, Quantcast, Sourcepoint, Osano, TrustArc, Axeptio, iubenda, Termly, HubSpot, Shopify, Klaro, and generic ids), then a generic shape: a fixed, sticky, or modal box of at least 2% of the viewport whose text mentions cookies or consent and which holds a control.
+- Action: a refusal control (`Reject all`, `Decline`, `Only necessary`, `Continue without accepting`) is pressed when one is visible. An acceptance control is never pressed: the crawl does not grant consent on the operator's behalf. Whatever is still showing is hidden with an inline `display: none`, together with the tool's backdrop, and a scroll lock on `html` or `body` is released. Nothing is removed from the DOM.
+- Record: `evidence.capture.consent` holds `{ detected, action, scrollLockReleased }` with action `rejected`, `hidden`, `rejected+hidden`, or `none`. A page without a banner is untouched.
+
+An age gate is not a consent banner. It asks the visitor to attest an age, so the crawler leaves it in place and the page reads as what the gate shows.
+
 ## Fallback and failure
 
 Promoters run one at a time under a guard. A failing promoter leaves every inventory intact and appends a named entry to `evidence.warnings`, for example `geometry promoter failed: …`. The old count-based imagery path still serves inputs without layout evidence (older captures, tests).

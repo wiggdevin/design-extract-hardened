@@ -17,6 +17,7 @@ import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 import { pixelFeatures, classifyPixels } from '../src/extractors/pixel-features.js';
+import { neutralizeConsent } from '../src/consent.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const VIEWPORT = { width: 1280, height: 800 };
@@ -107,6 +108,8 @@ async function captureSite(site, resultsDir, outDir) {
     await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
     await page.waitForTimeout(1500);
     await page.evaluate(() => document.fonts.ready).catch(() => {});
+    const consent = await neutralizeConsent(page);
+    if (consent.action !== 'none') await page.waitForTimeout(250);
     const docHeight = await page.evaluate(() => document.documentElement.scrollHeight);
     for (let y = 0; y < Math.min(docHeight, 12000); y += 700) {
       await page.evaluate((yy) => window.scrollTo(0, yy), y);
