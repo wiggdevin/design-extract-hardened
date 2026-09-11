@@ -329,3 +329,32 @@ describe('formatSemanticScorecard', () => {
     assert.match(card, /Media|Photography/i);
   });
 });
+
+import { scoreBlueprintGates } from '../src/semantic-benchmark.js';
+
+describe('scoreBlueprintGates', () => {
+  const bp = (roles, oversizedDropped = 0) => ({ blueprint: { bands: roles.map((role, index) => ({ index, role })), readingOrder: roles, heroIndex: roles.indexOf('hero'), counts: { bands: roles.length, oversizedDropped, byRole: {} } } });
+
+  it('counts sites with a hero within the first three bands and sites that dropped an oversized band', () => {
+    const r = scoreBlueprintGates({
+      a: bp(['nav', 'hero', 'feature-grid', 'footer']),
+      b: bp(['hero', 'cta']),
+      c: bp(['nav', 'content', 'content', 'hero'], 1),
+      d: { blueprint: { bands: [], readingOrder: [], heroIndex: -1, counts: { bands: 0, oversizedDropped: 0, byRole: {} } } },
+    });
+    assert.equal(r.sites, 4);
+    assert.equal(r.heroAtTop, 2);
+    assert.equal(r.oversizedSites, 1);
+    assert.deepEqual(r.perSite.find(s => s.id === 'c'), { id: 'c', bands: 4, heroIndex: 3, heroAtTop: false, oversizedDropped: 1, firstRoles: ['nav', 'content', 'content'] });
+  });
+
+  it('is folded into the scorecard as two gates', () => {
+    const score = scoreSemanticExtraction(makeGroundTruth(), {});
+    assert.ok(score.blueprint, 'scoreSemanticExtraction attaches blueprint gates');
+    assert.equal(score.blueprint.sites, 0);
+    const card = formatSemanticScorecard({ ...score, blueprint: scoreBlueprintGates({ a: bp(['nav', 'hero']), b: bp(['hero']) }) });
+    assert.match(card, /Hero at top on >= 14\/16 sites \| 2\/2 \| n=2 \| PASS/);
+    assert.match(card, /No oversized band on any site \| 0 sites \| n=2 \| PASS/);
+    assert.doesNotMatch(formatSemanticScorecard({ ...score, blueprint: undefined }), /Hero at top/, 'old score files still format');
+  });
+});

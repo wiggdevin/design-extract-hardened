@@ -196,6 +196,31 @@ function scoreMedia(site, extraction) {
 
 const ratio = (num, den) => (den > 0 ? num / den : 0);
 
+const HERO_WINDOW = 3;
+
+/** Blueprint gates need no ground truth: they read the extraction alone. */
+export function scoreBlueprintGates(extractionsById = {}) {
+  const perSite = Object.entries(extractionsById).map(([id, extraction]) => {
+    const bp = extraction?.blueprint || {};
+    const roles = Array.isArray(bp.readingOrder) ? bp.readingOrder : [];
+    const heroIndex = roles.indexOf('hero');
+    return {
+      id,
+      bands: Array.isArray(bp.bands) ? bp.bands.length : 0,
+      heroIndex,
+      heroAtTop: heroIndex >= 0 && heroIndex < HERO_WINDOW,
+      oversizedDropped: Number(bp.counts?.oversizedDropped) || 0,
+      firstRoles: roles.slice(0, HERO_WINDOW),
+    };
+  });
+  return {
+    sites: perSite.length,
+    heroAtTop: perSite.filter((s) => s.heroAtTop).length,
+    oversizedSites: perSite.filter((s) => s.oversizedDropped > 0).length,
+    perSite,
+  };
+}
+
 /** Score an extractor's output against a loaded ground-truth set. Only 'reviewed' sites count. */
 export function scoreSemanticExtraction(groundTruth, extractionsById) {
   const unscored = [];
@@ -258,6 +283,7 @@ export function scoreSemanticExtraction(groundTruth, extractionsById) {
     },
     unscored,
     perSite,
+    blueprint: scoreBlueprintGates(extractionsById),
   };
 }
 
@@ -298,6 +324,10 @@ export function formatSemanticScorecard(score) {
       `${score.media.photographyFalsePositiveRate.toFixed(2)} (${score.media.photographyFalsePositives}/${score.media.scored})`,
       score.media.scored,
     ),
+    ...(score.blueprint ? [
+      gateRow('Hero at top on >= 14/16 sites', score.blueprint.sites === 0 || score.blueprint.heroAtTop / score.blueprint.sites >= 14 / 16, `${score.blueprint.heroAtTop}/${score.blueprint.sites}`, score.blueprint.sites),
+      gateRow('No oversized band on any site', score.blueprint.oversizedSites === 0, `${score.blueprint.oversizedSites} sites`, score.blueprint.sites),
+    ] : []),
   ];
 
   return [
