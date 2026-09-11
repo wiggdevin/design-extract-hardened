@@ -312,3 +312,24 @@ test('a repeated card grid records repeats, uses them for cardCount and columns'
   assert.equal(header.repeats, null);
   await p.close();
 });
+
+test('columns takes the larger of the row rule and the repeat group, never the smaller', async () => {
+  // The section holds two rows: a row of four equal-width, short (< 120px
+  // tall, so invisible to the repeat grouper) link columns that the row
+  // rule reads directly as 4 side-by-side columns, and a row of four cards
+  // (three 300px wide, one 380px wide, all tall enough and all with a
+  // button) where the repeat grouper only finds the three equal-width ones,
+  // reporting perRow 3. The row rule's own 4 must survive the repeats
+  // override, not get overwritten down to 3.
+  const html = readFileSync(fileURLToPath(new URL('./fixtures/blueprint-columns-max.html', import.meta.url)), 'utf8');
+  const p = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  await p.route('http://fixture.test/**', (route) => route.fulfill({ status: 200, contentType: 'image/png', body: PNG }));
+  await p.setContent(html);
+  const d = await p.evaluate(collectPageData, COLLECT_OPTS);
+  const band = d.bands.find((b) => b.className.includes('footer-cols'));
+  assert.ok(band, JSON.stringify(d.bands.map((b) => [b.tag, b.className])));
+  assert.equal(band.repeats.count, 3, JSON.stringify(band.repeats));
+  assert.equal(band.repeats.perRow, 3, JSON.stringify(band.repeats));
+  assert.equal(band.columns, 4, JSON.stringify(band));
+  await p.close();
+});

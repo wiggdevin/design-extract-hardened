@@ -1742,7 +1742,7 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
         return best;
       };
       const repeats = repeatsOf(outer);
-      if (repeats && repeats.perRow >= 2) columns = repeats.perRow;
+      if (repeats && repeats.perRow >= 2) columns = Math.max(columns, repeats.perRow);
       const selectorCards = outer.querySelectorAll(CARD_SELECTOR).length;
 
       const outerText = outer.innerText || '';
