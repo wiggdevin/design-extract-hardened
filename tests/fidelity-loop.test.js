@@ -137,7 +137,7 @@ describe('runFidelityLoop', () => {
   });
 });
 
-import { measureCloneFidelity } from '../src/fidelity/run.js';
+import { measureCloneFidelity, fullPageShot } from '../src/fidelity/run.js';
 
 describe('measureCloneFidelity input guard', () => {
   it('rejects a missing clone URL before touching a browser', async () => {
@@ -189,5 +189,43 @@ describe('measureCloneFidelity: the screenshot lane is proxied and allowOrigin r
     const clone = shots.find((s) => s.url === 'http://127.0.0.1:4173');
     assert.ok(!('allowOrigin' in original.o), JSON.stringify(original.o));
     assert.equal(clone.o.allowOrigin, 'http://127.0.0.1:4173');
+  });
+});
+
+describe('fullPageShot: goes through the safe browsing proxy with injectable startProxy/launch', () => {
+  const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
+  const fakePage = () => ({
+    goto: async () => {},
+    waitForLoadState: async () => {},
+    evaluate: async () => {},
+    screenshot: async () => PNG,
+  });
+  const fakeLaunch = (launchCalls) => async (options) => {
+    launchCalls.push(options);
+    return {
+      newContext: async () => ({ newPage: async () => fakePage() }),
+      close: async () => {},
+    };
+  };
+
+  it('starts the proxy with allowOrigin and launches with its url and the egress args', async () => {
+    const proxyCalls = [];
+    const startProxy = async (options) => { proxyCalls.push(options); return { url: 'http://127.0.0.1:9', close: async () => {} }; };
+    const launchCalls = [];
+    const buf = await fullPageShot('http://127.0.0.1:4173', { allowOrigin: 'http://127.0.0.1:4173' }, { startProxy, launch: fakeLaunch(launchCalls) });
+
+    assert.deepEqual(proxyCalls, [{ allowOrigin: 'http://127.0.0.1:4173' }]);
+    assert.equal(launchCalls[0].proxy.server, 'http://127.0.0.1:9');
+    assert.ok(launchCalls[0].args.includes('--disable-quic'), JSON.stringify(launchCalls[0].args));
+    assert.ok(launchCalls[0].args.includes('--force-webrtc-ip-handling-policy=disable_non_proxied_udp'), JSON.stringify(launchCalls[0].args));
+    assert.ok(launchCalls[0].args.includes('--proxy-bypass-list=<-loopback>'), JSON.stringify(launchCalls[0].args));
+    assert.deepEqual(buf, PNG);
+  });
+
+  it('starts the proxy with {} when no allowOrigin is given', async () => {
+    const proxyCalls = [];
+    const startProxy = async (options) => { proxyCalls.push(options); return { url: 'http://127.0.0.1:9', close: async () => {} }; };
+    await fullPageShot('http://127.0.0.1:4173', {}, { startProxy, launch: fakeLaunch([]) });
+    assert.deepEqual(proxyCalls, [{}]);
   });
 });

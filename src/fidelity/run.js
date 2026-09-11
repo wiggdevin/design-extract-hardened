@@ -19,12 +19,15 @@ function hostOf(url) {
 
 // Full-page screenshot through the safe browsing proxy, the same egress
 // policy as the crawl. allowOrigin is the fidelity --clone-local allowance
-// and is passed for the clone shot only.
-async function fullPageShot(url, { width = 1280, height = 800, channel, allowOrigin } = {}) {
-  const safeProxy = await startSafeBrowsingProxy(typeof allowOrigin === 'string' ? { allowOrigin } : {});
+// and is passed for the clone shot only. startProxy/launch are injectable so
+// this proxied lane can be tested without a network or a real browser; the
+// default behaviour (real proxy, real chromium) is unchanged.
+export async function fullPageShot(url, { width = 1280, height = 800, channel, allowOrigin } = {},
+  { startProxy = startSafeBrowsingProxy, launch = (o) => chromium.launch(o) } = {}) {
+  const safeProxy = await startProxy(typeof allowOrigin === 'string' ? { allowOrigin } : {});
   let browser;
   try {
-    browser = await chromium.launch({
+    browser = await launch({
       headless: true,
       ...(channel && { channel }),
       args: ['--disable-quic', '--force-webrtc-ip-handling-policy=disable_non_proxied_udp', '--proxy-bypass-list=<-loopback>'],
