@@ -21,13 +21,19 @@ const LEGACY_MEDIA_LABELS = {
 
 // URLs come from manual review notes and often differ only by a trailing
 // slash; normalize before the duplicate check so those don't slip through.
+function stripTrailingSlashes(value) {
+  let end = value.length;
+  while (end > 0 && value[end - 1] === '/') end -= 1;
+  return value.slice(0, end);
+}
+
 function normalizeUrl(raw) {
   try {
     const u = new URL(raw);
-    const path = u.pathname.replace(/\/+$/, '');
+    const path = stripTrailingSlashes(u.pathname);
     return `${u.protocol}//${u.host}${path}${u.search}`.toLowerCase();
   } catch {
-    return String(raw).trim().toLowerCase().replace(/\/+$/, '');
+    return stripTrailingSlashes(String(raw).trim().toLowerCase());
   }
 }
 

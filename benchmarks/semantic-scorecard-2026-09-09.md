@@ -1,6 +1,6 @@
 # Semantic scorecard, 2026-09-09
 
-Corpus: 10 Refero sites plus 6 stress sites, 1280×800, three workers, `wait: 1500`. Ground truth: `semantic-ground-truth-v1.json` (two independent agent labelers plus a reconciler per site; pending human review). Scorer: `src/semantic-benchmark.js`. Raw counts are printed with every ratio.
+Corpus: 10 Refero sites plus 6 stress sites, 1280×800, three workers, `wait: 1500`. Ground truth: `semantic-ground-truth-v1.json`. The columns in the gates table were scored on the agent labels (two independent agent labelers plus a reconciler per site). The file has since been human-reviewed; the scores on that truth are in "Human review" below. Scorer: `src/semantic-benchmark.js`. Raw counts are printed with every ratio.
 
 ## Gates
 
@@ -29,6 +29,37 @@ A cookie card was in the capture on 6 of 16 sites. v6 refuses or hides it before
 | Filling Pieces | Cookieconsent | hidden, scroll lock released |
 
 Woven's age gate is detected and deliberately left alone (`ignored: age-gate`). Three geometry verdicts moved once the banner's own buttons stopped counting: N26 `mixed` to `pill` (truth pill, now correct), Emma Lewisham `mixed` to `rounded`, and Filling Pieces `mixed` to `rounded`. The Emma and Filling Pieces truth labels were made on captures that still had the banner, and Emma's evidence names the banner's Accept and Reject buttons as its square sample. Both are flagged for the human review rather than re-labeled here.
+
+## Human review (2026-09-11)
+
+Devin reviewed all 16 sites from pictures cut out of the 2026-09-10 captures: text samples per font family, button, card and text-field crops, and the largest images, one plain-language question per picture, with the agent tag shown as a caption. Raw answers: `benchmarks/semantic-human-review-2026-09-11.json`. The truth file now carries the derived labels, the reviewer, and per site an `unverifiedFields` list; its `humanReview` block states the derivation rules.
+
+Two scores of the same v6 run. "Recorded" scores the file as written: a field the reviewer could not judge from a picture keeps the agent tag. "Verified" nulls every field in `unverifiedFields` and scores only what a picture confirmed.
+
+| Gate | Recorded | Verified | Status (verified) |
+|---|---|---|---|
+| Font precision | 4/45 false positives | 3/45 | FAIL |
+| Font recall ≥ 0.95 | 0.86 (42/49) | 0.97 (34/35) | PASS |
+| Geometry accuracy, incidental flips = 0 | 0.42 (25/60): global 7/16, roles 18/44; flips 1 | 0.46 (18/39): global 7/16, roles 11/23; flips 1 | FAIL |
+| Media top-two recall ≥ 0.90 | 0.69 (11/16) | 0.69 (11/16) | FAIL |
+| Photography false positives < 0.05 | 1/16 (Monzo) | 1/16 | FAIL |
+
+Against the agent tags the review moved 12 font tags, 4 button tags, 7 global verdicts, and 11 media top-two lists. Per-site changes are in each site's `humanChanges`.
+
+Where the extractor misses on verified fields:
+
+- **Fonts.** Three promoted families were marked not-brand from a real text sample: ABC Diatype Medium (Hyper Foundation, 27 text elements; the Regular weight is brand), Inter (Origin Financial, 10 text elements), Financier Medium (Auberge Resorts, 2 text elements). One accepted family was not promoted: Reader (Filling Pieces).
+- **Geometry roles, 12 misses of 23.** Six are roles the extractor did not find at all: Hyper Foundation button, Mercury input, Linear card, Spline input, Wise card, Monzo input. Three are pill against rounded in both directions: Linear and Wise buttons are rounded in the truth and pill in the extractor; Spline buttons are pill in the truth and rounded in the extractor. Aevi buttons are pill against `mixed`. Filling Pieces buttons and inputs are square in the truth, judged from a newsletter popup's crops, and rounded and pill in the extractor, measured on the page; this is the one incidental flip.
+- **Global, 7/16 on either score.** The file derives global from the judged roles and calls a disagreement `mixed`; the extractor weights roles by share. Monzo and Spline are `mixed` by the file's rule and pill and rounded by the extractor's; Apple is pill by the file and `mixed` by the extractor.
+- **Media, 5 misses.** Woven's truth is now the age-gate logo (iconography) against `unknown`. Aevi and SwimClub are product-photography against photography. Spline is ui-screenshot against 3d-render (a WebGL scene framed by the editor's chrome). Monzo is ui-screenshot against photography (a photo of a phone showing the app), which is also the one photography false positive.
+
+Caveats on the truth itself:
+
+- 62 of 100 font answers were given on names with no text sample in the first three screens. The review page listed those under "no visible text uses them" with a bulk button. They stand as recorded and are listed unverified.
+- The review page matched pictures to names by prefix, so five variant names were shown the parent family's text: N26-Fallback and N26-Extended-Fallback (N26's text), FavoritMedium (Favorit's), Lyondisplay Trial (Lyondisplay's), fira_sans-book_italic (fira_sans-book's), Wise Sans JP (Wise Sans's). All were marked brand. The file keeps the answers and lists them unverified; that difference is the whole gap between recorded recall (42/49) and verified recall (34/35).
+- The Filling Pieces button and text-field crops came from a newsletter popup, not the page behind it.
+- Wise's "Send money" button is a full pill in its own crop and the answer was softly rounded. The answer stands.
+- Whether photography and product-photography, or 3d-render and ui-screenshot, should count as one family for top-two recall is a scorer question this review does not settle. Three of the five media misses sit on those two lines.
 
 ## Font precision disputes (v4)
 

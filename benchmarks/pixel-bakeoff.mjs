@@ -182,8 +182,8 @@ async function captureSite(site, resultsDir, outDir) {
 async function featuresFor(outDir, sites) {
   for (const site of sites) {
     const p = join(outDir, site.id, 'media.json');
-    if (!existsSync(p)) continue;
-    const rec = readJson(p);
+    let rec;
+    try { rec = readJson(p); } catch (err) { if (err?.code === 'ENOENT') continue; throw err; }
     for (const m of rec.media) {
       if (!m.captured || !m.cropPath || !existsSync(m.cropPath)) continue;
       try {

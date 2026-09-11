@@ -87,7 +87,7 @@ Inputs:
 
 - `benchmarks/refero-premium-10.json`: the ten Refero-annotated sites (annotations are context, never truth).
 - `benchmarks/stress-sites-v1.json`: six sites chosen for specific failure modes, with the candidates that were rejected and why.
-- `benchmarks/semantic-ground-truth-v1.json`: labels for all sixteen sites at 1280×800, produced by two independent labelers and a reconciler from screenshots and DOM evidence, `reviewer: agent-pending-human`. Disagreements are recorded in each site's notes.
+- `benchmarks/semantic-ground-truth-v1.json`: labels for all sixteen sites at 1280×800. First produced by two independent labelers and a reconciler from screenshots and DOM evidence (their disagreements are in each site's notes), then reviewed by a human from pictures cut out of the captures. The raw answers are in `benchmarks/semantic-human-review-2026-09-11.json`; the file's `humanReview` block states how answers became labels, and each site lists the fields no picture confirmed under `unverifiedFields`.
 
 Scoring uses `loadSemanticGroundTruth`, `scoreSemanticExtraction`, and `formatSemanticScorecard` from `src/semantic-benchmark.js`. Every ratio is printed with its numerator and denominator. Only sites with `captureStatus: reviewed` are scored; a site with no extraction is listed as unscored.
 

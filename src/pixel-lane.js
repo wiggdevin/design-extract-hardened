@@ -26,7 +26,7 @@ export function createResponseLedger(page, limits = LEDGER_LIMITS) {
     // Content-length is advisory (absent on chunked responses), but when it
     // is present an oversized image is refused before its body is copied
     // into this process.
-    let declared = NaN;
+    let declared;
     try { declared = Number(resp.headers()['content-length']); } catch { declared = NaN; }
     if (Number.isFinite(declared) && declared > 0 && (declared > limits.maxItemBytes || totalBytes + declared > limits.maxTotalBytes)) { dropped++; return; }
     const p = resp.body().then((buf) => {
