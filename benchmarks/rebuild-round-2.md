@@ -23,7 +23,19 @@ in Sources at the end. Round one is `benchmarks/rebuild-round-1.md`.
   port 4174.
 - Fidelity command:
   `node bin/design-extract.js fidelity https://odysseycontracting.com/ --clone http://127.0.0.1:4174 --clone-local --motion-runtime --out benchmarks/results/rebuild-round-2/fidelity`
-  run on `483d4d6`.
+  run first on `483d4d6`, then again on `2a42ee9` after the fix wave (the
+  final numbers in this report).
+- Fix wave after the final branch review (`fc96887` to `c6ef1a1`, then
+  `2a42ee9`): the overlay rule exempts the hero and flags fixed or absolute
+  bands plus containment against all earlier bands; `columns` takes the
+  larger of the row rule and `repeats.perRow`; the placeholder gate also
+  catches base64 SVG and tiny raster placeholders; the proxied screenshot
+  lane has a test that fails without the proxy; paired launches use
+  `allSettled`; page-derived image URLs must be `http(s)`. The reference
+  page was recaptured on the fixed code into
+  `benchmarks/results/rebuild-round-2/odyssey-extract-fix2/`, and the band
+  table in section 3 is from that capture. The rebuild itself was built from
+  the first capture and was not rebuilt.
 - Benchmark: `benchmarks/results/blueprint-r2-2026-09-11/` (16 sites, run on
   `ba0e7d2`, re-scored after `c5a086e`).
 
@@ -92,15 +104,19 @@ the measured cost. Acceptable for now; noted in section 7.
 ## 3. Blueprint of the reference page
 
 From `check-odyssey-r2.mjs` against
-`benchmarks/results/rebuild-round-2/odyssey-extract/odysseycontracting-com-blueprint.json`:
-15 bands, `oversizedDropped` 0, hero index 1, 0 reveals. Roles: nav 1, hero 1,
-content 8, comparison 1, feature-grid 2, cta 1, faq 1.
+`benchmarks/results/rebuild-round-2/odyssey-extract-fix2/odysseycontracting-com-blueprint.json`
+(the recapture on `2a42ee9`, wall time 236.5s): 15 bands, `oversizedDropped`
+0, hero index 1, 0 reveals. Roles: nav 1, hero 1, content 8, comparison 1,
+feature-grid 2, cta 1, faq 1. All eight spec checks pass, including
+"overlays on bands 0 and 2". The first capture (`odyssey-extract/`, on
+`ba0e7d2`, the one the rebuild was built from) differs in two cells only:
+it flagged bands 0 and 1 as overlays and recorded band 13 with 3 columns.
 
 | idx | role | y | h | cols | cards | repeats (count x w x h, per row, with image, with button) | media | background | inherited | overlay |
 |---|---|---|---|---|---|---|---|---|---|---|
 | 0 | nav | 0 | 107 | 1 | 19 | - | svg 0.09 | #000000 | no | yes |
-| 1 | hero | 0 | 800 | 1 | 0 | - | video 1, poster null | #ffffff | yes | yes |
-| 2 | content | 0 | 800 | 1 | 0 | - | none | #ffffff | yes | no |
+| 1 | hero | 0 | 800 | 1 | 0 | - | video 1, poster null | #ffffff | yes | no |
+| 2 | content | 0 | 800 | 1 | 0 | - | none | #ffffff | yes | yes |
 | 3 | content | 800 | 144 | 3 | 1 | - | none | #ffffff | yes | no |
 | 4 | content | 944 | 615 | 2 | 1 | - | none | #ffffff | yes | no |
 | 5 | comparison | 1559 | 1475 | 2 | 40 | - | photo 0.16 `Rectangle-4-3.png` | #ede6dd | no | no |
@@ -111,7 +127,7 @@ content 8, comparison 1, feature-grid 2, cta 1, faq 1.
 | 10 | feature-grid | 8601 | 716 | 3 | 3 | 3 x 416 x 426, 3 per row, 0 with image, 3 with button | photo 0.51 `1-7.jpg` | #2c3142 | no | no |
 | 11 | faq | 9317 | 271 | 1 | 9 | - | none | #ffffff | yes | no |
 | 12 | content | 9588 | 456 | 1 | 1 | - | photo 1 `Rectangle-5-4.png` | image `Rectangle-5-4.png` | no | no |
-| 13 | content | 10044 | 408 | 3 | 27 | 3 x 312 x 238, 3 per row, 0 with image, 3 with button | none | #2c3142 | no | no |
+| 13 | content | 10044 | 408 | 4 | 27 | 3 x 312 x 238, 3 per row, 0 with image, 3 with button | none | #2c3142 | no | no |
 | 14 | content | 10451 | 331 | 1 | 4 | - | none | #121212 | no | no |
 
 Reading order: `nav > hero > content > content > content > comparison >
@@ -129,9 +145,11 @@ Against round one's table, the same page now reads differently in five ways:
 - Band 8 is `feature-grid` with `repeats` 10 x 624 x 616, 8 of 10 with a
   button. Round one called it `testimonial` with `cardCount` 1.
 - Band 10 and band 13 also carry `repeats` (3 cards each). Band 13's
-  `columns` moved from 4 to 3 because `columns` now takes `repeats.perRow`
-  when a repeat group exists; the builder flagged that the live footer
-  shows four columns (section 6, item 4).
+  `columns` stays 4: the first capture let `repeats.perRow` overwrite it
+  with 3, the builder flagged that the live footer shows four columns, and
+  the fix wave made `columns` the larger of the two (section 6, item 4).
+- Bands 0 and 2 are overlays: the absolute header over the hero, and the
+  headline row contained in the hero's box. The hero itself stays in flow.
 - Bands 3, 4, 6, 11 and the two hero bands inherit `#ffffff` from `body`
   instead of recording `null`. Bands 9 and 12 record their background image.
   No band has a null background any more.
@@ -145,33 +163,46 @@ a miss.
 Three measurements, all from the named `fidelity.json` files and the same
 command shape (clone port differs):
 
-| Measure | Round one (`rebuild-round-1/fidelity`) | Round two, first build (`845e067`, before Revision 3) | Round two, final (`483d4d6`) |
-|---|---|---|---|
-| Overall | 61 (D) | 55 (F) | **61 (D)** |
-| Visual | 47 | 38 | **48** |
-| Motion | 81 | 81 | **81** |
-| Blueprint | 29 (22/75) | 25 (16/65) | **86 (56/65)** |
-| Bands aligned | 14 | 11 | 13 |
-| Unmatched bands | 1 | 2 | 0 |
-| Drift suspected | not reported | true | false |
-| Clone page height | 12065 px | 9350 px | 10527 px |
-| Original page height (screenshot lane) | 10282 px | 10822 px | 10822 px |
+| Measure | Round one (`rebuild-round-1/fidelity`) | Round two, first build (`845e067`, before Revision 3) | Round two, Revision 3 on `483d4d6` | Round two, final (`2a42ee9`) |
+|---|---|---|---|---|
+| Overall | 61 (D) | 55 (F) | 61 (D) | **61 (D)** |
+| Visual | 47 | 38 | 48 | **48** |
+| Motion | 81 | 81 | 81 | **81** |
+| Blueprint | 29 (22/75) | 25 (16/65) | 86 (56/65) | **89 (58/65)** |
+| Bands aligned | 14 | 11 | 13 | 13 |
+| Unmatched bands | 1 | 2 | 0 | 0 |
+| Drift suspected | not reported | true | false | false |
+| Clone page height | 12065 px | 9350 px | 10527 px | 10527 px |
+| Original page height (screenshot lane) | 10282 px | 10822 px | 10822 px | 10822 px |
 
-The first-build numbers are from the run recorded in the ledger before the
-builder's Revision 3; that `fidelity.json` was overwritten by the final run
-and the numbers survive only in the ledger and this table. The extractor's
-own re-walk of the first build (`clone-blueprint-r2.mjs`) found the causes:
-the hero copy was absolutely positioned (a third overlay the blueprint does
-not flag), the three-button row rendered 113 px and fell under the 120 px
-band floor, and nine bands were more than 15% off the recorded height. All
-three were build defects; the fix was `min-height` on the affected sections
-and moving the video behind the in-flow hero section (`BUILD-NOTES.md`,
+The first-build and Revision 3 numbers are from runs recorded in the ledger;
+their `fidelity.json` was overwritten by the final run and the numbers
+survive only in the ledger and this table. The extractor's own re-walk of
+the first build (`clone-blueprint-r2.mjs`) found the causes of the drop: the
+hero copy was absolutely positioned (a third overlay the blueprint does not
+flag), the three-button row rendered 113 px and fell under the 120 px band
+floor, and nine bands were more than 15% off the recorded height. All three
+were build defects; the fix was `min-height` on the affected sections and
+moving the video behind the in-flow hero section (`BUILD-NOTES.md`,
 Revision 3).
+
+The move from 86 to 89 is an extractor fix, not a build change. The final
+whole-branch review found that the overlay rule flagged the hero video band
+itself (it is absolutely positioned) and let the in-flow headline row
+escape, so the scorer had dropped the hero from the comparison. With the
+corrected rule (`fc96887`, `2a42ee9`) the overlays are bands 0 and 2, as the
+spec's acceptance check says, and the hero band is scored.
+
+The blueprint denominators differ between rounds. Round one scored 15 bands
+(75 points) with no overlay handling; round two scores the 13 in-flow bands
+(65 points) after both sides' overlay bands are removed from alignment. The
+29 to 89 comparison is therefore not like-for-like on the denominator; the
+per-band rows in section 5 are the fair comparison.
 
 The overall score is the weighted pixel diff and motion score only
 (`src/fidelity/run.js`); the blueprint score is reported beside it and does
 not feed `overall`. That is why overall stays at 61 while blueprint moves
-from 29 to 86.
+from 29 to 89.
 
 Motion aspects (`fidelity.json`, `motionAspects`) are identical to round one:
 feel 100%, durations 33% (original 100/200/300/500 ms, clone 500 ms), easings
@@ -197,15 +228,16 @@ item 3 in section 6.
 
 ## 5. Blueprint comparison
 
-From `fidelity-blueprint.json`: **score 86**, matched 56 of 65, **13 aligned**
-bands, **0 unmatched**, `driftSuspected` false. Both sides' overlay bands
-(original 0 and 1; clone 0 and its video layer) are filtered before
-alignment, so 13 in-flow bands align to 13 in-flow bands and every row
-compares true counterparts. `index` is the original band's own index.
+From `fidelity-blueprint.json` (final run on `2a42ee9`): **score 89**,
+matched 58 of 65, **13 aligned** bands, **0 unmatched**, `driftSuspected`
+false. Both sides' overlay bands (original 0 and 2; clone 0 and its
+absolutely positioned video layer) are filtered before alignment, so 13
+in-flow bands align to 13 in-flow bands and every row compares true
+counterparts. `index` is the original band's own index.
 
 | idx | original role | clone role | failed checks | matched/5 | verdict |
 |---|---|---|---|---|---|
-| 2 | content | hero | role, background, columns, media | 1 | build: the clone nests the video inside band 2's section, so the re-walk sees a video band with share 1 and calls it the hero; the original's video is its own overlay band |
+| 1 | hero | hero | columns | 4 | build: the clone's hero section holds the copy column beside the video layer |
 | 3 | content | content | columns (3 vs 1) | 4 | build: the three buttons sit in one flex wrapper, which the columns rule reads as one column |
 | 4 | content | content | columns (2 vs 1) | 4 | build |
 | 5 | comparison | comparison | - | 5 | match |
@@ -216,13 +248,14 @@ compares true counterparts. `index` is the original band's own index.
 | 10 | feature-grid | feature-grid | - | 5 | match |
 | 11 | faq | faq | - | 5 | match |
 | 12 | content | content | columns (1 vs 2) | 4 | build |
-| 13 | content | content | - | 5 | match |
+| 13 | content | content | columns (4 vs 3) | 4 | build from a stale record: the clone followed the first capture's `repeats` (3 columns); the corrected extractor records 4 |
 | 14 | content | content | - | 5 | match |
 
-All nine lost points are on the clone's side of the comparison. None of the
-thirteen rows fails role, background or height. Band 8, round one's worst row
-at 0 of 5, is a full match: the role/content conflict and the card count
-were both extraction misses in round one and both are closed.
+All seven lost points are columns or the embed rule, on the clone's side of
+the comparison. None of the thirteen rows fails role, background or height,
+and the hero row is now scored. Band 8, round one's worst row at 0 of 5, is
+a full match: the role/content conflict and the card count were both
+extraction misses in round one and both are closed.
 
 ## 6. What the extraction still misses, ranked by score cost
 
@@ -246,10 +279,13 @@ ranked by what would move the visual score and the builder's stated gaps
    is the largest single lever on the visual score and it is on the
    extractor's side.
 4. **Footer repeats count 3 against four visible columns.** Band 13's
-   `repeats` is 3 x 312 x 238 and `columns` follows it; the responsive
-   screenshot shows four footer columns. The fourth column has a different
-   size and falls outside the width and height tolerance of the repeat
-   group, so the group under-counts it and `columns` inherits the error.
+   `repeats` is 3 x 312 x 238; the responsive screenshot shows four footer
+   columns. The fourth column has a different size and falls outside the
+   width and height tolerance of the repeat group, so the group under-counts
+   it. The first round-two capture also let `repeats.perRow` overwrite the
+   row rule's 4; the fix wave (`c3a08fc`) makes `columns` the larger of the
+   two, and the recapture records 4 again. The repeat group's own
+   under-count remains.
 5. **`cardCount` is noise when `repeats` is null.** Band 5 records
    `cardCount` 40 with no `repeats`; band 11 records 9; band 13 records 27
    beside `repeats.count` 3. The selector-based count survives as
@@ -285,8 +321,14 @@ this round.
   benchmark) has not been profiled on a page with a very large repeated
   widget.
 - Both the original and clone screenshots now go through the safe browsing
-  proxy with the crawl's launch arguments (`35dcf51`), which closes round
+  proxy with the crawl's egress arguments (`35dcf51`), which closes round
   one's last caveat. `--clone-local` reaches the clone shot only.
+- The round-two clone was revised once against the scorer: Revision 3 in
+  `BUILD-NOTES.md` adds `min-height` to eight bands and trims one so that
+  each lands inside the 15% height tolerance. Round one's clone was built
+  once and never revised. The blueprint score is therefore partly fitted to
+  the metric it reports, and the two rounds are not a like-for-like build
+  comparison on that axis.
 - Lottie and canvas content are not read by the extractor. Hover and cursor
   effects are out of scope. This is a single-page rebuild of the home page.
 
