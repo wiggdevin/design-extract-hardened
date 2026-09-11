@@ -56,3 +56,9 @@ test('results.images marks the unresolved placeholder and resolves its src', () 
   const native = data.images.find((i) => i.src === 'http://fixture.test/img/b.png');
   assert.equal(native.lazyUnresolved, false);
 });
+
+test('an unpainted band inherits the nearest painted ancestor background and says so', () => {
+  const a = band('lazy-a');
+  assert.equal(a.background.color, '#ffffff');
+  assert.equal(a.background.inherited, true);
+});

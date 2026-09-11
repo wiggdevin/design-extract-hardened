@@ -50,6 +50,7 @@ test('the hero band carries its photo, largest heading, and background colour', 
   assert.equal(hero.background.color, '#f3efe6');
   assert.equal(hero.background.imageUrl, null);
   assert.equal(hero.background.hasVideo, false);
+  assert.equal(hero.background.inherited, false);
   assert.equal(hero.bounds.h, 700);
 });
 

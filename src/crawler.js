@@ -1589,6 +1589,14 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
           const bg = bgOf(el); if (bg.color || bg.imageUrl) { background = bg; break; }
         }
       }
+      let inherited = false;
+      if (!background.color && !background.imageUrl) {
+        for (let el = outer.parentElement; el; el = el.parentElement) {
+          const bg = bgOf(el);
+          if (bg.color || bg.imageUrl) { background = { color: bg.color, imageUrl: bg.imageUrl }; inherited = true; break; }
+        }
+      }
+      background.inherited = inherited;
       background.hasVideo = Array.from(outer.querySelectorAll('video')).some(v => areaOf(v) >= area * 0.5);
 
       // Columns: the widest row of two or more equal-width, side-by-side
