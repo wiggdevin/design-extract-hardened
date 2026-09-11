@@ -956,7 +956,8 @@ export function formatMarkdown(design) {
   if (design.sectionRoles && design.sectionRoles.sections?.length) {
     lines.push('## Section Roles');
     lines.push('');
-    lines.push('Reading order (top→bottom): ' + (design.sectionRoles.readingOrder || []).join(' → '));
+    const roleSource = design.sectionRoles.source === 'blueprint' ? 'blueprint' : 'landmarks';
+    lines.push('Reading order (top→bottom): ' + (design.sectionRoles.readingOrder || []).join(' → ') + ` (source: ${roleSource})`);
     lines.push('');
     lines.push('| # | Role | Heading | Confidence |');
     lines.push('|---|------|---------|------------|');

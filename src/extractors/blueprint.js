@@ -99,3 +99,31 @@ export function extractBlueprint(bands = [], runtimeObservations = [], pageInten
     counts: { bands: out.length, oversizedDropped, byRole },
   };
 }
+
+// sectionRoles.readingOrder and sectionRoles.sections must describe the same
+// thing: when the blueprint found bands, derive both from it rather than
+// pairing the blueprint's reading order with the separate landmark-based
+// sections list (which can differ in length and order). Returns null when
+// the blueprint found no bands, so the caller falls back to the
+// landmark-derived sectionRoles untouched.
+export function sectionRolesFromBlueprint(blueprint) {
+  if (!blueprint || !Array.isArray(blueprint.bands) || blueprint.bands.length === 0) return null;
+  return {
+    readingOrder: blueprint.readingOrder,
+    sections: blueprint.bands.map(b => ({
+      index: b.index,
+      tag: b.tag,
+      role: b.role,
+      subrole: null,
+      confidence: b.confidence,
+      heading: b.heading ? b.heading.text : null,
+      bounds: b.bounds,
+      buttonCount: b.buttonCount,
+      cardCount: b.cardCount,
+      slots: b.heading && b.heading.text ? { heading: b.heading.text } : {},
+      needsSmart: b.confidence < 0.5,
+    })),
+    counts: blueprint.counts.byRole,
+    source: 'blueprint',
+  };
+}
