@@ -100,6 +100,15 @@ export function extractMaterialLanguage(design = {}) {
   const br = borderProfile(radii);
   const gradientCount = design.gradients?.count || 0;
 
+  // Prefer the role-aware geometry system's pill verdict when present — it
+  // knows a lone pill badge isn't the system, a numeric `>= 500` scan can't.
+  // Falls back to the legacy numeric scan exactly when geometry is absent.
+  const geometry = design.borders?.geometry;
+  const geometrySource = geometry ? 'role-aware' : 'legacy';
+  const pillSignal = geometry
+    ? (geometry.global?.value === 'pill' || geometry.byRole?.button?.value === 'pill')
+    : br.pill;
+
   const scores = Object.fromEntries(LABELS.map(l => [l, 0]));
   const signals = [];
 
@@ -118,7 +127,7 @@ export function extractMaterialLanguage(design = {}) {
   if (sh.avgBlur > 60 && sat < 0.4 && !hasBackdropBlur) {
     scores['soft-ui'] += 0.5; signals.push({ label: 'soft-ui', weight: 0.5, detail: 'soft diffuse shadows' });
   }
-  if (br.pill && sh.profile === 'soft' && sat > 0.3) {
+  if (pillSignal && sh.profile === 'soft' && sat > 0.3) {
     scores['material-you'] += 0.45; signals.push({ label: 'material-you', weight: 0.45, detail: 'pill shapes + soft shadows' });
   }
   if (gradientCount > 6 && sat > 0.5) {
@@ -146,8 +155,12 @@ export function extractMaterialLanguage(design = {}) {
       avgRadius: Number(br.avg.toFixed(1)),
       maxRadius: Number(br.max.toFixed(1)),
       hasPill: br.pill,
+      // The pill verdict that actually fed the score; hasPill stays the
+      // legacy any-large-radius scan for existing consumers.
+      pillSignal,
       hasBackdropBlur,
       gradientCount,
+      geometrySource,
     },
     alternates: ranked.filter(([, s]) => s > 0 && s !== winScore).slice(0, 3).map(([l, s]) => ({ label: l, score: Number(s.toFixed(3)) })),
   };

@@ -4,6 +4,8 @@ import { join } from 'path';
 import { extractMediaDarkColors } from './extractors/dark-mode-pair.js';
 import { startScreencast } from './screencast.js';
 import { startSafeBrowsingProxy } from './security/safe-proxy.js';
+import { createResponseLedger, selectPixelCandidates, collectPixelEvidence } from './pixel-lane.js';
+import { neutralizeConsent } from './consent.js';
 
 const MAX_ELEMENTS = 5000;
 const NETWORK_OVERRIDE_FLAGS = [
@@ -45,6 +47,8 @@ export async function crawlPage(url, options = {}) {
     wsEndpoint,
     onScreencastFrame,  // Theatre: opt-in live frame sink. When set, a throttled
     screencastOpts,     // CDP screencast streams what the page paints during load.
+    pixelEvidence = true, // Pixel lane: features of images the page loaded (no extra fetch).
+    dismissConsent = true, // Reject or hide a consent banner before measuring. Never accepts.
   } = options;
 
   const launchArgs = [
@@ -104,6 +108,11 @@ export async function crawlPage(url, options = {}) {
     }
     const page = await context.newPage();
 
+    // Pixel lane: remember the raster bodies Chromium receives for this page
+    // (through the safe proxy, no extra requests) so media classification can
+    // read pixels the DOM cannot describe. Bytes never leave this function.
+    const ledger = pixelEvidence ? createResponseLedger(page) : null;
+
     // Theatre (opt-in): tap what Chromium paints and stream it to the caller as
     // throttled JPEG frames. Best-effort — a screencast that won't start must
     // never break the extraction, so it's wrapped and degrades to silence.
@@ -129,6 +138,15 @@ export async function crawlPage(url, options = {}) {
     await page.waitForLoadState('networkidle').catch(() => {});
     if (wait > 0) await page.waitForTimeout(wait);
     await page.evaluate(() => document.fonts.ready).catch(() => {});
+
+    // Consent banner: refuse or hide it, and release its scroll lock, before
+    // coverage, the scroll pass, the collector, the pixel lane, and screenshots
+    // see the page. See consent.js for what is and is not pressed.
+    let consent = null;
+    if (dismissConsent) {
+      consent = await neutralizeConsent(page);
+      if (consent.action !== 'none') await page.waitForTimeout(250);
+    }
 
     // Capture CSS coverage after the page has settled.
     let cssCoverage = [];
@@ -162,6 +180,26 @@ export async function crawlPage(url, options = {}) {
 
     const lightData = await extractPageData(page, ignore, selector);
     lightData.cssCoverage = cssCoverage;
+    lightData.consent = consent;
+    if (ledger) {
+      try {
+        const candidates = selectPixelCandidates({
+          images: lightData.images || [],
+          backgroundMedia: lightData.backgroundMedia || [],
+          viewport: lightData.viewport || { width, height },
+          baseUrl: page.url(),
+        });
+        const { evidence, summary } = await collectPixelEvidence({ page, ledger, candidates });
+        lightData.pixelEvidence = evidence;
+        lightData.pixelSummary = { ...summary, ledgerEntries: ledger.entries.size, ledgerBytes: ledger.bytes, ledgerDropped: ledger.dropped };
+      } catch (err) {
+        lightData.pixelEvidence = [];
+        lightData.pixelSummary = { unavailable: `pixel lane failed: ${String(err?.message || err).slice(0, 100)}` };
+      } finally {
+        ledger.stop();
+        ledger.clear();
+      }
+    }
     if (interactState) lightData.interactState = interactState;
     if (motionRuntimeObs) lightData.motionRuntime = motionRuntimeObs;
 
@@ -206,6 +244,7 @@ export async function crawlPage(url, options = {}) {
           await gotoWithRetry(page, link, { waitUntil: 'domcontentloaded', timeout: 20000 });
           await page.waitForLoadState('networkidle').catch(() => {});
           await page.evaluate(() => document.fonts.ready).catch(() => {});
+          if (dismissConsent) await neutralizeConsent(page);
           const pageData = await extractPageData(page);
           additionalPages.push({ url: link, data: pageData });
           try {
@@ -232,6 +271,7 @@ export async function crawlPage(url, options = {}) {
       await gotoWithRetry(darkPage, url, { waitUntil: 'domcontentloaded', timeout: 30000 });
       await darkPage.waitForLoadState('networkidle').catch(() => {});
       await darkPage.evaluate(() => document.fonts.ready).catch(() => {});
+      if (dismissConsent) await neutralizeConsent(darkPage);
       darkData = await extractPageData(darkPage);
       darkData.mediaColors = mediaColors;
       await darkContext.close();
@@ -596,8 +636,9 @@ async function captureRuntimeMotion(page) {
   return { observations: obs.slice(0, 200) };
 }
 
-async function extractPageData(page, ignoreSelectors, scopeSelector) {
-  const data = await page.evaluate(({ maxElements, ignoreSelectors, scopeSelector }) => {
+// Top-level and self-contained (no module-scope references) because
+// Playwright serializes this function's source to run it in the page.
+export function collectPageData({ maxElements, ignoreSelectors, scopeSelector }) {
     // Remove ignored elements before extraction
     if (ignoreSelectors && ignoreSelectors.length > 0) {
       for (const sel of ignoreSelectors) {
@@ -616,15 +657,37 @@ async function extractPageData(page, ignoreSelectors, scopeSelector) {
       mediaQueries: [],
       keyframes: [],
       crossOriginSheets: [],
+      backgroundMedia: [],
     };
 
-    // Collect elements including shadow DOM contents
-    function collectElements(root, collected) {
+    // Non-rendering / non-visual tags: never useful as design evidence and
+    // otherwise pollute computedStyles with head/script/svg-internal noise.
+    const SKIP_COLLECT_TAGS = new Set([
+      'SCRIPT', 'STYLE', 'LINK', 'META', 'TEMPLATE', 'NOSCRIPT',
+      'SOURCE', 'TRACK', 'TITLE', 'BASE', 'HEAD',
+    ]);
+
+    // Collect elements including shadow DOM contents. `budget` is one object
+    // shared across every call in the tree (including recursive shadow-root
+    // descents and multiple scopeRoots) — a per-call local counter would
+    // reset on each shadow-root recursion, letting an attacker page with many
+    // shadow hosts (each padded with skip-exempt junk) multiply total scan
+    // work by the number of shadow hosts instead of capping it once overall.
+    function collectElements(root, collected, budget) {
+      // Skipped elements don't grow `collected`, so a naive
+      // `collected.length >= maxElements` check alone lets an attacker page
+      // with millions of budget-exempt elements (script tags, a huge inline
+      // SVG subtree) make this scan unbounded. Track total visits too, and
+      // cap them at a fixed multiple of maxElements.
       for (const el of root.querySelectorAll('*')) {
-        if (collected.length >= maxElements) break;
+        if (collected.length >= maxElements || ++budget.visited > maxElements * 10) break;
+        // Skip (don't push, don't count against the budget): anything inside
+        // <head>, non-rendering tags, and SVG descendants (but keep the <svg>
+        // root itself — ownerSVGElement is only set on elements *inside* one).
+        if (el.closest('head') || SKIP_COLLECT_TAGS.has(el.tagName) || el.ownerSVGElement) continue;
         collected.push(el);
         if (el.shadowRoot) {
-          collectElements(el.shadowRoot, collected);
+          collectElements(el.shadowRoot, collected, budget);
         }
       }
       return collected;
@@ -641,9 +704,10 @@ async function extractPageData(page, ignoreSelectors, scopeSelector) {
       } catch { /* invalid selector → use document */ }
     }
     const elements = [];
+    const scanBudget = { visited: 0 };
     for (const root of scopeRoots) {
       if (root !== document && root.nodeType === 1) elements.push(root);
-      collectElements(root, elements);
+      collectElements(root, elements, scanBudget);
       if (elements.length >= maxElements) break;
     }
 
@@ -711,6 +775,13 @@ async function extractPageData(page, ignoreSelectors, scopeSelector) {
     // Range measurement is the expensive part of this loop — cap it.
     let lineWidthBudget = 120;
     const PROSE_TAGS = new Set(['p', 'li', 'blockquote', 'dd']);
+
+    // First url(...) in a computed backgroundImage value, e.g. from
+    // 'url("hero.jpg")' or a multi-layer 'url(a.png), url(b.png)'.
+    function firstBackgroundUrl(backgroundImage) {
+      const m = backgroundImage && backgroundImage.match(/url\((['"]?)([^'")]+)\1\)/);
+      return m ? m[2] : '';
+    }
 
     for (const el of elements) {
       const cs = getComputedStyle(el);
@@ -814,6 +885,56 @@ async function extractPageData(page, ignoreSelectors, scopeSelector) {
         pseudo,
         sources,
       });
+
+      // Background media (v11): CSS background-images and video posters carry
+      // design-relevant imagery that computedStyles alone doesn't surface.
+      if (results.backgroundMedia.length < 500) {
+        const bgUrl = cs.backgroundImage.includes('url(') ? firstBackgroundUrl(cs.backgroundImage) : '';
+        if (bgUrl && !bgUrl.startsWith('data:image/svg') && rect.width >= 5 && rect.height >= 5) {
+          results.backgroundMedia.push({
+            kind: 'css-background',
+            tag,
+            classList: classList.slice(0, 500),
+            src: bgUrl.slice(0, 500),
+            width: Math.round(rect.width),
+            height: Math.round(rect.height),
+            top: Math.round(rect.top + window.scrollY),
+            left: Math.round(rect.left + window.scrollX),
+            opacity: Number(cs.opacity),
+            backgroundSize: cs.backgroundSize,
+          });
+        }
+        if (tag === 'video') {
+          const poster = el.getAttribute('poster');
+          if (poster && results.backgroundMedia.length < 500) {
+            results.backgroundMedia.push({
+              kind: 'video-poster',
+              tag: 'video',
+              src: poster.slice(0, 500),
+              width: Math.round(rect.width),
+              height: Math.round(rect.height),
+              top: Math.round(rect.top + window.scrollY),
+              left: Math.round(rect.left + window.scrollX),
+              opacity: Number(cs.opacity),
+            });
+          }
+        }
+        // A sizeable canvas is rendered media too (WebGL heroes, charts). No
+        // pixels are read; the record only says that a painted surface exists.
+        if (tag === 'canvas' && rect.width * rect.height >= 10000 && results.backgroundMedia.length < 500) {
+          results.backgroundMedia.push({
+            kind: 'canvas',
+            tag: 'canvas',
+            classList: classList.slice(0, 500),
+            src: '',
+            width: Math.round(rect.width),
+            height: Math.round(rect.height),
+            top: Math.round(rect.top + window.scrollY),
+            left: Math.round(rect.left + window.scrollX),
+            opacity: Number(cs.opacity),
+          });
+        }
+      }
     }
 
     // CSS custom properties
@@ -1128,15 +1249,33 @@ async function extractPageData(page, ignoreSelectors, scopeSelector) {
 
     // Image data
     results.images = [];
+    // First URL in a srcset ("a.jpg 1x, b.jpg 2x") — the fallback source when
+    // neither currentSrc nor src has resolved yet (srcset-only lazy images).
+    function firstSrcsetUrl(srcset) {
+      if (!srcset) return '';
+      return srcset.split(',')[0].trim().split(/\s+/)[0] || '';
+    }
     for (const img of document.querySelectorAll('img, picture img, [role="img"]')) {
       const rect = img.getBoundingClientRect();
       if (rect.width < 5 || rect.height < 5) continue;
       const cs = getComputedStyle(img);
+      const picture = img.closest('picture');
+      let srcsetCandidate = firstSrcsetUrl(img.getAttribute('srcset'));
+      if (!srcsetCandidate && picture) {
+        const source = picture.querySelector('source[srcset]');
+        if (source) srcsetCandidate = firstSrcsetUrl(source.getAttribute('srcset'));
+      }
       results.images.push({
         tag: img.tagName.toLowerCase(),
-        src: img.src || '',
+        src: (img.currentSrc || img.src || srcsetCandidate || '').slice(0, 500),
+        currentSrc: (img.currentSrc || '').slice(0, 500),
         width: rect.width,
         height: rect.height,
+        naturalWidth: img.naturalWidth,
+        naturalHeight: img.naturalHeight,
+        loading: img.loading || '',
+        top: Math.round(rect.top + window.scrollY),
+        left: Math.round(rect.left + window.scrollX),
         objectFit: cs.objectFit,
         objectPosition: cs.objectPosition,
         borderRadius: cs.borderRadius,
@@ -1148,7 +1287,14 @@ async function extractPageData(page, ignoreSelectors, scopeSelector) {
     }
 
     return results;
-  }, { maxElements: MAX_ELEMENTS, ignoreSelectors: ignoreSelectors || [], scopeSelector: scopeSelector || null });
+}
+
+async function extractPageData(page, ignoreSelectors, scopeSelector) {
+  const data = await page.evaluate(collectPageData, {
+    maxElements: MAX_ELEMENTS,
+    ignoreSelectors: ignoreSelectors || [],
+    scopeSelector: scopeSelector || null,
+  });
 
   // Fetch and parse cross-origin stylesheets
   if (data.crossOriginSheets && data.crossOriginSheets.length > 0) {

@@ -1,7 +1,40 @@
 import { promptData, PROMPT_TRUST_NOTICE } from '../security/prompt-data.js';
 import { pxToRem } from '../utils.js';
 
+// Semantic-evidence fields (typography.system.bodyFamily/headingFamily,
+// borders.geometry, imageryStyle.distribution, evidence.warnings) are not on
+// promptData's key allowlist yet, so they would be stripped by the
+// `design = promptData(design)` line below before this formatter ever sees
+// them. Most of them are extractor-authored closed vocabularies, counts and
+// percentages, so this formatter reads them off the pre-filter `rawDesign`
+// reference instead, applying its own length cap + tag-stripping
+// (percentEvidence/safeEvidenceName) at the point of printing.
+//
+// Font-family names (bodyFamily/headingFamily.value, rejectedFamilies[].name)
+// are the one exception: font-system.js promotes them straight from the
+// page's own CSS `font-family` declarations, so they are attacker-reachable
+// free text, not a closed vocabulary — its only guardrails are a 128-char cap
+// and a ban on control chars / `:` / `;` (see src/extractors/font-system.js).
+// safeFontName applies a much stricter allowlist (letters, digits, spaces,
+// hyphens only) plus a tight length cap so a page cannot smuggle
+// instruction-shaped or markup-shaped text into these two prompt-facing
+// fields through a font-family declaration.
+function percentEvidence(n) {
+  return Math.round((Number(n) || 0) * 100);
+}
+function safeEvidenceName(value, maxLen = 80) {
+  if (typeof value !== 'string') return '(unnamed)';
+  const cleaned = value.replace(/[<>\x00-\x1F\x7F]/g, '').trim().slice(0, maxLen);
+  return cleaned || '(unnamed)';
+}
+function safeFontName(value, maxLen = 32) {
+  if (typeof value !== 'string') return '(unnamed)';
+  const cleaned = value.replace(/[^A-Za-z0-9 -]/g, '').replace(/\s+/g, ' ').trim().slice(0, maxLen);
+  return cleaned || '(unnamed)';
+}
+
 export function formatMarkdown(design) {
+  const rawDesign = design;
   design = promptData(design);
   const lines = [PROMPT_TRUST_NOTICE, ''];
   const { meta, colors, typography, spacing, shadows, borders, variables, breakpoints, animations, components } = design;
@@ -135,6 +168,31 @@ export function formatMarkdown(design) {
     lines.push('');
   }
 
+  // Semantic evidence: which of the families above is *decided* to be the
+  // body/heading typeface, with the evidence behind that decision — plus
+  // what got rejected before families[] was even filtered down (icon fonts,
+  // generic stacks, declaration-shaped noise).
+  const semanticSystem = rawDesign?.typography?.system;
+  if (semanticSystem?.bodyFamily) {
+    lines.push('### System');
+    lines.push('');
+    const bf = semanticSystem.bodyFamily;
+    lines.push(`- **Body family** — ${safeFontName(bf.value)} (${percentEvidence(bf.confidence)}%) — ${(bf.reasons || []).join(', ')}`);
+    if (semanticSystem.headingFamily) {
+      const hf = semanticSystem.headingFamily;
+      lines.push(`- **Heading family** — ${safeFontName(hf.value)} (${percentEvidence(hf.confidence)}%) — ${(hf.reasons || []).join(', ')}`);
+    }
+    lines.push('');
+  }
+  if (semanticSystem?.rejectedFamilies?.length > 0) {
+    const rejected = semanticSystem.rejectedFamilies
+      .slice(0, 5)
+      .map(r => `${safeFontName(r.name)} (${r.reason})`)
+      .join(', ');
+    lines.push(`Rejected: ${rejected}`);
+    lines.push('');
+  }
+
   const sys = typography.system;
   if (sys) {
     lines.push('### Type System');
@@ -237,15 +295,25 @@ export function formatMarkdown(design) {
   }
 
   // ── Borders ──
-  if (borders.radii.length > 0) {
+  const semanticGeometry = rawDesign?.borders?.geometry?.global ? rawDesign.borders.geometry : null;
+  if (borders.radii.length > 0 || semanticGeometry) {
     lines.push('## Border Radii');
     lines.push('');
-    lines.push('| Label | Value | Count |');
-    lines.push('|-------|-------|-------|');
-    for (const r of borders.radii) {
-      lines.push(`| ${r.label} | ${r.value}px | ${r.count} |`);
+    if (borders.radii.length > 0) {
+      lines.push('| Label | Value | Count |');
+      lines.push('|-------|-------|-------|');
+      for (const r of borders.radii) {
+        lines.push(`| ${r.label} | ${r.value}px | ${r.count} |`);
+      }
+      lines.push('');
     }
-    lines.push('');
+    if (semanticGeometry) {
+      const exceptions = Object.entries(semanticGeometry.byRole || {})
+        .filter(([, decision]) => decision?.value && decision.value !== semanticGeometry.global.value)
+        .map(([role, decision]) => `${role}: ${decision.value}`);
+      lines.push(`Geometry: ${semanticGeometry.global.value} (${percentEvidence(semanticGeometry.global.confidence)}%)${exceptions.length ? ` — ${exceptions.join(', ')}` : ''}`);
+      lines.push('');
+    }
   }
 
   // ── Shadows ──
@@ -926,6 +994,24 @@ export function formatMarkdown(design) {
     lines.push(`**Counts:** total ${c.total || 0}, svg ${c.svg || 0}, icon ${c.icon || 0}, screenshot-like ${c.screenshot || 0}, photo-like ${c.photoLike || 0}`);
     if (design.imageryStyle.dominantAspect) lines.push(`**Dominant aspect:** ${design.imageryStyle.dominantAspect}`);
     if (design.imageryStyle.radiusProfile) lines.push(`**Radius profile on images:** ${design.imageryStyle.radiusProfile}`);
+    const mediaDistribution = rawDesign?.imageryStyle?.distribution;
+    if (Array.isArray(mediaDistribution) && mediaDistribution.length > 0) {
+      lines.push(`**Distribution:** ${mediaDistribution.slice(0, 6).map(d => `${safeEvidenceName(d.label, 40)} ${percentEvidence(d.share)}%`).join(' · ')}`);
+      if (typeof rawDesign.imageryStyle.coverage === 'number') {
+        lines.push(`**Coverage:** ${percentEvidence(rawDesign.imageryStyle.coverage)}%`);
+      }
+    }
+    lines.push('');
+  }
+
+  // ── Evidence warnings ──
+  const evidenceWarnings = rawDesign?.evidence?.warnings;
+  if (Array.isArray(evidenceWarnings) && evidenceWarnings.length > 0) {
+    lines.push('**Evidence warnings**');
+    lines.push('');
+    for (const w of evidenceWarnings.slice(0, 20)) {
+      lines.push(`- ${safeEvidenceName(String(w), 200)}`);
+    }
     lines.push('');
   }
 

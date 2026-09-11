@@ -35,6 +35,8 @@ import { extractSectionRoles } from './extractors/section-roles.js';
 import { extractComponentLibrary } from './extractors/component-library.js';
 import { extractMaterialLanguage } from './extractors/material-language.js';
 import { extractImageryStyle } from './extractors/imagery-style.js';
+import { extractGeometrySystem } from './extractors/geometry-system.js';
+import { extractFontSystem } from './extractors/font-system.js';
 import { extractSeo } from './extractors/seo.js';
 import { extractIconSystem } from './extractors/icon-system.js';
 import { extractBackgroundPatterns } from './extractors/background-patterns.js';
@@ -108,6 +110,57 @@ export async function extractDesignLanguage(url, options = {}) {
   }
   design.warnings = warnings;
 
+  // Semantic evidence layer: promoters run on the same DOM evidence the
+  // inventories use and are guarded one by one, so a promoter failure leaves
+  // the raw inventory intact and is named in evidence.warnings instead of
+  // vanishing inside safeExtract.
+  design.evidence = {
+    schemaVersion: 1,
+    collector: 'dom',
+    coverage: {
+      nodes: styles.length,
+      textNodes: styles.filter(el => el && el.hasText).length,
+      images: (rawData.light.images || []).length,
+      backgroundMedia: (rawData.light.backgroundMedia || []).length,
+      pixelEvidence: (rawData.light.pixelEvidence || []).length,
+      loadedFonts: (rawData.light.fontData?.documentFonts || []).filter(f => f && f.status === 'loaded').length,
+    },
+    // What the crawler did to the page before measuring it. consent is null
+    // when the step was turned off (dismissConsent: false).
+    capture: { consent: rawData.light.consent ?? null },
+    warnings: [],
+  };
+  const promote = (name, fn, ...args) => {
+    try { return fn(...args); } catch (err) {
+      design.evidence.warnings.push(`${name} promoter failed: ${String(err?.message || err).slice(0, 120)}`);
+      return null;
+    }
+  };
+
+  const fontSystem = promote('fonts', extractFontSystem, {
+    computedStyles: styles,
+    fontData: rawData.light.fontData || { fontFaces: [], googleFontsLinks: [], documentFonts: [] },
+  });
+  if (fontSystem) {
+    // families keeps its shape but only carries families with provenance:
+    // the inventory no longer promotes UA fallbacks or declaration-shaped
+    // strings that happened to appear as a computed value.
+    const accepted = new Set(fontSystem.acceptedFamilies.map(f => f.name.toLowerCase()));
+    design.typography.families = (design.typography.families || []).filter(f => accepted.has(String(f.name).toLowerCase()));
+    design.typography.system = {
+      ...(design.typography.system || {}),
+      bodyFamily: fontSystem.bodyFamily,
+      headingFamily: fontSystem.headingFamily,
+      acceptedFamilies: fontSystem.acceptedFamilies,
+      rejectedFamilies: fontSystem.rejectedFamilies,
+      fontCoverage: fontSystem.coverage,
+    };
+  }
+
+  // borders.radii stays positive-pixel-only for every existing consumer;
+  // square systems live in borders.geometry.
+  design.borders.geometry = promote('geometry', extractGeometrySystem, styles);
+
   // Motion v3: fold runtime capture (opt-in --motion-runtime) into the motion
   // model — real per-trigger animations, choreography, and scroll recipes.
   if (rawData.light.motionRuntime) {
@@ -156,7 +209,14 @@ export async function extractDesignLanguage(url, options = {}) {
   design.sectionRoles = safeExtract(extractSectionRoles, rawData.light?.sections || [], design.regions, design.pageIntent) || { sections: [], counts: {}, readingOrder: [] };
   design.componentLibrary = safeExtract(extractComponentLibrary, rawData.light?.stack || {}) || { library: 'unknown', confidence: 0, evidence: [], alternates: [] };
   design.materialLanguage = safeExtract(extractMaterialLanguage, design) || { label: 'flat', confidence: 0, signals: [], metrics: {} };
-  design.imageryStyle = safeExtract(extractImageryStyle, rawData.light?.images || []) || { label: 'none', confidence: 0, counts: {}, signals: [] };
+  design.imageryStyle = promote('media', extractImageryStyle, rawData.light?.images || [], {
+    backgroundMedia: rawData.light?.backgroundMedia || [],
+    viewport: rawData.light?.viewport || null,
+    pixelEvidence: rawData.light?.pixelEvidence || [],
+  }) || { label: 'none', confidence: 0, counts: {}, signals: [] };
+  if (rawData.light?.pixelSummary?.unavailable) {
+    design.evidence.warnings.push(`pixel lane unavailable: ${String(rawData.light.pixelSummary.unavailable).slice(0, 120)}`);
+  }
   design.seo = safeExtract(extractSeo, rawData) || { openGraph: {}, twitter: {}, structuredData: [], score: {} };
   design.iconSystem = safeExtract(extractIconSystem, rawData.light?.icons || []) || { library: 'unknown', confidence: 0, stats: {}, signals: [], icons: [] };
   design.backgroundPatterns = safeExtract(extractBackgroundPatterns, rawData) || { labels: ['plain'], counts: {}, gradientTotals: {}, samples: [] };
@@ -226,6 +286,11 @@ export { extractSectionRoles } from './extractors/section-roles.js';
 export { extractComponentLibrary } from './extractors/component-library.js';
 export { extractMaterialLanguage } from './extractors/material-language.js';
 export { extractImageryStyle } from './extractors/imagery-style.js';
+// Semantic evidence layer
+export { extractGeometrySystem } from './extractors/geometry-system.js';
+export { extractFontSystem, parseFontFamilyList } from './extractors/font-system.js';
+export { extractMediaSystem } from './extractors/media-system.js';
+export { loadSemanticGroundTruth, scoreSemanticExtraction, formatSemanticScorecard } from './semantic-benchmark.js';
 export { extractLogo } from './extractors/logo.js';
 export { captureComponentScreenshotsV10 } from './extractors/component-screenshots.js';
 export { pairDarkMode } from './extractors/dark-mode-pair.js';

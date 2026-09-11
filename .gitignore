@@ -13,3 +13,7 @@ NOTES.md
 PLAN.md
 .planning/
 .engram/
+
+# Claude Code worktrees
+.claude/worktrees/
+benchmarks/results/

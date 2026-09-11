@@ -1,4 +1,5 @@
 import { parseCSSValue } from '../utils.js';
+import { parseFontFamilyList } from './font-system.js';
 
 // Filter set for fonts that aren't part of the site's brand typography:
 // generic CSS fallbacks, OS UI stacks, icon fonts, and inherited "no
@@ -14,12 +15,13 @@ const ICON_FAMILY_RE = /^(material[-\s]?icons|font\s?awesome|fa-?solid|fa-?regul
 
 function normaliseFamily(raw) {
   if (!raw) return null;
-  // Strip quotes + take the first stack member (sites declare e.g.
-  // `"Inter", "Helvetica Neue", sans-serif` — only the first is the
-  // *intended* family).
-  const first = String(raw).replace(/["']/g, '').split(',')[0].trim();
-  if (!first) return null;
-  return first;
+  // Quote-aware split (a comma inside quotes, e.g. `"ACME, Display"`, must
+  // not become a stack boundary) then take the first NON-generic member —
+  // sites declare e.g. `"Inter", "Helvetica Neue", sans-serif` and the
+  // first entry is the *intended* family, but a stack can also lead with a
+  // generic keyword the real name should skip past.
+  const first = parseFontFamilyList(raw).find(f => !f.generic);
+  return first ? first.name : null;
 }
 
 function isMeaningfulFamily(name) {
@@ -30,6 +32,9 @@ function isMeaningfulFamily(name) {
   // Single-character or all-symbol names are extraction noise.
   if (name.length < 2) return false;
   if (!/[a-z]/i.test(name)) return false;
+  // A CSS declaration value leaking into fontFamily (e.g. malformed capture
+  // producing `object-fit: contain`) is not a real family name.
+  if (name.includes(':') || name.includes(';')) return false;
   return true;
 }
 

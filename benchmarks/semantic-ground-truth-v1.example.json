@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "viewport": { "width": 1440, "height": 900 },
+  "sites": [
+    {
+      "id": "example-reviewed-01",
+      "title": "Example Reviewed Site",
+      "captureUrl": "https://example.com/",
+      "capturedAt": "2026-09-01",
+      "captureStatus": "reviewed",
+      "fonts": { "accepted": ["Inter"], "rejected": ["Times New Roman"] },
+      "geometry": { "global": "rounded", "byRole": { "button": "pill", "card": "rounded" } },
+      "mediaTopTwo": ["photography", "ui-screenshot"],
+      "reviewer": "human",
+      "notes": "Sample entry for the loader's own tests."
+    },
+    {
+      "id": "example-unscored-01",
+      "title": "Example Pending Site",
+      "captureUrl": "https://example.org/",
+      "capturedAt": "2026-09-01",
+      "captureStatus": "unscored",
+      "unscoredReason": "awaiting human review",
+      "fonts": { "accepted": [], "rejected": [] },
+      "geometry": { "global": null, "byRole": {} },
+      "mediaTopTwo": [],
+      "reviewer": "agent-pending-human",
+      "notes": ""
+    }
+  ]
+}

@@ -29,14 +29,49 @@ function listColors(design) {
   return out.join('\n');
 }
 
-function listType(design) {
+// Semantic-evidence fields (typography.system.bodyFamily/headingFamily,
+// borders.geometry, imageryStyle.distribution) are not on promptData's key
+// allowlist yet, so `design = promptData(design)` in formatAgentPrompt below
+// would strip them before this file ever sees them. Most of them are
+// extractor-authored closed vocabularies, counts and percentages, so the
+// functions below that need them take the pre-filter `rawDesign` reference
+// explicitly, and sanitise at the point of printing.
+//
+// bodyFamily/headingFamily.value are the exception: font-system.js promotes
+// them straight from the page's own CSS `font-family` declarations, so they
+// are attacker-reachable free text, not a closed vocabulary — its only
+// guardrails are a 128-char cap and a ban on control chars / `:` / `;` (see
+// src/extractors/font-system.js). safeFontName applies a much stricter
+// allowlist (letters, digits, spaces, hyphens only) plus a tight length cap
+// so a page cannot smuggle instruction-shaped or markup-shaped text into
+// this agent-facing prompt through a font-family declaration.
+function percentEvidence(n) {
+  return Math.round((Number(n) || 0) * 100);
+}
+function safeEvidenceName(value, maxLen = 60) {
+  if (typeof value !== 'string') return '(unnamed)';
+  const cleaned = value.replace(/[<>\x00-\x1F\x7F]/g, '').trim().slice(0, maxLen);
+  return cleaned || '(unnamed)';
+}
+function safeFontName(value, maxLen = 32) {
+  if (typeof value !== 'string') return '(unnamed)';
+  const cleaned = value.replace(/[^A-Za-z0-9 -]/g, '').replace(/\s+/g, ' ').trim().slice(0, maxLen);
+  return cleaned || '(unnamed)';
+}
+
+function listType(design, rawDesign) {
   const fams = topN(design?.typography?.families, 4).map((f) => f?.name || f).filter(Boolean);
   const weights = topN(design?.typography?.weights, 6).map((w) => w?.weight || w?.value || w).filter(Boolean);
   const base = design?.typography?.base || 16;
+  const semanticSystem = rawDesign?.typography?.system;
+  const bodyFamily = semanticSystem?.bodyFamily;
+  const headingFamily = semanticSystem?.headingFamily;
   return [
     fams.length ? `- families   ${fams.join(' · ')}` : null,
     weights.length ? `- weights    ${weights.join(' · ')}` : null,
     `- base size  ${base}px`,
+    bodyFamily ? `- body       ${safeFontName(bodyFamily.value)} (${percentEvidence(bodyFamily.confidence)}%)` : null,
+    headingFamily ? `- heading    ${safeFontName(headingFamily.value)} (${percentEvidence(headingFamily.confidence)}%)` : null,
   ].filter(Boolean).join('\n');
 }
 
@@ -50,6 +85,25 @@ function listRadii(design) {
   const radii = topN(design?.borders?.radii, 6).map((r) => `${typeof r === 'object' ? r.value : r}px`);
   if (!radii.length) return null;
   return `- scale      ${radii.join(' · ')}`;
+}
+
+function listGeometry(rawDesign) {
+  const geometry = rawDesign?.borders?.geometry;
+  if (!geometry?.global?.value) return null;
+  const globalValue = geometry.global.value;
+  const exceptions = Object.entries(geometry.byRole || {})
+    .filter(([, decision]) => decision?.value && decision.value !== globalValue)
+    .map(([role, decision]) => `${role}: ${decision.value}`);
+  return `- geometry   ${globalValue}${exceptions.length ? ` (${exceptions.join(', ')})` : ''}`;
+}
+
+function listImagery(rawDesign) {
+  const distribution = rawDesign?.imageryStyle?.distribution;
+  if (!Array.isArray(distribution) || !distribution.length) return null;
+  const line = topN(distribution, 4)
+    .map((d) => `${safeEvidenceName(d.label, 30)} ${percentEvidence(d.share)}%`)
+    .join(' · ');
+  return `- distribution ${line}`;
 }
 
 function listMotion(design) {
@@ -93,6 +147,7 @@ function listA11y(design) {
 }
 
 export function formatAgentPrompt(design) {
+  const rawDesign = design;
   design = promptData(design);
   const host = design?.meta?.url ? new URL(design.meta.url).hostname.replace(/^www\./, '') : 'this site';
   const title = design?.meta?.title || host;
@@ -122,7 +177,7 @@ export function formatAgentPrompt(design) {
     '',
     '## Typography',
     '',
-    listType(design),
+    listType(design, rawDesign),
     '',
   );
 
@@ -130,10 +185,14 @@ export function formatAgentPrompt(design) {
   if (spacing) blocks.push('## Spacing', '', spacing, '');
 
   const radii = listRadii(design);
-  if (radii) blocks.push('## Radii', '', radii, '');
+  const geometry = listGeometry(rawDesign);
+  if (radii || geometry) blocks.push('## Radii', '', [radii, geometry].filter(Boolean).join('\n'), '');
 
   const motion = listMotion(design);
   if (motion) blocks.push('## Motion', '', motion, '');
+
+  const imagery = listImagery(rawDesign);
+  if (imagery) blocks.push('## Imagery', '', imagery, '');
 
   const voice = listVoice(design);
   if (voice) blocks.push('## Voice', '', voice, '');
