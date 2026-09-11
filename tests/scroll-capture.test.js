@@ -151,3 +151,13 @@ test('scrollThroughPage reads a reveal animation while it is still running, not 
   // per the brief's own fallback; the early-running assertion above is the
   // one this test exists to prove and is not flaky.
 });
+
+test('waitForImages counts placeholder images that still carry a lazy attribute', async () => {
+  const lazyHtml = readFileSync(fileURLToPath(new URL('./fixtures/lazy-placeholders.html', import.meta.url)), 'utf8');
+  const p = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  await p.route('http://fixture.test/**', (route) => route.fulfill({ status: 200, contentType: 'image/png', body: PNG }));
+  await p.setContent(lazyHtml);
+  const r = await waitForImages(p, { timeoutMs: 1000 });
+  assert.equal(r.placeholders, 1, JSON.stringify(r));
+  await p.close();
+});

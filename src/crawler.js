@@ -534,8 +534,11 @@ export async function waitForImages(page, { timeoutMs = 3000 } = {}) {
   ).catch(() => {});
   return page.evaluate(() => {
     const withSrc = Array.from(document.images).filter((img) => img.getAttribute('src'));
-    return { total: withSrc.length, incomplete: withSrc.filter((img) => !img.complete).length };
-  }).catch(() => ({ total: 0, incomplete: 0 }));
+    const isPlaceholder = (s) => !s || /^data:/i.test(s);
+    const placeholders = Array.from(document.images).filter((img) => isPlaceholder(img.currentSrc || img.getAttribute('src') || '')
+      && ['data-orig-src', 'data-src', 'data-lazy-src', 'data-srcset'].some((a) => img.hasAttribute(a))).length;
+    return { total: withSrc.length, incomplete: withSrc.filter((img) => !img.complete).length, placeholders };
+  }).catch(() => ({ total: 0, incomplete: 0, placeholders: 0 }));
 }
 
 async function runInteractionPass(page) {
@@ -1522,11 +1525,44 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
       if (!m || (m[4] !== undefined && Number(m[4]) === 0)) return null;
       return '#' + [m[1], m[2], m[3]].map(n => Number(n).toString(16).padStart(2, '0')).join('');
     };
+    const isPlaceholderSrc = (s) => !s || /^data:/i.test(s) || /^about:blank$/i.test(s);
+    const absUrl = (u) => { try { return new URL(u, location.href).href; } catch { return u || ''; } };
+    // First URL in a srcset ("a.jpg 1x, b.jpg 2x").
+    function firstSrcsetUrl(srcset) {
+      if (!srcset) return '';
+      return srcset.split(',')[0].trim().split(/\s+/)[0] || '';
+    }
+    // The displayed source unless it is a placeholder (lazysizes and its
+    // relatives park a transparent data: SVG in src/currentSrc and keep the
+    // real URL in a data- attribute until their script swaps it in, which a
+    // headless capture cannot rely on). 1x sources before srcsets.
+    const realImageSrc = (img) => {
+      const cur = img.currentSrc || '';
+      if (!isPlaceholderSrc(cur)) return cur;
+      const attr = img.getAttribute('src') || '';
+      if (!isPlaceholderSrc(attr)) return absUrl(attr);
+      const picture = img.closest('picture');
+      const source = picture && picture.querySelector('source[srcset]');
+      const candidates = [
+        img.getAttribute('data-orig-src'), img.getAttribute('data-src'), img.getAttribute('data-lazy-src'),
+        firstSrcsetUrl(img.getAttribute('data-srcset')), firstSrcsetUrl(img.getAttribute('srcset')),
+        source ? firstSrcsetUrl(source.getAttribute('srcset')) : '',
+      ];
+      for (const c of candidates) if (c && !isPlaceholderSrc(c)) return absUrl(c);
+      return cur || attr || '';
+    };
+    const isLazyUnresolved = (img) => isPlaceholderSrc(img.currentSrc || img.getAttribute('src') || '')
+      && ['data-orig-src', 'data-src', 'data-lazy-src', 'data-srcset'].some((a) => img.hasAttribute(a));
     const bgOf = (el) => {
       const cs = getComputedStyle(el);
       const color = toHex(cs.backgroundColor);
       const url = (cs.backgroundImage || '').match(/url\(["']?([^"')]+)["']?\)/);
-      return { color, imageUrl: url ? url[1].slice(0, 500) : null };
+      let imageUrl = url ? url[1].slice(0, 500) : null;
+      if (!imageUrl) {
+        const lazy = el.getAttribute('data-bg') || el.getAttribute('data-background-image') || '';
+        if (lazy && !isPlaceholderSrc(lazy)) imageUrl = absUrl(lazy).slice(0, 500);
+      }
+      return { color, imageUrl };
     };
     const rectOf = (el) => el.getBoundingClientRect();
     const areaOf = (el) => { const r = rectOf(el); return r.width * r.height; };
@@ -1598,6 +1634,7 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
       // Media: dominant kind by area among img/video/svg/canvas and background images.
       const kinds = { photo: 0, video: 0, svg: 0, canvas: 0 };
       const largest = { photo: null, video: null, svg: null, canvas: null };
+      let videoPoster = null;
       const consider = (kind, a, src) => {
         kinds[kind] += a;
         if (!largest[kind] || a > largest[kind].area) largest[kind] = { area: a, src: src || null };
@@ -1607,11 +1644,13 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
         if (a < 32 * 32) continue;
         const tag = el.tagName.toLowerCase();
         if (tag === 'img') {
-          const src = (el.currentSrc || el.getAttribute('src') || el.getAttribute('data-lazy-src') || el.getAttribute('data-src') || '').slice(0, 500);
+          const src = realImageSrc(el).slice(0, 500);
           consider(/\.svg(\?|$)/i.test(src) ? 'svg' : 'photo', a, src);
         } else if (tag === 'video') {
           const source = el.querySelector('source');
-          consider('video', a, (el.currentSrc || el.getAttribute('src') || (source && source.getAttribute('src')) || el.getAttribute('poster') || '').slice(0, 500));
+          const poster = el.getAttribute('poster');
+          if (poster && !videoPoster) videoPoster = absUrl(poster).slice(0, 500);
+          consider('video', a, (el.currentSrc || el.getAttribute('src') || (source && source.getAttribute('src')) || poster || '').slice(0, 500));
         } else {
           consider(tag, a, null);
         }
@@ -1630,6 +1669,7 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
         share: kind === 'none' ? 0 : Math.round(Math.min(1, kinds[kind] / area) * 100) / 100,
         src: kind === 'none' ? null : (largest[kind] && largest[kind].src) || null,
       };
+      if (kind === 'video') media.poster = videoPoster;
 
       // Largest heading by font size.
       let heading = null;
@@ -1758,26 +1798,15 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
 
     // Image data
     results.images = [];
-    // First URL in a srcset ("a.jpg 1x, b.jpg 2x") — the fallback source when
-    // neither currentSrc nor src has resolved yet (srcset-only lazy images).
-    function firstSrcsetUrl(srcset) {
-      if (!srcset) return '';
-      return srcset.split(',')[0].trim().split(/\s+/)[0] || '';
-    }
     for (const img of document.querySelectorAll('img, picture img, [role="img"]')) {
       const rect = img.getBoundingClientRect();
       if (rect.width < 5 || rect.height < 5) continue;
       const cs = getComputedStyle(img);
-      const picture = img.closest('picture');
-      let srcsetCandidate = firstSrcsetUrl(img.getAttribute('srcset'));
-      if (!srcsetCandidate && picture) {
-        const source = picture.querySelector('source[srcset]');
-        if (source) srcsetCandidate = firstSrcsetUrl(source.getAttribute('srcset'));
-      }
       results.images.push({
         tag: img.tagName.toLowerCase(),
-        src: (img.currentSrc || img.src || srcsetCandidate || '').slice(0, 500),
+        src: realImageSrc(img).slice(0, 500),
         currentSrc: (img.currentSrc || '').slice(0, 500),
+        lazyUnresolved: img.tagName.toLowerCase() === 'img' ? isLazyUnresolved(img) : false,
         width: rect.width,
         height: rect.height,
         naturalWidth: img.naturalWidth,
