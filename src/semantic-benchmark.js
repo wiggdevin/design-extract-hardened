@@ -204,19 +204,22 @@ export function scoreBlueprintGates(extractionsById = {}) {
     const bp = extraction?.blueprint || {};
     const roles = Array.isArray(bp.readingOrder) ? bp.readingOrder : [];
     const heroIndex = roles.indexOf('hero');
+    const bands = Array.isArray(bp.bands) ? bp.bands : [];
     return {
       id,
-      bands: Array.isArray(bp.bands) ? bp.bands.length : 0,
+      bands: bands.length,
       heroIndex,
       heroAtTop: heroIndex >= 0 && heroIndex < HERO_WINDOW,
       oversizedDropped: Number(bp.counts?.oversizedDropped) || 0,
       firstRoles: roles.slice(0, HERO_WINDOW),
+      placeholderMedia: bands.filter((b) => /^data:/i.test((b.media && b.media.src) || '')).length,
     };
   });
   return {
     sites: perSite.length,
     heroAtTop: perSite.filter((s) => s.heroAtTop).length,
     oversizedSites: perSite.filter((s) => s.oversizedDropped > 0).length,
+    placeholderMediaSites: perSite.filter((s) => s.placeholderMedia > 0).length,
     perSite,
   };
 }
@@ -327,6 +330,7 @@ export function formatSemanticScorecard(score) {
     ...(score.blueprint ? [
       gateRow('Hero at top on >= 14/16 sites', score.blueprint.sites === 0 || score.blueprint.heroAtTop / score.blueprint.sites >= 14 / 16, `${score.blueprint.heroAtTop}/${score.blueprint.sites}`, score.blueprint.sites),
       gateRow('No oversized band on any site', score.blueprint.oversizedSites === 0, `${score.blueprint.oversizedSites} sites`, score.blueprint.sites),
+      gateRow('No placeholder media source on any site', score.blueprint.placeholderMediaSites === 0, `${score.blueprint.placeholderMediaSites} sites`, score.blueprint.sites),
     ] : []),
   ];
 

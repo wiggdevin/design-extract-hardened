@@ -333,7 +333,7 @@ describe('formatSemanticScorecard', () => {
 import { scoreBlueprintGates } from '../src/semantic-benchmark.js';
 
 describe('scoreBlueprintGates', () => {
-  const bp = (roles, oversizedDropped = 0) => ({ blueprint: { bands: roles.map((role, index) => ({ index, role })), readingOrder: roles, heroIndex: roles.indexOf('hero'), counts: { bands: roles.length, oversizedDropped, byRole: {} } } });
+  const bp = (roles, oversizedDropped = 0, mediaSrcs = []) => ({ blueprint: { bands: roles.map((role, index) => ({ index, role, ...(mediaSrcs[index] !== undefined ? { media: { kind: 'photo', src: mediaSrcs[index] } } : {}) })), readingOrder: roles, heroIndex: roles.indexOf('hero'), counts: { bands: roles.length, oversizedDropped, byRole: {} } } });
 
   it('counts sites with a hero within the first three bands and sites that dropped an oversized band', () => {
     const r = scoreBlueprintGates({
@@ -345,7 +345,16 @@ describe('scoreBlueprintGates', () => {
     assert.equal(r.sites, 4);
     assert.equal(r.heroAtTop, 2);
     assert.equal(r.oversizedSites, 1);
-    assert.deepEqual(r.perSite.find(s => s.id === 'c'), { id: 'c', bands: 4, heroIndex: 3, heroAtTop: false, oversizedDropped: 1, firstRoles: ['nav', 'content', 'content'] });
+    assert.deepEqual(r.perSite.find(s => s.id === 'c'), { id: 'c', bands: 4, heroIndex: 3, heroAtTop: false, oversizedDropped: 1, firstRoles: ['nav', 'content', 'content'], placeholderMedia: 0 });
+  });
+
+  it('counts sites with a data: placeholder as a band media source', () => {
+    const r = scoreBlueprintGates({
+      a: bp(['hero', 'content'], 0, ['https://a.test/x.png']),
+      b: bp(['hero', 'content'], 0, ['data:image/svg+xml,%3Csvg%3E']),
+    });
+    assert.equal(r.placeholderMediaSites, 1);
+    assert.equal(r.perSite.find((s) => s.id === 'b').placeholderMedia, 1);
   });
 
   it('is folded into the scorecard as two gates', () => {

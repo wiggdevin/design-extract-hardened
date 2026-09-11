@@ -83,7 +83,7 @@ if (mode === 'run') {
     const dist = (e.imageryStyle?.distribution || []).slice(0, 3).map(d => `${d.label} ${Math.round(d.share * 100)}%`).join(' / ');
     const bp = e.blueprint || {};
     const order = (bp.readingOrder || []).slice(0, 6).join(' > ');
-    console.log(`- ${site.title}: fonts=[${fam}] rejected=[${rej}] geometry=${geo} button=${btn} material=${e.materialLanguage?.label} imagery=${e.imageryStyle?.label} (${dist}) bands=${(bp.bands || []).length} order=[${order}] oversized=${bp.counts?.oversizedDropped ?? 0} scroll=${e.evidence?.capture?.scroll?.steps ?? '-'} motionStack=[${(e.motion?.stack || []).map(s => s.name).join(',')}]`);
+    console.log(`- ${site.title}: fonts=[${fam}] rejected=[${rej}] geometry=${geo} button=${btn} material=${e.materialLanguage?.label} imagery=${e.imageryStyle?.label} (${dist}) bands=${(bp.bands || []).length} order=[${order}] oversized=${bp.counts?.oversizedDropped ?? 0} placeholders=${(bp.bands || []).filter(b => /^data:/i.test(b.media?.src || '')).length} scroll=${e.evidence?.capture?.scroll?.steps ?? '-'} motionStack=[${(e.motion?.stack || []).map(s => s.name).join(',')}]`);
   }
 } else {
   console.error('unknown mode'); process.exit(2);
