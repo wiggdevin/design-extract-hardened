@@ -81,3 +81,18 @@ test('sections and bands record y in document coordinates after a scroll', async
   assert.equal(scrolled.bands[0].bounds.y, 0);
   assert.equal(typeof scrolled.sections[0].position, 'string');
 });
+
+const narrowFixtureHtml = readFileSync(fileURLToPath(new URL('./fixtures/blueprint-narrow-sections.html', import.meta.url)), 'utf8');
+
+test('an oversized leaf whose real sections sit under the width threshold is re-walked, not dropped', async () => {
+  const narrowPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  await narrowPage.setContent(narrowFixtureHtml);
+  const narrow = await narrowPage.evaluate(collectPageData, COLLECT_OPTS);
+  assert.equal(narrow.bands.length, 6, JSON.stringify(narrow.bands.map(b => [b.tag, b.className, b.bounds.h])));
+  for (const b of narrow.bands) assert.ok(b.bounds.h <= 0.8 * narrow.pageHeight, `${b.tag}.${b.className} is ${b.bounds.h} of ${narrow.pageHeight}`);
+  const sections = narrow.bands.filter(b => b.className && /^s[1-4]$/.test(b.className));
+  assert.equal(sections.length, 4);
+  for (const s of sections) assert.equal(s.bounds.w, 1000);
+  assert.equal(narrow.bandsCapped, false);
+  await narrowPage.close();
+});

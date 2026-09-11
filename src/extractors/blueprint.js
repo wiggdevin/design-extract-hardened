@@ -8,6 +8,29 @@ const OVERSIZED_SHARE = 0.8;
 const HERO_MEDIA_SHARE = 0.4;
 const HERO_HEADING_PX = 40;
 const HERO_WITHIN_VIEWPORTS = 1.5;
+const NAV_NEAR_TOP_PX = 200;
+
+// classifyRole claims a nav/header landmark near the top (or pinned) before it
+// ever looks at heroCandidate — see section-roles.js. A band that will be
+// claimed as nav must not win the hero candidate slot first, or nothing ever
+// becomes the hero (Opus One: a fixed header with a big logo image).
+function isNavLandmark(b) {
+  const tag = (b.tag || '').toLowerCase();
+  const role = (b.role || '').toLowerCase();
+  const isNavTag = tag === 'nav' || tag === 'header' || role === 'navigation' || role === 'banner';
+  if (!isNavTag) return false;
+  const nearTop = (b.bounds.y || 0) <= NAV_NEAR_TOP_PX;
+  const pinned = b.position === 'fixed' || b.position === 'sticky';
+  return nearTop || pinned;
+}
+
+// A fixed, full-bleed overlay with no media and no heading (a modal backdrop,
+// an age gate, a cookie scrim) is not content and must never take the hero
+// slot even though it can sit at y 0 with a large box.
+function isEmptyOverlay(b) {
+  const kind = b.media && b.media.kind;
+  return b.position === 'fixed' && (b.bounds.y || 0) === 0 && (!kind || kind === 'none') && !b.heading;
+}
 
 function revealFor(band, observations) {
   const top = band.bounds.y;
@@ -38,6 +61,7 @@ export function extractBlueprint(bands = [], runtimeObservations = [], pageInten
   kept.sort((a, b) => a.bounds.y - b.bounds.y);
 
   const heroCandidate = kept.findIndex(b => b.bounds.y <= viewportHeight * HERO_WITHIN_VIEWPORTS
+    && !isNavLandmark(b) && !isEmptyOverlay(b)
     && (((b.media && b.media.share) || 0) >= HERO_MEDIA_SHARE || ((b.heading && b.heading.fontSize) || 0) >= HERO_HEADING_PX));
 
   const pageType = pageIntent && pageIntent.type;

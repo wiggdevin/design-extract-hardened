@@ -100,3 +100,21 @@ describe('classifyRole rule changes', () => {
     assert.equal(classifyRole({ tag: 'nav', text: '', headings: [] }, null, null).role, 'nav');
   });
 });
+
+describe('hero candidate skips nav landmarks and overlays (Opus One records)', () => {
+  const opusOne = [
+    band({ tag: 'header', className: 'header header--loaded', position: 'fixed', bounds: { x: 0, y: 0, w: 1280, h: 120 }, media: { kind: 'photo', share: 0.62, src: 'https://www.opusonewinery.com/logo.png' }, heading: { level: 2, fontSize: 26, text: 'Opus One' }, text: 'Menu Visit Shop' }),
+    band({ tag: 'section', className: 'page-banner lazyloaded', position: 'relative', bounds: { x: 0, y: 0, w: 1280, h: 688 }, background: { color: null, imageUrl: 'https://www.opusonewinery.com/banner.jpg', hasVideo: false }, media: { kind: 'photo', share: 1, src: 'https://www.opusonewinery.com/banner.jpg' }, text: '' }),
+    band({ tag: 'div', className: 'go2933276541 go2369186930', position: 'fixed', bounds: { x: 0, y: 0, w: 1280, h: 800 }, background: { color: '#000000', imageUrl: null, hasVideo: false }, text: '' }),
+    band({ tag: 'div', className: 'banner-content', position: 'relative', bounds: { x: 0, y: 688, w: 1280, h: 135 }, heading: { level: 1, fontSize: 50, text: 'Opus One' }, text: 'Opus One' }),
+  ];
+  const bp = extractBlueprint(opusOne, [], { type: 'landing' }, { pageHeight: 4015, viewportHeight: 800 });
+  it('keeps the header as nav and makes the full-bleed banner the hero', () => {
+    assert.equal(bp.readingOrder[0], 'nav');
+    assert.equal(bp.bands.find(b => b.className.startsWith('page-banner')).role, 'hero');
+    assert.ok(bp.heroIndex >= 0 && bp.heroIndex <= 2, `heroIndex ${bp.heroIndex}`);
+  });
+  it('never gives the hero slot to a fixed empty overlay', () => {
+    assert.notEqual(bp.bands.find(b => b.className.startsWith('go2933276541')).role, 'hero');
+  });
+});

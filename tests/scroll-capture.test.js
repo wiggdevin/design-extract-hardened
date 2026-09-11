@@ -59,3 +59,36 @@ test('scrollThroughPage calls onStep once per step with the step index', async (
   assert.deepEqual(seen, [1, 2, 3]);
   await page.close();
 });
+
+test('scrollThroughPage reports scroller: window on an ordinary page', async () => {
+  const page = await openFixture();
+  const scroll = await scrollThroughPage(page);
+  assert.equal(scroll.scroller, 'window');
+  await page.close();
+});
+
+const innerFixtureHtml = readFileSync(fileURLToPath(new URL('./fixtures/scroll-inner-container.html', import.meta.url)), 'utf8');
+
+async function openInnerFixture() {
+  const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  await page.route('http://fixture.test/**', (route) => route.fulfill({ status: 200, contentType: 'image/png', body: PNG }));
+  await page.setContent(innerFixtureHtml);
+  return page;
+}
+
+test('scrollThroughPage finds pageHeight and scrolls an inner scroll container', async () => {
+  const page = await openInnerFixture();
+  const scroll = await scrollThroughPage(page);
+  const images = await waitForImages(page);
+  assert.ok(scroll.pageHeightPx >= 16000, `pageHeightPx ${scroll.pageHeightPx}`);
+  assert.ok(scroll.steps >= 19, `steps ${scroll.steps}`);
+  assert.equal(scroll.scroller, 'element');
+  assert.equal(images.incomplete, 0);
+  const lastComplete = await page.evaluate(() => {
+    const imgs = document.images;
+    const last = imgs[imgs.length - 1];
+    return !!last && last.complete && last.naturalWidth > 0;
+  });
+  assert.ok(lastComplete, 'the last lazy image inside the inner scroller finished loading');
+  await page.close();
+});

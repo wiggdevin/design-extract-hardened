@@ -422,25 +422,71 @@ async function snapshotSelector(page, selector) {
 // intersection observers fire for every band, settles briefly per step, then
 // returns to the top. Capped so a very tall page cannot run away with the crawl.
 export async function scrollThroughPage(page, { stepPx, maxSteps = 60, settleMs = 150, idleMs = 1000, onStep } = {}) {
-  const pageHeightPx = await page.evaluate(() => Math.max(
-    document.documentElement.scrollHeight, document.body ? document.body.scrollHeight : 0,
-  )).catch(() => 0);
+  // Page height: the larger of the document's own scrollHeight and the
+  // tallest scrollHeight among the first 2500 full-width elements in
+  // document order, not counting <head> and its descendants or
+  // non-rendering tags (script/style/link/meta/etc.). Probed live: on N26
+  // the real scroll container sits at counted index ~293 (past a large
+  // <head> plus srcset <source> boilerplate); on Emma Lewisham, a Shopify
+  // theme with several hidden app widgets (cart drawer, search modal,
+  // consent widget) ahead of it in document order, the real content wrapper
+  // sits past index 1200. 300, the figure this was originally sized to, does
+  // not reach either live site; 2500 covers both with a wide margin and is
+  // still a single cheap pass (no style computation, just tag/rect checks).
+  // Same expression as collectPageData's results.pageHeight (that one is
+  // serialized into the page separately and must stay self-contained, so it
+  // is duplicated there rather than shared). If the tallest such element is
+  // itself scrollable and taller than the document by more than one
+  // viewport, it is an inner scroll container (or a transformed scroll
+  // library, e.g. Locomotive Scroll) and the pass scrolls it too, stashed on
+  // `window` for the per-step evaluates below and cleared at the end.
+  const { pageHeightPx } = await page.evaluate(() => {
+    const docHeight = Math.max(document.documentElement.scrollHeight, document.body ? document.body.scrollHeight : 0);
+    const vw = window.innerWidth;
+    const SKIP_TAG = /^(script|style|link|template|noscript|source|track|title|base|meta)$/;
+    let tallest = null;
+    let tallestHeight = 0;
+    let counted = 0;
+    for (const el of document.querySelectorAll('*')) {
+      if (el.closest('head') || SKIP_TAG.test(el.tagName.toLowerCase()) || el.ownerSVGElement) continue;
+      if (counted++ >= 2500) break;
+      if (el.getBoundingClientRect().width < vw * 0.9) continue;
+      if (el.scrollHeight > tallestHeight) { tallestHeight = el.scrollHeight; tallest = el; }
+    }
+    const pageHeightPx = Math.max(docHeight, tallestHeight);
+    let scroller = null;
+    if (tallest && tallestHeight > docHeight + window.innerHeight) {
+      const overflowY = getComputedStyle(tallest).overflowY;
+      if (overflowY === 'auto' || overflowY === 'scroll') scroller = tallest;
+    }
+    window.__designlangScroller = scroller;
+    return { pageHeightPx };
+  }).catch(() => ({ pageHeightPx: 0 }));
+  const scroller = (await page.evaluate(() => !!window.__designlangScroller).catch(() => false)) ? 'element' : 'window';
   const viewportHeight = (page.viewportSize() || {}).height || 800;
   const step = stepPx || viewportHeight;
   const needed = Math.max(1, Math.ceil(Math.max(0, pageHeightPx - viewportHeight) / step));
   const steps = Math.min(needed, maxSteps);
   for (let i = 1; i <= steps; i++) {
-    await page.evaluate((y) => window.scrollTo(0, y), i * step).catch(() => {});
+    await page.evaluate((y) => {
+      if (window.__designlangScroller) window.__designlangScroller.scrollTo(0, y);
+      else window.scrollTo(0, y);
+    }, i * step).catch(() => {});
     await page.waitForTimeout(settleMs);
     await page.waitForLoadState('networkidle', { timeout: idleMs }).catch(() => {});
     if (typeof onStep === 'function') await onStep(i);
   }
-  await page.evaluate(() => window.scrollTo(0, 0)).catch(() => {});
+  await page.evaluate(() => {
+    if (window.__designlangScroller) window.__designlangScroller.scrollTo(0, 0);
+    window.scrollTo(0, 0);
+    delete window.__designlangScroller;
+  }).catch(() => {});
   await page.waitForTimeout(200);
   return {
     steps,
     coveredPx: Math.min(steps * step + viewportHeight, pageHeightPx),
     pageHeightPx,
+    scroller,
     capped: needed > maxSteps,
   };
 }
@@ -1236,30 +1282,108 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
     // anything else is a band. The outermost element of a wrapper chain is
     // the band's box; the innermost is where columns are measured.
     const vw = window.innerWidth;
-    results.pageHeight = Math.max(document.documentElement.scrollHeight, document.body ? document.body.scrollHeight : 0);
+    // Page height: the larger of the document's own scrollHeight and the
+    // tallest scrollHeight among the first 2500 full-width elements in
+    // document order, not counting <head> and its descendants or
+    // non-rendering tags (script/style/link/meta/etc.). Probed live: on N26
+    // the real scroll container sits at counted index ~293 (past a large
+    // <head> plus srcset <source> boilerplate); on Emma Lewisham, a Shopify
+    // theme with several hidden app widgets (cart drawer, search modal,
+    // consent widget) ahead of it in document order, the real content
+    // wrapper sits past index 1200. 300, the figure this was originally
+    // sized to, does not reach either live site; 2500 covers both with a
+    // wide margin and is still a single cheap pass (no style computation,
+    // just tag/rect checks). A page whose scrolling happens in an inner
+    // container (or a transformed scroll library, e.g. Locomotive Scroll)
+    // leaves the document itself only one viewport tall; this catches the
+    // container instead. Duplicated verbatim in scrollThroughPage, which
+    // cannot reach into this serialized function.
+    {
+      const docHeight = Math.max(document.documentElement.scrollHeight, document.body ? document.body.scrollHeight : 0);
+      const PAGE_HEIGHT_SKIP_TAG = /^(script|style|link|template|noscript|source|track|title|base|meta)$/;
+      let wideScrollHeight = 0;
+      let counted = 0;
+      for (const el of document.querySelectorAll('*')) {
+        if (el.closest('head') || PAGE_HEIGHT_SKIP_TAG.test(el.tagName.toLowerCase()) || el.ownerSVGElement) continue;
+        if (counted++ >= 2500) break;
+        if (el.getBoundingClientRect().width < vw * 0.9) continue;
+        if (el.scrollHeight > wideScrollHeight) wideScrollHeight = el.scrollHeight;
+      }
+      results.pageHeight = Math.max(docHeight, wideScrollHeight);
+    }
     const BAND_CAP = 40;
+    const OVERSIZED_LEAF_SHARE = 0.8;
+    const MIN_WIDTH_SHARE = 0.9;
+    const RELAXED_WIDTH_SHARES = [0.6, 0.4];
+    const PASS_THROUGH_DEPTH = 4;
     const SKIP_TAG = /^(script|style|link|template|noscript|svg|img|video|canvas|iframe|picture|source)$/;
     const isLandmarkBand = (el) => /^(header|nav|footer)$/.test(el.tagName.toLowerCase())
       || /^(banner|navigation|contentinfo)$/.test(el.getAttribute('role') || '');
-    const isBandBox = (el) => {
+    const isBandBox = (el, minWidthShare) => {
       if (el.nodeType !== 1 || SKIP_TAG.test(el.tagName.toLowerCase())) return false;
       const r = el.getBoundingClientRect();
-      if (r.width < vw * 0.9) return false;
+      if (r.width < vw * minWidthShare) return false;
       return r.height >= (isLandmarkBand(el) ? 40 : 120);
+    };
+    // A degenerate-box element paints nothing usable of its own but its
+    // children still lay out as real content, either `display: contents`
+    // (both axes 0 — Monzo's `HideUntilExperimentResolved` wrapper inside
+    // <main>, Hyperliquid's Framer motion wrapper) or a normal block whose
+    // only children are taken out of flow (position: fixed/absolute), which
+    // collapses it to zero height while it keeps its full width (Emma
+    // Lewisham: an empty `<main>` wrapping a position:fixed Locomotive Scroll
+    // container — probed live). Either way it hides a whole content tree
+    // behind one invisible wrapper, collapsing real sections into a single
+    // oversized leaf or, walked from the top, into no bands at all. See
+    // through it so its real children are visible to the walk, bounded so a
+    // page with nested pass-through wrappers can't make this unbounded.
+    const isPassThrough = (el) => {
+      if (el.nodeType !== 1 || SKIP_TAG.test(el.tagName.toLowerCase())) return false;
+      if (el.children.length === 0) return false;
+      const r = el.getBoundingClientRect();
+      return r.width === 0 || r.height === 0;
+    };
+    const bandKids = (el, minWidthShare, passDepth) => {
+      const out = [];
+      for (const child of el.children) {
+        if (isBandBox(child, minWidthShare)) { out.push(child); continue; }
+        if (passDepth > 0 && isPassThrough(child)) {
+          out.push(...bandKids(child, minWidthShare, passDepth - 1));
+        }
+      }
+      return out;
     };
     const leaves = [];
     let bandsCapped = false;
-    const walk = (el, chain, depth) => {
+    const walk = (el, chain, depth, minWidthShare) => {
       if (leaves.length >= BAND_CAP) { bandsCapped = true; return; }
       if (depth > 14) return;
-      const kids = Array.from(el.children).filter(isBandBox);
+      const share = minWidthShare || MIN_WIDTH_SHARE;
+      const kids = bandKids(el, share, PASS_THROUGH_DEPTH);
       const h = el.getBoundingClientRect().height || 1;
       const kidsH = kids.reduce((n, k) => n + k.getBoundingClientRect().height, 0);
-      if (kids.length >= 2 && kidsH >= h * 0.6) { for (const k of kids) walk(k, [k], depth + 1); return; }
-      if (kids.length === 1 && kids[0].getBoundingClientRect().height >= h * 0.9) { walk(kids[0], chain.length ? chain.concat(kids[0]) : [kids[0]], depth + 1); return; }
-      if (chain.length) leaves.push(chain);
+      if (kids.length >= 2 && kidsH >= h * 0.6) { for (const k of kids) walk(k, [k], depth + 1, share); return; }
+      if (kids.length === 1 && kids[0].getBoundingClientRect().height >= h * 0.9) { walk(kids[0], chain.length ? chain.concat(kids[0]) : [kids[0]], depth + 1, share); return; }
+      if (!chain.length) return;
+      // A leaf that swallows almost the whole page is usually not one real
+      // band: either a content wrapper whose real sections sit under the
+      // width threshold (a centered max-width container), or one whose
+      // sections are hidden behind a zero-box wrapper the default share
+      // didn't see through. Retry at a relaxed width share before accepting
+      // it as one giant band.
+      const leafHeight = el.getBoundingClientRect().height;
+      if (share === MIN_WIDTH_SHARE && results.pageHeight > 0 && leafHeight > results.pageHeight * OVERSIZED_LEAF_SHARE) {
+        for (const relaxedShare of RELAXED_WIDTH_SHARES) {
+          const relaxedKids = bandKids(el, relaxedShare, PASS_THROUGH_DEPTH);
+          if (relaxedKids.length > 0) {
+            for (const k of relaxedKids) walk(k, [k], depth + 1, relaxedShare);
+            return;
+          }
+        }
+      }
+      leaves.push(chain);
     };
-    if (document.body) walk(document.body, [], 0);
+    if (document.body) walk(document.body, [], 0, MIN_WIDTH_SHARE);
 
     const toHex = (color) => {
       const m = (color || '').match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
