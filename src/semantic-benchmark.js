@@ -198,6 +198,16 @@ const ratio = (num, den) => (den > 0 ? num / den : 0);
 
 const HERO_WINDOW = 3;
 
+// A lazy-loader placeholder: a data: SVG with nothing drawn in it (the
+// lazysizes shape). Base64 SVG drawings and base64 raster images are real
+// inline media and must not count.
+export function isPlaceholderMediaSrc(src) {
+  if (typeof src !== 'string' || !/^data:image\/svg\+xml/i.test(src) || /;base64,/i.test(src)) return false;
+  let markup = src;
+  try { markup = decodeURIComponent(src); } catch { /* keep raw */ }
+  return !/<(path|rect|circle|ellipse|polygon|polyline|line|image|text|g|use)\b/i.test(markup);
+}
+
 /** Blueprint gates need no ground truth: they read the extraction alone. */
 export function scoreBlueprintGates(extractionsById = {}) {
   const perSite = Object.entries(extractionsById).map(([id, extraction]) => {
@@ -212,7 +222,7 @@ export function scoreBlueprintGates(extractionsById = {}) {
       heroAtTop: heroIndex >= 0 && heroIndex < HERO_WINDOW,
       oversizedDropped: Number(bp.counts?.oversizedDropped) || 0,
       firstRoles: roles.slice(0, HERO_WINDOW),
-      placeholderMedia: bands.filter((b) => /^data:/i.test((b.media && b.media.src) || '')).length,
+      placeholderMedia: bands.filter((b) => isPlaceholderMediaSrc(b.media && b.media.src)).length,
     };
   });
   return {

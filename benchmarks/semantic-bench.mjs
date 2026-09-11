@@ -61,7 +61,7 @@ if (mode === 'run') {
   writeFileSync(join(outDir, 'run.json'), JSON.stringify(report, null, 1));
   console.log(`done: ${results.filter(r => r.status === 'succeeded').length}/${results.length} succeeded in ${Math.round(report.wallMs / 1000)}s`);
 } else if (mode === 'score') {
-  const { loadSemanticGroundTruth, scoreSemanticExtraction, formatSemanticScorecard } = await import(join(ROOT, 'src/semantic-benchmark.js'));
+  const { loadSemanticGroundTruth, scoreSemanticExtraction, formatSemanticScorecard, isPlaceholderMediaSrc } = await import(join(ROOT, 'src/semantic-benchmark.js'));
   const gt = loadSemanticGroundTruth(JSON.parse(readFileSync(gtPath, 'utf8')));
   const extractionsById = {};
   for (const site of sites) {
@@ -83,7 +83,7 @@ if (mode === 'run') {
     const dist = (e.imageryStyle?.distribution || []).slice(0, 3).map(d => `${d.label} ${Math.round(d.share * 100)}%`).join(' / ');
     const bp = e.blueprint || {};
     const order = (bp.readingOrder || []).slice(0, 6).join(' > ');
-    console.log(`- ${site.title}: fonts=[${fam}] rejected=[${rej}] geometry=${geo} button=${btn} material=${e.materialLanguage?.label} imagery=${e.imageryStyle?.label} (${dist}) bands=${(bp.bands || []).length} order=[${order}] oversized=${bp.counts?.oversizedDropped ?? 0} placeholders=${(bp.bands || []).filter(b => /^data:/i.test(b.media?.src || '')).length} scroll=${e.evidence?.capture?.scroll?.steps ?? '-'} motionStack=[${(e.motion?.stack || []).map(s => s.name).join(',')}]`);
+    console.log(`- ${site.title}: fonts=[${fam}] rejected=[${rej}] geometry=${geo} button=${btn} material=${e.materialLanguage?.label} imagery=${e.imageryStyle?.label} (${dist}) bands=${(bp.bands || []).length} order=[${order}] oversized=${bp.counts?.oversizedDropped ?? 0} placeholders=${(bp.bands || []).filter(b => isPlaceholderMediaSrc(b.media?.src)).length} scroll=${e.evidence?.capture?.scroll?.steps ?? '-'} motionStack=[${(e.motion?.stack || []).map(s => s.name).join(',')}]`);
   }
 } else {
   console.error('unknown mode'); process.exit(2);
