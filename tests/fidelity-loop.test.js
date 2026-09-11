@@ -173,3 +173,21 @@ describe('measureCloneFidelity: allowOrigin threads to the clone-side crawl only
     assert.ok(report);
   });
 });
+
+describe('measureCloneFidelity: the screenshot lane is proxied and allowOrigin reaches the clone shot only', () => {
+  const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
+  const stubDesign = { motion: { runtime: null }, blueprint: { bands: [], readingOrder: [], heroIndex: -1, counts: { bands: 0, oversizedDropped: 0, byRole: {} } } };
+  it('records one shot per side with allowOrigin only on the clone', async () => {
+    const shots = [];
+    const screenshot = async (url, o) => { shots.push({ url, o }); return PNG; };
+    await measureCloneFidelity({
+      originalUrl: 'https://example.com', cloneUrl: 'http://127.0.0.1:4173',
+      opts: { extractor: async () => stubDesign, screenshot, allowOrigin: 'http://127.0.0.1:4173' },
+    });
+    assert.equal(shots.length, 2);
+    const original = shots.find((s) => s.url === 'https://example.com');
+    const clone = shots.find((s) => s.url === 'http://127.0.0.1:4173');
+    assert.ok(!('allowOrigin' in original.o), JSON.stringify(original.o));
+    assert.equal(clone.o.allowOrigin, 'http://127.0.0.1:4173');
+  });
+});

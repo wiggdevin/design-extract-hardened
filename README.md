@@ -143,9 +143,8 @@ npx designlang fidelity https://stripe.com --clone http://localhost:3000 --clone
 ```
 
 `--clone-local` is required when the clone runs on `http://127.0.0.1:<port>` or
-`http://localhost:<port>`. It is the only loopback allowance in the tool, it
-applies to the clone side of this command alone, and the full-page screenshot
-lane of this command is not proxied. The report also carries a **blueprint**
+`http://localhost:<port>`. It is the only loopback allowance in the tool, and
+it applies to the clone side of this command alone. The report also carries a **blueprint**
 score (`fidelity-blueprint.json`): band count, reading order and per-band
 checks of the clone against the original.
 
