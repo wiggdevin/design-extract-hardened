@@ -191,16 +191,24 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
 .nav-links a:hover { text-decoration: none; color: var(--color-primary); }
 .nav-cta { padding: 10px 22px; }
 
-/* ---------- Bands 1+2: hero ---------- */
-.hero-wrap {
+/* ---------- Bands 1+2: hero ----------
+   Band 2 (content, overlay: false) is the in-flow section that carries the
+   800px hero height. Band 1 (hero video, overlay: true) nests inside it,
+   absolutely filling it behind the copy layer (z-index below). */
+.band-2 {
   position: relative;
   width: 100%;
   height: 800px;
   background: var(--bg-page);
   overflow: hidden;
 }
-.band-1 { position: absolute; inset: 0; height: 100%; }
-.band-2 { position: absolute; inset: 0; height: 100%; pointer-events: none; }
+.band-1 {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  z-index: 0;
+}
+.band-2 > .sr-only { position: absolute; z-index: 1; }
 .slider-track { position: absolute; inset: 0; }
 .slide { position: absolute; inset: 0; opacity: 0; transition: opacity var(--duration-lg) var(--ease-custom); }
 .slide.is-active { opacity: 1; }
@@ -225,13 +233,19 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
 .band-3 {
   background: var(--bg-page);
   padding: 30px 0;
+  min-height: 144px;
+  display: flex;
+  align-items: center;
 }
-.band-3 .button-row { justify-content: center; gap: var(--s0); flex-wrap: wrap; }
+.band-3 .button-row { justify-content: center; gap: var(--s0); flex-wrap: wrap; width: 100%; }
 
 /* ---------- Band 4: intro ---------- */
 .band-4 {
   background: var(--bg-page);
   padding: var(--s6) 0;
+  min-height: 600px;
+  display: flex;
+  align-items: center;
 }
 .two-col {
   display: grid;
@@ -258,7 +272,11 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
 .band-5 {
   background: var(--bg-beige);
   padding: var(--s6) 0;
+  min-height: 1450px;
+  display: flex;
+  align-items: center;
 }
+.band-5 > .container { width: 100%; }
 .discover-block { margin-bottom: var(--s6); }
 .discover-media {
   background-size: cover;
@@ -329,7 +347,11 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
 .band-6 {
   background: var(--bg-page);
   padding: var(--s5) 0;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
 }
+.band-6 .container { width: 100%; }
 .cert-strip { display: flex; justify-content: center; }
 .cert-logo { max-height: 130px; width: auto; }
 
@@ -360,6 +382,12 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   background: var(--bg-navy);
   padding: var(--s6) 0;
 }
+.band-10 {
+  min-height: 700px;
+  display: flex;
+  align-items: center;
+}
+.band-10 > .container { width: 100%; }
 .card-grid { display: grid; gap: var(--s2); }
 .card-grid--2col { grid-template-columns: repeat(2, 1fr); }
 .card-grid--3col { grid-template-columns: repeat(3, 1fr); }
@@ -417,27 +445,35 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   background-position: right center;
   background-repeat: no-repeat;
   padding: var(--s6) 0;
+  min-height: 690px;
+  display: flex;
+  align-items: center;
 }
+.band-9 > .container { width: 100%; }
 .band-9 .col-text { max-width: 620px; }
 .band-9 h2 { font-size: var(--fs-title-1); }
 .band-9 p { color: var(--text-muted); margin-bottom: var(--s2); }
 
-/* ---------- Band 11: FAQ ---------- */
+/* ---------- Band 11: FAQ ----------
+   Measured over blueprint.h (271px): padding and the heading/item spacing
+   below are trimmed from their original values so the band lands inside
+   the 15% tolerance instead of roughly 1.5x too tall. */
 .band-11 {
   background: var(--bg-page);
-  padding: var(--s3) 0;
+  padding: 16px 0;
 }
-.faq-list { display: flex; flex-direction: column; gap: 8px; max-width: 860px; margin: 0 auto; }
+.band-11 .section-heading { margin-bottom: 20px; }
+.faq-list { display: flex; flex-direction: column; gap: 6px; max-width: 860px; margin: 0 auto; }
 .faq-item {
   border: 1px solid var(--n300);
   border-radius: var(--r-sm);
-  padding: 10px 16px;
+  padding: 6px 16px;
 }
 .faq-item summary {
   cursor: pointer;
   font-weight: 700;
   font-size: var(--fs-body);
-  padding: 4px 0;
+  padding: 2px 0;
 }
 .faq-item p { color: var(--text-muted); font-size: var(--fs-body); margin: 8px 0 4px; }
 
@@ -447,7 +483,11 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   background-size: cover;
   background-position: center;
   padding: var(--s4) 0;
+  min-height: 440px;
+  display: flex;
+  align-items: center;
 }
+.band-12 > .container { width: 100%; }
 .cta-strip { text-align: center; }
 .cta-strip h3 { font-size: var(--fs-h3); margin-bottom: var(--s2); }
 .cta-strip .button-row { justify-content: center; }
@@ -456,7 +496,11 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
 .band-13 {
   background: var(--bg-navy);
   padding: var(--s4) 0;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
 }
+.band-13 > .container { width: 100%; }
 .footer-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -479,6 +523,10 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   background: var(--bg-near-black);
   color: #ffffff;
   padding: var(--s2) 0 var(--s0);
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 .footer-bottom {
   display: flex;

@@ -57,4 +57,25 @@ Built and laid out for a fixed 1280px canvas (`html, body { min-width: 1280px; o
 
 ## Fix log
 
-- Revision 2 (controller): the reveal script armed a hidden state for every data-reveal element and revealed only what intersected, so a full-page capture with no scroll showed empty colour blocks below the fold. Now only elements on screen at load are hidden (reveal-pending) and faded in; everything below the fold is visible from the start.
+### Revision 2 (controller)
+
+The reveal script armed a hidden state for every data-reveal element and revealed only what intersected, so a full-page capture with no scroll showed empty colour blocks below the fold. Now only elements on screen at load are hidden (`reveal-pending`) and faded in; everything below the fold is visible from the start.
+
+### Revision 3
+
+A re-walk of the rendered page against `odysseycontracting-com-blueprint.json` found three problems, all fixed in `index.html` and `styles.css` only:
+
+1. **Overlay bands corrected.** The previous build nested band 2 (content) inside a shared `.hero-wrap` and made it `position: absolute`, so the re-walk saw three overlay bands (0, 1, and 2) instead of the two the blueprint actually flags (band 0 nav, band 1 hero video). Band 2 is now the in-flow section (`position: relative`, `height: 800px`, no `overlay`), and band 1 nests inside it as an absolutely positioned layer (`inset: 0`, `z-index: 0`) sitting behind band 2's copy layer. Band 0 is unchanged (`position: fixed`).
+2. **Band 3 height.** The three-button row rendered at 113px, under the extractor's 120px minimum, and was dropped from the walk. Added `min-height: 144px` (matching `bounds.h`) plus `display: flex; align-items: center` so the buttons stay centered in the taller box.
+3. **Heights brought within 15% of `bounds.h` for every non-overlay band that was out of range**, using `min-height` on the section (plus `display: flex; align-items: center` so existing content re-centers instead of leaving empty space only at the bottom) rather than spacer elements:
+   - Band 4: `min-height: 600px` (was 415, target 615)
+   - Band 5: `min-height: 1450px` (was 1040, target 1475)
+   - Band 6: `min-height: 300px` (was 229, target 307)
+   - Band 9: `min-height: 690px` (was 514, target 708)
+   - Band 10: `min-height: 700px` (was 644, target 716; scoped to `.band-10` only so band 8, already in range at 3438 vs 3593, is untouched)
+   - Band 12: `min-height: 440px` (was 234, target 456)
+   - Band 13: `min-height: 400px` (was 338, target 408)
+   - Band 14: `min-height: 320px` (was 198, target 331); uses `flex-direction: column; justify-content: space-between` instead of vertical centering, since this band has two stacked containers (`.footer-bottom`, `.copyright-row`) that need to stay in document order rather than being centered as a single block
+   - Band 11 was the opposite problem (408 vs a 271 target, too tall): reduced `.band-11` padding from `var(--s3)` (45px) to 16px, the heading's `margin-bottom` from `var(--s4)` (50px) to 20px (scoped to `.band-11 .section-heading` so bands 5, 7, 8, and 10 keep their original heading spacing), and tightened `.faq-item` padding, `.faq-item summary` padding, and `.faq-list` gap, bringing the band to roughly 266px.
+
+Bands 7 and 8 were already inside tolerance and were not touched. The reveal-on-scroll behavior from Revision 2 (only elements on screen at load are hidden then faded in; everything below the fold stays visible from the start) is unchanged in both `app.js` and `styles.css`.

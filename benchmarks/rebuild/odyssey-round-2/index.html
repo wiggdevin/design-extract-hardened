@@ -27,8 +27,9 @@
   </div>
 </header>
 
-<!-- Bands 1 + 2: hero video (overlay: true, absolute) wrapped with its content band (relative), same bounds -->
-<div class="hero-wrap">
+<!-- Band 2: content, in-flow (overlay: false, y0 h800). Band 1 (hero video, overlay: true)
+     is nested inside it, absolutely filling it behind the copy layer, per the blueprint. -->
+<section class="band band-2" data-band="2" data-role="content">
   <section class="band band-1" data-band="1" data-role="hero" data-slider>
     <div class="slider-track">
       <div class="slide is-active">
@@ -40,10 +41,8 @@
     <button class="slider-prev" type="button" aria-label="Previous slide">&#8249;</button>
     <button class="slider-next" type="button" aria-label="Next slide">&#8250;</button>
   </section>
-  <section class="band band-2" data-band="2" data-role="content">
-    <h1 class="sr-only">Home Remodeling Company Near Raleigh</h1>
-  </section>
-</div>
+  <h1 class="sr-only">Home Remodeling Company Near Raleigh</h1>
+</section>
 
 <!-- Band 3: content, 3-column button row below hero -->
 <section class="band band-3" data-band="3" data-role="content">
