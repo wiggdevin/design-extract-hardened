@@ -254,3 +254,31 @@ test('the relaxed retry keeps the landmark chain instead of resetting it', async
   assert.equal(shortHero.bandsCapped, false);
   await shortHeroPage.close();
 });
+
+const fixedHeaderFixtureHtml = readFileSync(fileURLToPath(new URL('./fixtures/blueprint-fixed-header.html', import.meta.url)), 'utf8');
+
+test('a position: fixed header gets document y 0, not the scroll offset', async () => {
+  const fixedPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  await fixedPage.setContent(fixedHeaderFixtureHtml);
+  await fixedPage.evaluate(() => window.scrollTo(0, 2500));
+  const fixed = await fixedPage.evaluate(collectPageData, COLLECT_OPTS);
+
+  // Playwright's actionability scrolls elements into view between the
+  // interaction passes and collection, so window.scrollY is not 0 here.
+  // A position: fixed header's rect.top is already viewport-relative (it
+  // never moves with scroll), so adding window.scrollY on top of it double
+  // counts the scroll offset and reports a document y far below the page.
+  const headerBand = fixed.bands.find((b) => b.tag === 'header');
+  assert.equal(headerBand.position, 'fixed');
+  assert.equal(headerBand.bounds.y, 0, JSON.stringify(headerBand.bounds));
+
+  const headerSection = fixed.sections.find((s) => s.tag === 'header');
+  assert.equal(headerSection.position, 'fixed');
+  assert.equal(headerSection.bounds.y, 0, JSON.stringify(headerSection.bounds));
+
+  const firstStaticSection = fixed.bands.find((b) => b.tag === 'section');
+  assert.equal(firstStaticSection.position, 'static');
+  assert.equal(firstStaticSection.bounds.y, 80, JSON.stringify(firstStaticSection.bounds));
+
+  await fixedPage.close();
+});

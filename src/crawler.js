@@ -198,6 +198,13 @@ export async function crawlPage(url, options = {}) {
       motionRuntimeObs = await captureRuntimeMotion(page, { scrollObservations }).catch(() => null);
     }
 
+    // The interaction and runtime-motion passes above scroll elements into
+    // view via Playwright's actionability checks, so the page may be
+    // scrolled away from the top here; sections and bands both compute
+    // document-relative y from window.scrollY, so reset before collecting.
+    await page.evaluate(() => window.scrollTo(0, 0)).catch(() => {});
+    await page.waitForTimeout(200);
+
     const lightData = await extractPageData(page, ignore, selector);
     lightData.cssCoverage = cssCoverage;
     lightData.consent = consent;
@@ -502,6 +509,10 @@ export async function scrollThroughPage(page, { stepPx, maxSteps = 60, settleMs 
     window.scrollTo(0, 0);
     delete window.__designlangScroller;
   }).catch(() => {});
+  // Best-effort cleanup regardless of whether the scroll-back above threw
+  // partway through (e.g. a detached scroller's scrollTo): a stale
+  // __designlangScroller would otherwise leak into later evaluates.
+  await page.evaluate(() => { delete window.__designlangScroller; }).catch(() => {});
   await page.waitForTimeout(200);
   return {
     steps,
@@ -1282,17 +1293,19 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
       'header, nav, main, section, footer, aside, [role="banner"], [role="contentinfo"], [role="complementary"], [role="navigation"]'
     )).slice(0, 100).map(el => {
       const r = el.getBoundingClientRect();
+      const position = getComputedStyle(el).position;
+      const y = position === 'fixed' ? Math.round(r.top) : Math.round(r.top + window.scrollY);
       return {
         tag: el.tagName.toLowerCase(),
         role: el.getAttribute('role') || '',
         className: typeof el.className === 'string' ? el.className : '',
         id: el.id || '',
-        position: getComputedStyle(el).position,
+        position,
         text: (el.innerText || '').slice(0, 2000),
         headings: Array.from(el.querySelectorAll('h1,h2,h3')).slice(0, 5).map(h => h.innerText || ''),
         buttonCount: el.querySelectorAll(BUTTON_SELECTOR).length,
         cardCount: el.querySelectorAll(CARD_SELECTOR).length,
-        bounds: { x: r.x, y: Math.round(r.y + window.scrollY), w: r.width, h: r.height },
+        bounds: { x: r.x, y, w: r.width, h: r.height },
       };
     });
 
@@ -1515,15 +1528,17 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
     };
     const rectOf = (el) => el.getBoundingClientRect();
     const areaOf = (el) => { const r = rectOf(el); return r.width * r.height; };
-    const docBox = (el) => {
+    const docBox = (el, position) => {
       const r = rectOf(el);
-      return { x: Math.round(r.left), y: Math.round(r.top + window.scrollY), w: Math.round(r.width), h: Math.round(r.height) };
+      const y = position === 'fixed' ? Math.round(r.top) : Math.round(r.top + window.scrollY);
+      return { x: Math.round(r.left), y, w: Math.round(r.width), h: Math.round(r.height) };
     };
 
     results.bands = leaves.map((chain) => {
       const outer = chain[0];
       const leaf = chain[chain.length - 1];
-      const bounds = docBox(outer);
+      const position = getComputedStyle(outer).position;
+      const bounds = docBox(outer, position);
       const area = Math.max(1, bounds.w * bounds.h);
       const descendants = Array.from(outer.querySelectorAll('*')).slice(0, 600);
 
@@ -1623,20 +1638,21 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
         }
       }
 
-      const text = (outer.innerText || '').slice(0, 2000);
+      const outerText = outer.innerText || '';
+      const text = outerText.slice(0, 2000);
       return {
         tag: outer.tagName.toLowerCase(),
         role: outer.getAttribute('role') || '',
         className: (typeof outer.className === 'string' ? outer.className : '').slice(0, 300),
         id: outer.id || '',
-        position: getComputedStyle(outer).position,
+        position,
         bounds,
         background,
         columns,
         media,
         heading,
         text,
-        textLength: (outer.innerText || '').length,
+        textLength: outerText.length,
         buttonCount: outer.querySelectorAll(BUTTON_SELECTOR).length,
         cardCount: outer.querySelectorAll(CARD_SELECTOR).length,
       };
