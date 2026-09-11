@@ -30,7 +30,7 @@ export async function fullPageShot(url, { width = 1280, height = 800, channel, a
     browser = await launch({
       headless: true,
       ...(channel && { channel }),
-      args: ['--disable-quic', '--force-webrtc-ip-handling-policy=disable_non_proxied_udp', '--proxy-bypass-list=<-loopback>'],
+      args: ['--disable-quic', '--force-webrtc-ip-handling-policy=disable_non_proxied_udp', '--proxy-bypass-list=<-loopback>', '--disable-dev-shm-usage'],
       proxy: { server: safeProxy.url },
     });
     const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 1, colorScheme: 'light' });

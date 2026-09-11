@@ -76,7 +76,7 @@ rebuild, its notes and the scored report live under `benchmarks/rebuild/` and
 - **Section text stripped from `rawData`** after voice, intent and role
   classification, in both lanes.
 - **Fidelity screenshots go through the safe browsing proxy** with the
-  crawl's launch arguments; `--clone-local` reaches the clone shot only.
+  crawl's egress arguments; `--clone-local` reaches the clone shot only.
 - **Benchmark gate** "No placeholder media source on any site" (an empty
   non-base64 SVG data URI).
 - **Round-two rebuild and report** under `benchmarks/rebuild/odyssey-round-2/`
