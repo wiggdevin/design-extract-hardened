@@ -106,9 +106,16 @@ test('scrollThroughPage reads a reveal animation while it is still running, not 
   const readings = [];
   await scrollThroughPage(page, {
     onStep: async (step, phase) => {
+      // animation-fill-mode: both keeps a FINISHED animation in
+      // document.getAnimations() (playState 'finished'), so a bare count or
+      // presence check passes on the settled read alone and never actually
+      // exercises the early read. playState is the only signal that
+      // distinguishes "still playing" from "already over".
       const r = await page.evaluate(() => ({
-        count: document.getAnimations().length,
-        tops: document.getAnimations().map((a) => Math.round(a.effect.target.getBoundingClientRect().top + window.scrollY)),
+        anims: document.getAnimations().map((a) => ({
+          playState: a.playState,
+          top: Math.round(a.effect.target.getBoundingClientRect().top + window.scrollY),
+        })),
       }));
       readings.push({ step, phase, ...r });
     },
@@ -118,10 +125,15 @@ test('scrollThroughPage reads a reveal animation while it is still running, not 
   // Block 6 (0-indexed 5th section) spans document y [4000, 4800).
   const block6Top = 5 * 800;
   const block6Bottom = 6 * 800;
-  const earlyHit = readings.find((r) => r.phase === 'early' && r.count >= 1
-    && r.tops.some((t) => t >= block6Top && t < block6Bottom));
-  assert.ok(earlyHit, `expected an 'early' reading with a running animation over block 6, got ${JSON.stringify(readings)}`);
+  const earlyRunning = readings.find((r) => r.phase === 'early'
+    && r.anims.some((a) => a.playState === 'running' && a.top >= block6Top && a.top < block6Bottom));
+  assert.ok(earlyRunning, `expected an 'early' reading with a RUNNING animation over block 6, got ${JSON.stringify(readings)}`);
 
-  const totalReveals = readings.reduce((n, r) => n + r.count, 0);
-  assert.ok(totalReveals >= 2, `expected at least 2 total reveal readings (blocks 6 and 10), got ${totalReveals}`);
+  // A "no settled reading is still running" assertion was tried here too
+  // (150ms settle + a networkidle wait "should" outlast the 400ms fadeUp),
+  // but on this fixture Chromium's networkidle resolves near-instantly
+  // (there is no other network activity to wait out), so a settled read can
+  // still land mid-animation — confirmed flaky, see the fix report. Dropped
+  // per the brief's own fallback; the early-running assertion above is the
+  // one this test exists to prove and is not flaky.
 });

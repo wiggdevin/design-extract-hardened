@@ -146,11 +146,16 @@ test('the band-box width test is parent-relative below the top level, so an Avad
   // heading followed by six 50%-width cards wrapping into three rows of two)
   // also stays one band — the fullwidth — since none of its children pass
   // the band-box test (the heading fails height, the cards fail width), same
-  // shape as the reference page's band 8.
-  assert.equal(avada.bands.length, 6, JSON.stringify(avada.bands.map(b => [b.className, b.bounds.w, b.bounds.h])));
-  assert.deepEqual(avada.bands.map(b => b.bounds.w), [1280, 1100, 1100, 1100, 1280, 1280]);
+  // shape as the reference page's band 8. The trailing footer (a landmark
+  // whose real content sits in a centered 1100px inner wrapper, itself
+  // holding three full-row-width nav blocks) stays ONE band too — a
+  // landmark is never peered into for a lone-child bypass, so the walk
+  // never reaches the nav blocks that would otherwise pass the strict width
+  // test one level down and replace the footer's own bounds.
+  assert.equal(avada.bands.length, 7, JSON.stringify(avada.bands.map(b => [b.tag, b.className, b.bounds.w, b.bounds.h])));
+  assert.deepEqual(avada.bands.map(b => b.bounds.w), [1280, 1100, 1100, 1100, 1280, 1280, 1280]);
   for (let i = 1; i < avada.bands.length; i++) assert.ok(avada.bands[i].bounds.y >= avada.bands[i - 1].bounds.y);
-  for (const b of avada.bands) assert.ok(b.bounds.h <= 0.8 * avada.pageHeight, `${b.className} is ${b.bounds.h} of ${avada.pageHeight}`);
+  for (const b of avada.bands) assert.ok(b.bounds.h <= 0.8 * avada.pageHeight, `${b.tag}.${b.className} is ${b.bounds.h} of ${avada.pageHeight}`);
   assert.equal(avada.bandsCapped, false);
 
   // The column rule must group children by row, not anchor on the first
@@ -163,5 +168,35 @@ test('the band-box width test is parent-relative below the top level, so an Avad
   assert.equal(row1Band.columns, 2, JSON.stringify(row1Band));
   const row4Band = avada.bands.find((b) => /\bfw4\b/.test(b.className));
   assert.equal(row4Band.columns, 2, JSON.stringify(row4Band));
+
+  // The footer must be ONE band with tag footer — not three nav bands from
+  // its centered inner wrapper.
+  const footerBand = avada.bands.find((b) => b.tag === 'footer');
+  assert.ok(footerBand, `expected a footer band, got tags ${JSON.stringify(avada.bands.map((b) => b.tag))}`);
+  assert.equal(footerBand.bounds.w, 1280, JSON.stringify(footerBand));
+  assert.equal(avada.bands.filter((b) => b.tag === 'nav').length, 0, 'the footer must not decompose into its nav blocks');
   await avadaPage.close();
+});
+
+const relaxedOnceFixtureHtml = readFileSync(fileURLToPath(new URL('./fixtures/blueprint-relaxed-once.html', import.meta.url)), 'utf8');
+
+test('a relaxed width share applies to exactly one level, not to every deeper walk call', async () => {
+  const relaxedPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  await relaxedPage.setContent(relaxedOnceFixtureHtml);
+  const relaxed = await relaxedPage.evaluate(collectPageData, COLLECT_OPTS);
+
+  // main (100% wide) is an oversized leaf whose four sections are only 1000px
+  // (78% of the 1280 viewport) — under the 90% strict test they fail, so the
+  // retry relaxes to 60% and finds them. Each section then holds two 70%-wide
+  // columns (70% of the SECTION, not the viewport): 70% clears the relaxed
+  // 60% floor but not the standard 90% one. If the relaxed share carried
+  // into the sections' own walk (the bug), those columns would each pass
+  // the inherited 60% test and become their own bands — 4 sections x 2
+  // columns = 8 bands instead of 4, and the sections themselves would
+  // vanish as band boundaries.
+  assert.equal(relaxed.bands.length, 4, JSON.stringify(relaxed.bands.map(b => [b.className, b.bounds.w, b.bounds.h])));
+  for (const b of relaxed.bands) assert.equal(b.bounds.w, 1000, JSON.stringify(b));
+  assert.deepEqual(relaxed.bands.map(b => b.className), ['s1', 's2', 's3', 's4']);
+  assert.equal(relaxed.bandsCapped, false);
+  await relaxedPage.close();
 });

@@ -1411,6 +1411,21 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
       }
       return only;
     };
+    // The same-height-regardless-of-width descent is for seeing through
+    // purely structural wrappers (fusion-fullwidth, a plain centered div)
+    // that have no identity of their own. A landmark or a <section> IS
+    // already a real, named piece of the page — its own bounds, background,
+    // and role are meaningful — so peering inside it for a lone child to
+    // bypass into must not happen: on real sites this repeatedly ate a
+    // <footer>/<header>/hero <section> (whose real content sits in a
+    // centered inner wrapper) and replaced it with that wrapper's OWN
+    // children once THEY passed the strict width test one level down,
+    // discarding the landmark's bounds entirely (Apple's footer became
+    // seven nav/list bands; a Shopify header became a mega-menu's panels;
+    // Wise's hero section became one of its inner rows). Width alone can't
+    // tell fusion-fullwidth and <footer> apart — both render at ~100% of
+    // their parent — so this is a tag check, not a geometry one.
+    const blocksWrapperDescent = (el) => isLandmarkBand(el) || el.tagName.toLowerCase() === 'section';
     const leaves = [];
     let bandsCapped = false;
     const walk = (el, chain, depth, minWidthShare, refWidth) => {
@@ -1429,7 +1444,7 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
         walk(k, chain.length ? chain.concat(k) : [k], depth + 1, share, k.getBoundingClientRect().width);
         return;
       }
-      if (kids.length === 0) {
+      if (kids.length === 0 && !blocksWrapperDescent(el)) {
         const only = soleRealChild(el);
         if (only && only.getBoundingClientRect().height >= h * 0.9) {
           walk(only, chain.length ? chain.concat(only) : [only], depth + 1, share, only.getBoundingClientRect().width);
@@ -1442,13 +1457,18 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
       // width threshold (a centered max-width container), or one whose
       // sections are hidden behind a zero-box wrapper the default share
       // didn't see through. Retry at a relaxed width share before accepting
-      // it as one giant band.
+      // it as one giant band. The relaxed share is for finding THIS level's
+      // children only — once found, each one walks its own subtree at the
+      // normal MIN_WIDTH_SHARE, or a genuinely narrow grandchild two levels
+      // down would pass a threshold relaxed once but inherited forever
+      // (parent-relative widths mean that compounds: a share carried three
+      // levels deep is an effective floor of 0.6^3 ≈ 22% of the viewport).
       const leafHeight = el.getBoundingClientRect().height;
       if (share === MIN_WIDTH_SHARE && results.pageHeight > 0 && leafHeight > results.pageHeight * OVERSIZED_LEAF_SHARE) {
         for (const relaxedShare of RELAXED_WIDTH_SHARES) {
           const relaxedKids = bandKids(el, relaxedShare, PASS_THROUGH_DEPTH, refWidth);
           if (relaxedKids.length > 0) {
-            for (const k of relaxedKids) walk(k, [k], depth + 1, relaxedShare, k.getBoundingClientRect().width);
+            for (const k of relaxedKids) walk(k, [k], depth + 1, MIN_WIDTH_SHARE, k.getBoundingClientRect().width);
             return;
           }
         }
