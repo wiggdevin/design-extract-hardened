@@ -176,6 +176,21 @@ describe('overlay bands: fixed or absolute, or contained in an earlier band', ()
   });
 });
 
+describe('overlay rule: containment against all earlier kept bands, never the hero', () => {
+  const bands = [
+    { tag: 'header', position: 'fixed', bounds: { x: 0, y: 0, w: 1280, h: 107 }, media: { kind: 'svg', share: 0.09 } },
+    { tag: 'section', position: 'absolute', bounds: { x: 0, y: 0, w: 1280, h: 800 }, media: { kind: 'video', share: 1 } },
+    { tag: 'section', position: 'relative', bounds: { x: 6, y: 0, w: 1269, h: 800 }, heading: { level: 1, fontSize: 65, text: '' } },
+    { tag: 'section', position: 'static', bounds: { x: 0, y: 800, w: 1280, h: 144 } },
+  ];
+  const bp = extractBlueprint(bands, [], { type: 'landing' }, { pageHeight: 5000, viewportHeight: 800 });
+  it('flags the fixed header and the headline row contained in the hero, never the hero itself', () => {
+    assert.deepEqual(bp.bands.map((b) => b.overlay), [true, false, true, false]);
+    assert.equal(bp.heroIndex, 1);
+    assert.equal(bp.bands[1].overlay, false);
+  });
+});
+
 describe('stripBandText also clears landmark section records', () => {
   it('deletes text from section records in place', () => {
     const sections = [{ tag: 'section', text: 'page copy', textLength: 9, bounds: { y: 0, h: 10 } }];

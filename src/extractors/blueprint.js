@@ -11,12 +11,16 @@ const HERO_WITHIN_VIEWPORTS = 1.5;
 const NAV_NEAR_TOP_PX = 200;
 const OVERLAY_TOLERANCE_PX = 8;
 
-// A band that sits on top of another rather than after it: pinned or
-// absolutely positioned, or its box lies inside an earlier band's box (a
-// headline row inside a full-bleed video wrapper). A rebuild stacks these
-// on the band before them; they add no height to the page.
-function isOverlay(b, earlier) {
-  if (b.position === 'fixed' || b.position === 'absolute') return true;
+// A band that sits on top of another rather than after it: pinned (position:
+// fixed), or its box lies inside an earlier kept band's box (a headline row
+// inside a full-bleed video wrapper), with an 8 px tolerance. The band chosen
+// as the hero candidate is never an overlay, even when its box would
+// otherwise qualify. position: absolute alone no longer flags an overlay; it
+// only matters through containment. A rebuild stacks overlays on the band
+// before them; they add no height to the page.
+function isOverlay(b, earlier, isHero) {
+  if (b.position === 'fixed') return true;
+  if (isHero) return false;
   const t = OVERLAY_TOLERANCE_PX;
   const { x = 0, y, w = 0, h } = b.bounds;
   return earlier.some((e) => x >= (e.bounds.x || 0) - t && y >= e.bounds.y - t
@@ -79,12 +83,7 @@ export function extractBlueprint(bands = [], runtimeObservations = [], pageInten
 
   const pageType = pageIntent && pageIntent.type;
   const observations = Array.isArray(runtimeObservations) ? runtimeObservations : [];
-  const overlays = [];
-  const flags = kept.map((b) => {
-    const f = isOverlay(b, overlays);
-    if (!f) overlays.push(b);
-    return f;
-  });
+  const flags = kept.map((b, i) => isOverlay(b, kept.slice(0, i), i === heroCandidate));
   const out = kept.map((b, i) => {
     const classified = classifyRole({
       tag: b.tag, role: b.role, className: b.className, id: b.id, position: b.position,
