@@ -143,7 +143,7 @@ export function extractImageryStyle(images = [], options = {}) {
     safeImages.some(img => typeof img.top === 'number' || typeof img.naturalWidth === 'number' || typeof img.currentSrc === 'string');
   if (!evidenceRich) return result;
 
-  const media = extractMediaSystem({ images: safeImages, backgroundMedia: options.backgroundMedia || [], viewport: options.viewport || null });
+  const media = extractMediaSystem({ images: safeImages, backgroundMedia: options.backgroundMedia || [], viewport: options.viewport || null, pixelEvidence: options.pixelEvidence || [] });
   return {
     ...result,
     label: media.label,

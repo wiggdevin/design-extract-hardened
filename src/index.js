@@ -122,6 +122,7 @@ export async function extractDesignLanguage(url, options = {}) {
       textNodes: styles.filter(el => el && el.hasText).length,
       images: (rawData.light.images || []).length,
       backgroundMedia: (rawData.light.backgroundMedia || []).length,
+      pixelEvidence: (rawData.light.pixelEvidence || []).length,
       loadedFonts: (rawData.light.fontData?.documentFonts || []).filter(f => f && f.status === 'loaded').length,
     },
     warnings: [],
@@ -208,7 +209,11 @@ export async function extractDesignLanguage(url, options = {}) {
   design.imageryStyle = promote('media', extractImageryStyle, rawData.light?.images || [], {
     backgroundMedia: rawData.light?.backgroundMedia || [],
     viewport: rawData.light?.viewport || null,
+    pixelEvidence: rawData.light?.pixelEvidence || [],
   }) || { label: 'none', confidence: 0, counts: {}, signals: [] };
+  if (rawData.light?.pixelSummary?.unavailable) {
+    design.evidence.warnings.push(`pixel lane unavailable: ${String(rawData.light.pixelSummary.unavailable).slice(0, 120)}`);
+  }
   design.seo = safeExtract(extractSeo, rawData) || { openGraph: {}, twitter: {}, structuredData: [], score: {} };
   design.iconSystem = safeExtract(extractIconSystem, rawData.light?.icons || []) || { library: 'unknown', confidence: 0, stats: {}, signals: [], icons: [] };
   design.backgroundPatterns = safeExtract(extractBackgroundPatterns, rawData) || { labels: ['plain'], counts: {}, gradientTotals: {}, samples: [] };

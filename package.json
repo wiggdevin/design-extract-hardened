@@ -1,7 +1,7 @@
 {
   "name": "designlang",
   "version": "13.2.0",
-  "description": "Extract the complete design language from any website and ship it \u2014 clone to a working Next.js starter, guard tokens with a CI drift bot, or browse everything in a local studio. Outputs W3C DTCG tokens, motion tokens, typed anatomy stubs, Tailwind config, and ready-to-paste v0 / Lovable / Cursor / Claude-Artifacts prompts.",
+  "description": "Extract the complete design language from any website and ship it — clone to a working Next.js starter, guard tokens with a CI drift bot, or browse everything in a local studio. Outputs W3C DTCG tokens, motion tokens, typed anatomy stubs, Tailwind config, and ready-to-paste v0 / Lovable / Cursor / Claude-Artifacts prompts.",
   "type": "module",
   "bin": {
     "designlang": "./bin/design-extract.js"
@@ -27,7 +27,8 @@
     "pdf-lib": "1.17.1",
     "pixelmatch": "7.2.0",
     "playwright": "1.61.0",
-    "pngjs": "7.0.0"
+    "pngjs": "7.0.0",
+    "sharp": "0.35.4"
   },
   "engines": {
     "node": ">=22.12"

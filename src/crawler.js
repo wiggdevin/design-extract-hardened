@@ -4,6 +4,7 @@ import { join } from 'path';
 import { extractMediaDarkColors } from './extractors/dark-mode-pair.js';
 import { startScreencast } from './screencast.js';
 import { startSafeBrowsingProxy } from './security/safe-proxy.js';
+import { createResponseLedger, selectPixelCandidates, collectPixelEvidence } from './pixel-lane.js';
 
 const MAX_ELEMENTS = 5000;
 const NETWORK_OVERRIDE_FLAGS = [
@@ -45,6 +46,7 @@ export async function crawlPage(url, options = {}) {
     wsEndpoint,
     onScreencastFrame,  // Theatre: opt-in live frame sink. When set, a throttled
     screencastOpts,     // CDP screencast streams what the page paints during load.
+    pixelEvidence = true, // Pixel lane: features of images the page loaded (no extra fetch).
   } = options;
 
   const launchArgs = [
@@ -104,6 +106,11 @@ export async function crawlPage(url, options = {}) {
     }
     const page = await context.newPage();
 
+    // Pixel lane: remember the raster bodies Chromium receives for this page
+    // (through the safe proxy, no extra requests) so media classification can
+    // read pixels the DOM cannot describe. Bytes never leave this function.
+    const ledger = pixelEvidence ? createResponseLedger(page) : null;
+
     // Theatre (opt-in): tap what Chromium paints and stream it to the caller as
     // throttled JPEG frames. Best-effort — a screencast that won't start must
     // never break the extraction, so it's wrapped and degrades to silence.
@@ -162,6 +169,25 @@ export async function crawlPage(url, options = {}) {
 
     const lightData = await extractPageData(page, ignore, selector);
     lightData.cssCoverage = cssCoverage;
+    if (ledger) {
+      try {
+        const candidates = selectPixelCandidates({
+          images: lightData.images || [],
+          backgroundMedia: lightData.backgroundMedia || [],
+          viewport: lightData.viewport || { width, height },
+          baseUrl: page.url(),
+        });
+        const { evidence, summary } = await collectPixelEvidence({ page, ledger, candidates });
+        lightData.pixelEvidence = evidence;
+        lightData.pixelSummary = { ...summary, ledgerEntries: ledger.entries.size, ledgerBytes: ledger.bytes, ledgerDropped: ledger.dropped };
+      } catch (err) {
+        lightData.pixelEvidence = [];
+        lightData.pixelSummary = { unavailable: `pixel lane failed: ${String(err?.message || err).slice(0, 100)}` };
+      } finally {
+        ledger.stop();
+        ledger.clear();
+      }
+    }
     if (interactState) lightData.interactState = interactState;
     if (motionRuntimeObs) lightData.motionRuntime = motionRuntimeObs;
 

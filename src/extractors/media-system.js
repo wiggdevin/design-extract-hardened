@@ -1,3 +1,5 @@
+import { pixelEvidenceKey } from '../pixel-lane.js';
+
 // Classify a page's dominant media type by VISIBLE WEIGHT rather than by
 // counting <img> tags. A single full-bleed hero photo should outrank a grid
 // of 40 nav icons; a hidden (opacity:0) hero should not vote at all. This
@@ -99,6 +101,25 @@ function hintText(candidate) {
 // (extensionless src) where the label is inferred rather than read off the
 // URL — that multiplier discounts the candidate's contribution to coverage,
 // never its share of the visible-weight distribution.
+// Pixel evidence (src/pixel-lane.js) may resolve a candidate the DOM left
+// `unknown`. It never overrides a DOM label: a product render on a white
+// sweep reads as flat pixels but is product photography to the DOM.
+function resolveWithPixels(dom, candidate, pixelByKey) {
+  if (dom.label !== 'unknown' || !pixelByKey) return dom;
+  const raw = candidate.raw;
+  const key = pixelEvidenceKey({ kind: candidate.kind, src: raw.src || raw.currentSrc || '', width: candidate.width, height: candidate.height, top: toNum(raw.top) });
+  const ev = pixelByKey.get(key);
+  if (!ev || !ev.pixel || ev.pixel.label === 'unknown') {
+    return ev ? { ...dom, signals: [...dom.signals, ...(ev.pixel?.signals || [])] } : dom;
+  }
+  return {
+    label: ev.pixel.label,
+    signals: [...dom.signals, ...ev.pixel.signals],
+    confidenceMul: ev.pixel.confidence,
+    pixel: { label: ev.pixel.label, confidence: ev.pixel.confidence, source: ev.source },
+  };
+}
+
 function classifyCandidate(candidate) {
   const src = candidate.raw.src || candidate.raw.currentSrc || '';
   const text = hintText(candidate);
@@ -154,7 +175,10 @@ function emptyResult(label) {
   return { label, confidence: 0, distribution: [], dominantMedia: [], coverage: 0, signals: [], alternatives: [] };
 }
 
-export function extractMediaSystem({ images = [], backgroundMedia = [], viewport = null } = {}) {
+export function extractMediaSystem({ images = [], backgroundMedia = [], viewport = null, pixelEvidence = [] } = {}) {
+  const pixelByKey = Array.isArray(pixelEvidence) && pixelEvidence.length
+    ? new Map(pixelEvidence.filter(e => e && typeof e === 'object').map(e => [pixelEvidenceKey({ kind: e.kind, src: e.src, width: e.width, height: e.height, top: toNum(e.top) }), e]))
+    : null;
   // Default params only cover `undefined`; an explicit null (or a malformed
   // element inside either array — a css-background/video-poster capture
   // that failed on one node) must degrade to "skip it", not throw, so one
@@ -181,7 +205,7 @@ export function extractMediaSystem({ images = [], backgroundMedia = [], viewport
   // When only icon-sized media exists, the page's imagery IS its icons, so
   // the distribution must say so instead of "unknown" for blank-src glyphs.
   const classified = effective.map(c => {
-    const cls = classifyCandidate(c);
+    const cls = resolveWithPixels(classifyCandidate(c), c, pixelByKey);
     if (forcedIconography && cls.label === 'unknown') return { ...c, ...cls, label: 'iconography' };
     return { ...c, ...cls };
   });
@@ -234,9 +258,12 @@ export function extractMediaSystem({ images = [], backgroundMedia = [], viewport
       weight: Math.round(c.weight),
       width: c.width,
       height: c.height,
+      ...(c.pixel ? { pixel: c.pixel } : {}),
     }));
 
   const signals = [...new Set(classified.flatMap(c => c.signals))];
+  const pixelResolved = classified.filter(c => c.pixel).length;
+  if (pixelResolved) signals.push(`${pixelResolved} candidates resolved by pixel evidence`);
   if (placeholders) signals.push(`${placeholders} data-uri placeholders excluded`);
 
   const alternatives = distribution

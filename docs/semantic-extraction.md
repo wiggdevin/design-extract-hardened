@@ -54,6 +54,17 @@ Classification is deterministic and refuses to guess:
 
 `label` is the top class when its share is at least 50% with a 15-point margin; photography and product photography count as one family for that margin. An unknown share over 50% makes the label `unknown`. Confidence is the top share scaled by classified coverage and never depends on how many images a page has.
 
+### Pixel lane
+
+Candidates the DOM leaves `unknown` get a second look from their pixels (`src/pixel-lane.js`, `src/extractors/pixel-features.js`, on by default, `pixelEvidence: false` turns it off). The rules that keep it inside the crawler's safety model:
+
+- Bytes come only from responses the page itself made. A ledger on the Playwright page records `image/*` bodies (SVG excluded) as Chromium receives them through the safe proxy. No image URL is ever fetched a second time.
+- The ledger is bounded (300 entries, 8 MB per image, 64 MB total) and cleared before the crawl returns. Only numbers leave: a feature record per candidate and a label.
+- At most 8 candidates are analysed (largest visible rasters, long side ≥ 300 px). A canvas, or an image whose own pixels are a transparent glow or mask layer, is read from a composited element screenshot instead (at most 3, 5 s each).
+- Sharp is loaded lazily; if the native module is missing the lane reports `pixel lane unavailable: …` in `evidence.warnings` and the DOM result stands.
+
+Classification uses entropy bands measured on the benchmark corpus (`benchmarks/pixel-bakeoff-2026-09-10.md`): photographs at entropy ≥ 6.2, renders and screenshots below 5.0, `unknown` in between. A pixel label never overrides a DOM label, because a product render on a white sweep reads as flat pixels but is product photography to the DOM. Resolved candidates carry `pixel: { label, confidence, source }` in `dominantMedia`, keep their DOM signal (`png-ambiguous`, `extensionless-source`, `canvas-rendered`), and add the pixel signal that decided them.
+
 ## Fallback and failure
 
 Promoters run one at a time under a guard. A failing promoter leaves every inventory intact and appends a named entry to `evidence.warnings`, for example `geometry promoter failed: …`. The old count-based imagery path still serves inputs without layout evidence (older captures, tests).
@@ -82,11 +93,11 @@ Full numbers and per-site detail: `benchmarks/semantic-scorecard-2026-09-09.md`.
 | Font recall | 43/43 | PASS |
 | Font precision | 2/45 promoted names disputed by labelers, both with loaded provenance and visible text | FAIL on count, disputed |
 | Square systems survive, incidental flips | Woven and SwimClub read `square`; flips 0/16 | PASS |
-| Media top-two recall | 10/16 | FAIL |
+| Media top-two recall | 10/16 DOM only; 15/16 with the pixel lane (2026-09-10) | PASS |
 | Photography false positives | 0/16 | PASS |
-| Semantic processing cost | 9–24 ms per page, under 0.5% of the crawl | PASS |
+| Semantic processing cost | promoters 9–24 ms per page; pixel lane under 1 s, bounded at 10 s | PASS |
 
-The six media misses are the DOM-only ceiling: two PNG heroes, two extensionless image CDNs, one WebGL canvas, one age gate. That is the condition the plan set for reopening the Sharp and SigLIP bakeoff. Deterministic rules were not stretched to cover them; each case returns `unknown` with a signal naming the reason.
+The six DOM-only media misses were the ceiling the plan named: two PNG heroes, two extensionless image CDNs, one WebGL canvas, one age gate. The pixel lane (`benchmarks/pixel-bakeoff-2026-09-10.md`) resolves the five that pixels can decide from bytes the page itself loaded; the age gate remains, and needs interaction. Deterministic rules were not stretched: a case pixels cannot decide still returns `unknown` with a signal naming the reason.
 
 ## Reading disagreement with Refero
 

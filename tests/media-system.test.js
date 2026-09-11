@@ -282,3 +282,76 @@ describe('extractImageryStyle: legacy contract preserved', () => {
     assert.equal(r.counts.total, 1, 'the null entry must not be counted');
   });
 });
+
+describe('extractMediaSystem: pixel evidence resolves DOM unknowns', () => {
+  const viewport = { width: 1280, height: 800 };
+  const pngHero = { tag: 'img', src: 'https://shop.example/cdn/files/homepage.png?v=1&width=832', width: 1280, height: 720, top: 0 };
+  const evidenceFor = (raw, label, extra = {}) => ({ kind: 'img', src: raw.src, width: raw.width, height: raw.height, top: raw.top, source: 'network', pixel: { label, confidence: 0.8, signals: ['pixel-photo-like'] }, ...extra });
+
+  it('one verdict never spreads to a look-alike candidate (same-size canvases, shared CDN prefix)', () => {
+    const canvasA = { kind: 'canvas', src: '', width: 1280, height: 800, top: 0 };
+    const canvasB = { kind: 'canvas', src: '', width: 1280, height: 800, top: 900 };
+    const evA = { kind: 'canvas', src: '', width: 1280, height: 800, top: 0, source: 'composited', pixel: { label: '3d-render', confidence: 0.6, signals: ['pixel-flat-canvas'] } };
+    const r = extractMediaSystem({ backgroundMedia: [canvasA, canvasB], viewport, pixelEvidence: [evA] });
+    const withPixel = r.dominantMedia.filter(m => m.pixel);
+    assert.equal(withPixel.length, 1, 'only the analysed canvas carries a verdict');
+    assert.ok(r.signals.includes('canvas-rendered'));
+
+    const prefix = 'https://cdn.example.com/imagedelivery/fO02fVwohEs9s9UHFwon6A/' + 'a'.repeat(70);
+    const imgA = { tag: 'img', src: prefix + '/one.png', width: 1200, height: 700, top: 0 };
+    const imgB = { tag: 'img', src: prefix + '/two.png', width: 1200, height: 700, top: 0 };
+    const r2 = extractMediaSystem({ images: [imgA, imgB], viewport, pixelEvidence: [evidenceFor(imgA, 'photography')] });
+    assert.equal(r2.dominantMedia.filter(m => m.pixel).length, 1);
+    assert.equal(r2.dominantMedia.find(m => m.pixel).src, (prefix + '/one.png').slice(0, 120));
+  });
+
+  it('a png-ambiguous hero becomes photography when its pixels say so (swimclub.co)', () => {
+    const r = extractMediaSystem({ images: [pngHero], viewport, pixelEvidence: [evidenceFor(pngHero, 'photography')] });
+    assert.equal(r.label, 'photography');
+    assert.ok(r.signals.includes('png-ambiguous'), 'the DOM signal is kept');
+    assert.ok(r.signals.includes('pixel-photo-like'));
+    assert.ok(r.signals.some(s => /resolved by pixel evidence/.test(s)));
+    assert.equal(r.dominantMedia[0].pixel.label, 'photography');
+    assert.equal(r.dominantMedia[0].pixel.source, 'network');
+    assert.ok(r.coverage > 0.7, `coverage ${r.coverage}`);
+  });
+
+  it('an extensionless hero becomes photography (n26.com Bynder transform URL)', () => {
+    const hero = { tag: 'img', src: 'https://n26.bynder.com/transform/54968dd6/CRST-18128_PulseSoft', naturalWidth: 2560, naturalHeight: 1600, width: 1280, height: 800, top: 0 };
+    const r = extractMediaSystem({ images: [hero], viewport, pixelEvidence: [evidenceFor(hero, 'photography')] });
+    assert.equal(r.label, 'photography');
+    assert.ok(r.signals.includes('extensionless-source'));
+  });
+
+  it('a WebGL canvas becomes 3d-render (spline.design)', () => {
+    const canvas = { kind: 'canvas', src: '', width: 1280, height: 800, top: 0 };
+    const ev = { kind: 'canvas', src: '', width: 1280, height: 800, top: 0, source: 'composited', pixel: { label: '3d-render', confidence: 0.6, signals: ['pixel-flat-canvas'] } };
+    const r = extractMediaSystem({ backgroundMedia: [canvas], viewport, pixelEvidence: [ev] });
+    assert.equal(r.label, '3d-render');
+    assert.ok(r.signals.includes('canvas-rendered'));
+  });
+
+  it('never overrides a DOM label (a product render on white reads flat)', () => {
+    const jpg = { tag: 'img', src: 'https://e.com/product-hero.jpg', width: 1200, height: 900, top: 0 };
+    const r = extractMediaSystem({ images: [jpg], viewport, pixelEvidence: [evidenceFor(jpg, 'ui-screenshot')] });
+    assert.equal(r.label, 'product-photography');
+    assert.equal(r.dominantMedia[0].pixel, undefined);
+  });
+
+  it('unknown pixel verdicts leave the candidate unknown and carry the reason', () => {
+    const r = extractMediaSystem({ images: [pngHero], viewport, pixelEvidence: [{ ...evidenceFor(pngHero, 'unknown'), pixel: { label: 'unknown', confidence: 0, signals: ['pixel-ambiguous'] } }] });
+    assert.equal(r.label, 'unknown');
+    assert.ok(r.signals.includes('pixel-ambiguous'));
+    assert.ok(!r.signals.some(s => /resolved by pixel evidence/.test(s)));
+  });
+
+  it('evidence for a different source or size does not attach', () => {
+    const r = extractMediaSystem({ images: [pngHero], viewport, pixelEvidence: [evidenceFor({ ...pngHero, src: 'https://shop.example/other.png' }, 'photography')] });
+    assert.equal(r.label, 'unknown');
+  });
+
+  it('malformed evidence is ignored', () => {
+    assert.doesNotThrow(() => extractMediaSystem({ images: [pngHero], viewport, pixelEvidence: [null, 1, {}, { kind: 'img' }] }));
+    assert.doesNotThrow(() => extractMediaSystem({ images: [pngHero], viewport, pixelEvidence: 'nope' }));
+  });
+});
