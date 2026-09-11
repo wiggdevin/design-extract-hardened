@@ -122,12 +122,26 @@ test('scrollThroughPage reads a reveal animation while it is still running, not 
   });
   await page.close();
 
-  // Block 6 (0-indexed 5th section) spans document y [4000, 4800).
+  // Block 6 (0-indexed 5th section) spans document y [4000, 4800); block 10
+  // (0-indexed 9th) spans [7200, 8000).
   const block6Top = 5 * 800;
   const block6Bottom = 6 * 800;
+  const block10Top = 9 * 800;
+  const block10Bottom = 10 * 800;
   const earlyRunning = readings.find((r) => r.phase === 'early'
     && r.anims.some((a) => a.playState === 'running' && a.top >= block6Top && a.top < block6Bottom));
   assert.ok(earlyRunning, `expected an 'early' reading with a RUNNING animation over block 6, got ${JSON.stringify(readings)}`);
+
+  // Restores the original brief's "total reveal count across all readings is
+  // at least 2" (blocks 6 and 10), sharpened to the same playState signal as
+  // above: both blocks' reveals must actually be seen RUNNING at some early
+  // read, not merely present at any point (which fill-mode: both would also
+  // satisfy after they finish). Block 6 and block 10's ranges don't overlap,
+  // so a running reading in each range necessarily comes from two distinct
+  // animation targets.
+  const earlyRunningInBlock10 = readings.some((r) => r.phase === 'early'
+    && r.anims.some((a) => a.playState === 'running' && a.top >= block10Top && a.top < block10Bottom));
+  assert.ok(earlyRunningInBlock10, `expected an 'early' reading with a RUNNING animation over block 10, got ${JSON.stringify(readings)}`);
 
   // A "no settled reading is still running" assertion was tried here too
   // (150ms settle + a networkidle wait "should" outlast the 400ms fadeUp),

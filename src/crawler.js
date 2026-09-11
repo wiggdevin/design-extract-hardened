@@ -1478,7 +1478,18 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
       // (parent-relative widths mean that compounds: a share carried three
       // levels deep is an effective floor of 0.6^3 ≈ 22% of the viewport).
       const leafHeight = el.getBoundingClientRect().height;
-      if (share === MIN_WIDTH_SHARE && results.pageHeight > 0 && leafHeight > results.pageHeight * OVERSIZED_LEAF_SHARE) {
+      // Same reasoning as the multi-kid branch above: once chain[0] is a
+      // landmark, this retry must not run at all — resetting chain to a
+      // relaxed child would discard the landmark exactly as before (an
+      // oversized element inside a landmark — a short section whose real
+      // content is two centered, sub-90%-width blocks — otherwise falls
+      // through to this retry and loses the landmark to its own relaxed
+      // children), and extending chain instead (rather than skipping the
+      // retry) still duplicates the landmark once per relaxed child found —
+      // verified empirically against a two-block fixture, which produced
+      // two identical section bands before this was changed to skip
+      // outright.
+      if (share === MIN_WIDTH_SHARE && results.pageHeight > 0 && leafHeight > results.pageHeight * OVERSIZED_LEAF_SHARE && !insideLandmarkChain) {
         for (const relaxedShare of RELAXED_WIDTH_SHARES) {
           const relaxedKids = bandKids(el, relaxedShare, PASS_THROUGH_DEPTH, refWidth);
           if (relaxedKids.length > 0) {
@@ -1544,10 +1555,26 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
         }
         for (const group of groups.values()) {
           if (group.length < 2) continue;
-          const widths = group.map(r => r.width);
+          // Same-top is necessary but not sufficient — a stack of
+          // position:absolute slides (a carousel) shares one top with every
+          // other slide too, but they're the same column repeated, not
+          // several columns side by side. Members must also be horizontally
+          // disjoint: sort by left, keep a member only if it starts at or
+          // after the last KEPT member's right edge (2px tolerance for
+          // sub-pixel rounding); an overlapping member is dropped rather
+          // than ending the scan, so unrelated overlaps elsewhere in the
+          // group don't hide a real disjoint pair.
+          const sorted = [...group].sort((a, b) => a.left - b.left);
+          const disjoint = [];
+          for (const r of sorted) {
+            const prevRight = disjoint.length ? disjoint[disjoint.length - 1].right : -Infinity;
+            if (r.left >= prevRight - 2) disjoint.push(r);
+          }
+          if (disjoint.length < 2) continue;
+          const widths = disjoint.map(r => r.width);
           if (Math.min(...widths) < Math.max(...widths) * 0.9) continue;
           const total = widths.reduce((n, w) => n + w, 0);
-          if (total > bestRowWidth) { bestRowWidth = total; columns = group.length; }
+          if (total > bestRowWidth) { bestRowWidth = total; columns = disjoint.length; }
         }
       }
 

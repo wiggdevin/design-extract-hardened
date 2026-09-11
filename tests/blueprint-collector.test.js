@@ -163,8 +163,8 @@ test('the band-box width test is parent-relative below the top level, so an Avad
   // landmark is never peered into for a lone-child bypass, so the walk
   // never reaches the nav blocks that would otherwise pass the strict width
   // test one level down and replace the footer's own bounds.
-  assert.equal(avada.bands.length, 8, JSON.stringify(avada.bands.map(b => [b.tag, b.className, b.bounds.w, b.bounds.h])));
-  assert.deepEqual(avada.bands.map(b => b.bounds.w), [1280, 1280, 1100, 1100, 1100, 1280, 1280, 1280]);
+  assert.equal(avada.bands.length, 9, JSON.stringify(avada.bands.map(b => [b.tag, b.className, b.bounds.w, b.bounds.h])));
+  assert.deepEqual(avada.bands.map(b => b.bounds.w), [1280, 1280, 1100, 1100, 1100, 1280, 1280, 1280, 1280]);
   const heroLikeBand = avada.bands.find((b) => b.tag === 'section');
   assert.ok(heroLikeBand, `expected a section band, got tags ${JSON.stringify(avada.bands.map((b) => b.tag))}`);
   // ~550 (150 + 400) plus the h3 headings' own margin, which collapses
@@ -186,6 +186,16 @@ test('the band-box width test is parent-relative below the top level, so an Avad
   assert.equal(row1Band.columns, 2, JSON.stringify(row1Band));
   const row4Band = avada.bands.find((b) => /\bfw4\b/.test(b.className));
   assert.equal(row4Band.columns, 2, JSON.stringify(row4Band));
+
+  // A group's members must be horizontally disjoint, not just same-top: row
+  // 5's heading (h 80, fails the height floor on its own) sits above a
+  // .slider whose three .slide children are all position:absolute, inset:0
+  // — identical top, left, width, and height, i.e. the same column stacked
+  // three times, not three side-by-side columns. Every member overlaps
+  // every other member, so after the disjoint filter at most one survives
+  // per group and no group reaches the 2-member minimum — columns stays 1.
+  const row5Band = avada.bands.find((b) => /\bfw5\b/.test(b.className));
+  assert.equal(row5Band.columns, 1, JSON.stringify(row5Band));
 
   // The footer must be ONE band with tag footer — not three nav bands from
   // its centered inner wrapper.
@@ -217,4 +227,30 @@ test('a relaxed width share applies to exactly one level, not to every deeper wa
   assert.deepEqual(relaxed.bands.map(b => b.className), ['s1', 's2', 's3', 's4']);
   assert.equal(relaxed.bandsCapped, false);
   await relaxedPage.close();
+});
+
+const shortHeroFixtureHtml = readFileSync(fileURLToPath(new URL('./fixtures/blueprint-short-hero.html', import.meta.url)), 'utf8');
+
+test('the relaxed retry keeps the landmark chain instead of resetting it', async () => {
+  const shortHeroPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  await shortHeroPage.setContent(shortHeroFixtureHtml);
+  const shortHero = await shortHeroPage.evaluate(collectPageData, COLLECT_OPTS);
+
+  // section.hero (2020px) is oversized against the 2280px page (>80%), so
+  // it retries at a relaxed share and finds its two 1000px (78%) blocks.
+  // Those blocks must not become their own bands — chain[0] is the
+  // section, a landmark, so the retry must skip entirely here rather than
+  // reset chain to each relaxed child, the same way the multi-kid branch
+  // already does. Bands: the section itself, then the trailing tail div —
+  // never div.a or div.b.
+  assert.equal(shortHero.bands.length, 2, JSON.stringify(shortHero.bands.map(b => [b.tag, b.className, b.bounds.w, b.bounds.h])));
+  assert.deepEqual(shortHero.bands.map(b => b.tag), ['section', 'div']);
+  assert.equal(shortHero.bands[0].bounds.w, 1280);
+  assert.equal(shortHero.bands[0].bounds.h, 2020);
+  assert.equal(shortHero.bands[1].className, 'tail');
+  assert.equal(shortHero.bands[1].bounds.h, 240);
+  assert.equal(shortHero.bands.filter((b) => /^(a|b)$/.test(b.className)).length, 0,
+    'the section must not decompose into its .a/.b blocks');
+  assert.equal(shortHero.bandsCapped, false);
+  await shortHeroPage.close();
 });
