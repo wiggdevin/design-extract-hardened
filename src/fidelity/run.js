@@ -50,7 +50,7 @@ function choreographyOf(design) {
 }
 
 // Each side of a paired launch owns a browser (and, for shots, a proxy) that
-// must be allowed to close before we return — a plain Promise.all rejects
+// must be allowed to close before we return; a plain Promise.all rejects
 // (and callers move on) the moment either side rejects, abandoning the
 // other side's cleanup mid-flight. Wait for both to settle, then surface the
 // first rejection, positionally.

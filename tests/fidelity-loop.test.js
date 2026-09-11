@@ -240,7 +240,7 @@ describe('measureCloneFidelity: a rejection on one side of a paired launch does 
       if (url === 'http://127.0.0.1:4173') throw cloneError;
       // The original side resolves slower than the clone rejects, so a plain
       // Promise.all would already have returned (and rejected) before this
-      // settles — Promise.allSettled must still wait for it.
+      // settles; Promise.allSettled must still wait for it.
       await new Promise((resolve) => setTimeout(resolve, 5));
       originalClosed = true;
       return Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
