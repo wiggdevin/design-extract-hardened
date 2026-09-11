@@ -422,3 +422,88 @@ describe('extractGeometrySystem — live-site regressions', () => {
     assert.equal(paintsBox({ tag: 'div', borderRadius: '8px' }), true, 'records without paint fields still vote');
   });
 });
+
+describe('inferOwner — live-site regressions (human review 2026-09-11)', () => {
+  it('reads the semantic token out of CSS-module and camelCase class names', () => {
+    // wise.com: <div class="Card_calculatorPadding Card_bgWhite">; linear.app:
+    // <div class="GkoSzG_panel">, <a class="Dc5tqa_customerCard">; spline.design:
+    // <a class="CTASection-module-scss-module__BWhwua__cta">. A \b boundary
+    // never fires next to an underscore, so none of these matched a rule.
+    assert.equal(inferOwner({ tag: 'div', classList: 'Card_calculatorPadding Card_bgWhite' }), 'card');
+    assert.equal(inferOwner({ tag: 'div', classList: 'GkoSzG_panel' }), 'card');
+    assert.equal(inferOwner({ tag: 'a', classList: 'Dc5tqa_customerCard I_mUeq_root' }), 'card');
+    assert.equal(inferOwner({ tag: 'a', classList: 'CTASection-module-scss-module__BWhwua__cta' }), 'button');
+    assert.equal(inferOwner({ tag: 'div', classList: 'MwJdiW_glow' }), 'decorative');
+  });
+
+  it('never turns prose or headings into a control or card because of a class token', () => {
+    // wise.com: <p class="NavigationDesktop_navigation_primary__panel_title">
+    // voted square as a "card" and outnumbered the real product cards.
+    assert.equal(inferOwner({ tag: 'p', classList: 'eds-body-3 NavigationDesktop_navigation_primary__panel_title' }), 'text');
+    assert.equal(inferOwner({ tag: 'h3', classList: 'card-title' }), 'text');
+    assert.equal(inferOwner({ tag: 'li', classList: 'mw-product-cards__item' }), 'card');
+  });
+
+  it('keeps form fields in the input role whatever their tag or class says', () => {
+    // monzo.com: <select class="SelectMenu_select__9xcNn"> was a button;
+    // spline.design: <textarea class="HeroPrompt-module__textarea"> was a
+    // button; mercury.com: <button role="checkbox"> voted as a button.
+    // spline.design: <button class="InteractiveSection-module__framework"> was
+    // a "section" because the container token fired before the tag.
+    assert.equal(inferOwner({ tag: 'button', classList: 'InteractiveSection-module-scss-module__Fpd3SW__framework' }), 'button');
+    assert.equal(inferOwner({ tag: 'button', classList: 'Menu-module-scss-module__X4tN8q__trigger' }), 'button');
+    assert.equal(inferOwner({ tag: 'select', classList: 'SelectMenu_select__9xcNn' }), 'input');
+    assert.equal(inferOwner({ tag: 'textarea', classList: 'HeroPrompt-module-scss-module__2RZleq__textarea' }), 'input');
+    assert.equal(inferOwner({ tag: 'input', classList: 'nav-search__input' }), 'input');
+    // A checkbox is a toggle, not a text field: its 20px box must not decide
+    // the input role (mercury.com's one checkbox outvoted the pill email field).
+    assert.equal(inferOwner({ tag: 'button', role: 'checkbox', classList: 'checkbox group/checkbox peer h-20 w-20' }), 'badge');
+    assert.equal(inferOwner({ tag: 'div', role: 'textbox', classList: '' }), 'input');
+  });
+
+  it('owns a painted, padded, control-sized link as a button even with hashed classes', () => {
+    // hyper.foundation (Framer): every button is <a class="framer-xiyZZ ..."> with
+    // a fill, 16px padding and a 48px box; none carried a button token, so the
+    // page had no button role at all. mercury.com's Tailwind CTAs are the same.
+    const paint = { backgroundColor: 'rgb(232, 234, 234)', borderWidth: '0px', boxShadow: 'none', backgroundImage: 'none' };
+    assert.equal(inferOwner({ tag: 'a', classList: 'framer-xiyZZ framer-70eo4', paddingLeft: '16px', width: 160, height: 48, ...paint }), 'button');
+    assert.equal(inferOwner({ tag: 'a', classList: 'group inline-flex items-center', paddingLeft: '20px', width: 145, height: 40, ...paint }), 'button');
+    // A painted link with no padding is a text link; a painted link taller
+    // than a control is a card-like tile, not a button.
+    assert.equal(inferOwner({ tag: 'a', classList: 'framer-abc', paddingLeft: '0px', width: 160, height: 48, ...paint }), 'text');
+    assert.equal(inferOwner({ tag: 'a', classList: 'framer-abc', paddingLeft: '32px', width: 432, height: 480, ...paint }), 'text');
+    // Unpainted links stay text whatever their padding.
+    assert.equal(inferOwner({ tag: 'a', classList: 'framer-abc', paddingLeft: '16px', width: 160, height: 48, backgroundColor: 'rgba(0, 0, 0, 0)', borderWidth: '0px', boxShadow: 'none', backgroundImage: 'none' }), 'text');
+  });
+
+  it('lets bigger controls carry more of a role vote than small secondary ones', () => {
+    // liveaevi.com: 15 pill CTAs (330x40, filled) against 12 square variant
+    // toggles (190x30, border only) read as "mixed" on a head count. A person
+    // sees the pill buttons: the vote weights each element by its size.
+    const paint = { borderWidth: '0px', boxShadow: 'none', backgroundImage: 'none' };
+    const sized = (w, h) => ({ width: w, height: h, area: w * h });
+    const styles = [
+      ...Array.from({ length: 15 }, () => makeEl({ tag: 'button', borderRadius: '60px', ...sized(330, 40), backgroundColor: 'rgb(163, 191, 219)', ...paint })),
+      ...Array.from({ length: 12 }, () => makeEl({ tag: 'button', borderRadius: '2px', ...sized(190, 30), backgroundColor: 'rgba(0, 0, 0, 0)', ...paint, borderWidth: '1px' })),
+    ];
+    const result = extractGeometrySystem(styles);
+    assert.equal(result.byRole.button.value, 'pill');
+    // One huge element must not swamp a role: a 1280x800 overlay <button>
+    // (fillingpieces.com) against 20 small rounded buttons stays rounded.
+    const overlay = makeEl({ tag: 'button', borderRadius: '0px', ...sized(1280, 800), backgroundColor: 'rgb(0, 0, 0)', ...paint });
+    const small = Array.from({ length: 20 }, () => makeEl({ tag: 'button', borderRadius: '8px', ...sized(32, 32), backgroundColor: 'rgb(0, 0, 0)', ...paint }));
+    assert.equal(extractGeometrySystem([overlay, ...small]).byRole.button.value, 'rounded');
+  });
+
+  it('treats a Button-class link with no fill and no padding as text', () => {
+    // monzo.com: <a class="Button_button__ceqVx Button_link-underline"> is an
+    // underlined text link; 37 of them at 4px outvoted the pill CTAs.
+    const link = { tag: 'a', classList: 'Button_button__ceqVx Button_link-underline__OLko0', paddingLeft: '0px', backgroundColor: 'rgba(0, 0, 0, 0)', borderWidth: '0px 0px 1px 0px', boxShadow: 'none', backgroundImage: 'none' };
+    assert.equal(inferOwner(link), 'text');
+    const filled = { ...link, backgroundColor: 'rgb(0, 0, 0)' };
+    assert.equal(inferOwner(filled), 'button');
+    const padded = { ...link, paddingLeft: '16px', borderWidth: '1px' };
+    assert.equal(inferOwner(padded), 'button');
+    assert.equal(inferOwner({ tag: 'button', classList: 'btn', paddingLeft: '0px', backgroundColor: 'rgba(0, 0, 0, 0)', borderWidth: '0px', boxShadow: 'none', backgroundImage: 'none' }), 'button', 'a real <button> keeps its role');
+  });
+});

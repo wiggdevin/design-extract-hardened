@@ -22,20 +22,78 @@ const MARGIN_THRESHOLD = 0.15;
 // pill button reports 0px corners and would outvote the button it sits in.
 const INLINE_TEXT_TAGS = new Set(['span', 'i', 'b', 'em', 'strong', 'small', 'sup', 'sub', 'u', 's', 'abbr', 'code', 'time']);
 
-export function inferOwner({ tag = '', role = '', classList = '' } = {}) {
+// Class names carry their meaning in tokens, but CSS modules, BEM and
+// camelCase glue those tokens to hashes and modifiers: "Card_bgWhite",
+// "GkoSzG_panel", "Section__cta", "customerCard". A \b boundary never fires
+// next to an underscore, so split on underscores and case changes as well
+// as punctuation, and match rules against the token list.
+export function classTokens(classList) {
+  const raw = Array.isArray(classList) ? classList.join(' ') : String(classList || '');
+  return raw
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean)
+    .join(' ');
+}
+
+// Form fields are fields whatever their class says (monzo.com's
+// <select class="SelectMenu_select">, a search <input class="nav-search__input">).
+const FIELD_TAGS = new Set(['input', 'textarea', 'select']);
+const FIELD_ROLES = new Set(['textbox', 'searchbox']);
+// Toggles are small boxes whose corners say nothing about the field system
+// (mercury.com's one 20px checkbox outvoted its pill email field). They stay
+// role-local like a badge.
+const TOGGLE_ROLES = new Set(['checkbox', 'radio', 'switch']);
+
+// A link that paints its own box, has horizontal padding, and sits in a
+// control's size range is a button whatever its class says (Framer and
+// Tailwind sites carry no button token: hyper.foundation, mercury.com).
+const BUTTON_MIN_HEIGHT = 24;
+const BUTTON_MAX_HEIGHT = 96;
+const BUTTON_MAX_WIDTH = 640;
+function isButtonShapedLink(el) {
+  if (el.paddingLeft == null || el.width == null || el.height == null) return false;
+  if ((parseFloat(el.paddingLeft) || 0) < 8) return false;
+  if (el.height < BUTTON_MIN_HEIGHT || el.height > BUTTON_MAX_HEIGHT || el.width > BUTTON_MAX_WIDTH) return false;
+  return paintsBox(el);
+}
+// Prose and headings never own a control or a card, however they are classed.
+const PROSE_TAGS = new Set(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
+
+// A link that carries a Button component's class but paints no fill and has
+// no horizontal padding is a text link (monzo.com's Button_link-underline).
+// Records without paint or padding fields (older fixtures) keep the class verdict.
+function isTextStyledLink(el) {
+  if (el.paddingLeft == null && el.backgroundColor == null) return false;
+  const padding = parseFloat(el.paddingLeft) || 0;
+  if (padding >= 8) return false;
+  const bg = el.backgroundColor;
+  if (bg && !TRANSPARENT_RE.test(String(bg).trim())) return false;
+  if (el.boxShadow && el.boxShadow !== 'none') return false;
+  if (el.backgroundImage && el.backgroundImage !== 'none') return false;
+  return true;
+}
+
+export function inferOwner(el = {}) {
   // Records may carry classList as an array (older captures, fixtures);
   // extractBorders now depends on this function, so it must never throw.
+  const { tag = '', role = '', classList = '' } = el || {};
   const t = String(tag || '').toLowerCase();
   const r = String(role || '').toLowerCase();
-  const classes = (Array.isArray(classList) ? classList.join(' ') : String(classList || '')).toLowerCase();
+  const classes = classTokens(classList);
   const hasClass = re => re.test(classes);
 
   // Explicit ARIA role wins over a generic <div> tag.
   if (r === 'button') return 'button';
+  if (FIELD_ROLES.has(r)) return 'input';
+  if (TOGGLE_ROLES.has(r)) return 'badge';
   if (r === 'navigation' || r === 'banner' || r === 'contentinfo') return 'navigation';
   if (r === 'img') return 'media';
 
   if (t === 'path' || t === 'g' || t === 'use') return 'decorative';
+  if (FIELD_TAGS.has(t)) return 'input';
+  if (PROSE_TAGS.has(t)) return 'text';
 
   // Class tokens are usually a stronger signal than a bare <div>/<span>.
   // Badges, avatars and decorative dots are legitimately spans with their
@@ -43,15 +101,17 @@ export function inferOwner({ tag = '', role = '', classList = '' } = {}) {
   // button class is the label inside the button, so it stays text.
   if (hasClass(/\b(avatar|profile)\b/)) return 'avatar';
   if (hasClass(/\b(badge|chip|pill|tag)\b/)) return 'badge';
-  if (hasClass(/\b(icon|decor|blob|dot)\b/)) return 'decorative';
+  if (hasClass(/\b(icon|decor|blob|dot|glow|shine|overlay|backdrop)\b/)) return 'decorative';
   if (INLINE_TEXT_TAGS.has(t)) return 'text';
-  if (hasClass(/\b(btn|button|cta)\b/)) return 'button';
-  if (hasClass(/\b(card|tile|panel)\b/)) return 'card';
+  if (hasClass(/\b(btn|button|cta)\b/)) return t !== 'button' && isTextStyledLink(el) ? 'text' : 'button';
+  if (hasClass(/\b(card|cards|tile|panel)\b/)) return 'card';
+  // A <button>, or a link shaped like one, is a control even when its class
+  // names the menu or section it sits in (spline.design's
+  // "InteractiveSection__framework" buttons, "Menu__trigger" buttons).
+  if (t === 'button') return 'button';
+  if (t === 'a' && isButtonShapedLink(el)) return 'button';
   if (hasClass(/\b(nav|menu)\b/)) return 'navigation';
   if (hasClass(/\b(hero|section|container)\b/)) return 'section';
-
-  if (t === 'button' || t === 'select' || t === 'textarea') return 'button';
-  if (t === 'input') return 'input';
   if (t === 'img' || t === 'picture' || t === 'video' || t === 'svg' || t === 'canvas') return 'media';
   if (t === 'nav' || t === 'header' || t === 'footer') return 'navigation';
   if (t === 'section' || t === 'main' || t === 'article') return 'section';
@@ -86,12 +146,24 @@ export function classifyGeometry({ corners = [0, 0, 0, 0], units = ['px', 'px', 
   return isPill ? 'pill' : 'rounded';
 }
 
+// Each element votes with a size weight, so a page's 15 large CTAs are not
+// tied by 12 small variant toggles (liveaevi.com read "mixed" on a head
+// count). The weight is the box's side length, clamped so a full-screen
+// overlay <button> cannot swamp a role and a 1px box still counts.
+const MIN_VOTE_WEIGHT = 16;
+const MAX_VOTE_WEIGHT = 320;
+function voteWeight(area) {
+  const side = Math.sqrt(Math.max(0, area || 0));
+  return Math.min(MAX_VOTE_WEIGHT, Math.max(MIN_VOTE_WEIGHT, side));
+}
+
 function tallyByValue(elements) {
   const tally = new Map();
   for (const { value, area } of elements) {
-    const t = tally.get(value) || { value, count: 0, areaSum: 0 };
+    const t = tally.get(value) || { value, count: 0, areaSum: 0, weight: 0 };
     t.count++;
     t.areaSum += area || 0;
+    t.weight += voteWeight(area);
     tally.set(value, t);
   }
   return [...tally.values()];
@@ -106,8 +178,10 @@ function decideForOwner(owner, elements) {
   // stays meaningful only for avatars and media.
   const controlRole = FOUNDATION_ROLES.includes(owner);
   const normalized = controlRole ? elements.map(e => (e.value === 'circle' ? { ...e, value: 'pill' } : e)) : elements;
-  const ranked = tallyByValue(normalized)
-    .map(t => ({ ...t, share: t.count / totalCount }))
+  const tally = tallyByValue(normalized);
+  const totalWeight = tally.reduce((sum, t) => sum + t.weight, 0);
+  const ranked = tally
+    .map(t => ({ ...t, share: t.weight / totalWeight }))
     .sort((a, b) => b.share - a.share || b.areaSum - a.areaSum);
 
   const winner = ranked[0];
@@ -115,7 +189,7 @@ function decideForOwner(owner, elements) {
   const margin = second ? winner.share - second.share : 1;
   const isMixed = Boolean(second) && margin < MARGIN_THRESHOLD;
 
-  const reasons = [`${winner.count}/${totalCount} ${owner} elements use ${winner.value} corners (${Math.round(winner.share * 100)}%)`];
+  const reasons = [`${winner.count}/${totalCount} ${owner} elements use ${winner.value} corners (${Math.round(winner.share * 100)}% by size)`];
   if (isMixed) {
     reasons.push(`margin to ${second.value} is ${(margin * 100).toFixed(1)}%, below the ${MARGIN_THRESHOLD * 100}% decision threshold`);
   }
@@ -145,17 +219,19 @@ function decideGlobal(byOwnerElements) {
 
   // Each role votes with its share, not its element count: 55 rounded cards
   // must not drown 19 pill buttons just because a grid has more tiles.
+  // Inside a role, elements carry the same size weight as in the role vote.
   for (const owner of evidenceRoles) {
     const elements = byOwnerElements.get(owner);
     const multiplier = ROLE_MULTIPLIER[owner] ?? 1;
-    const count = elements.length;
+    const roleWeight = elements.reduce((sum, e) => sum + voteWeight(e.area), 0);
     for (const { value, area } of elements) {
       const gv = value === 'circle' ? 'pill' : value;
       const w = weighted.get(gv) || { value: gv, weight: 0, areaSum: 0 };
-      w.weight += multiplier / count;
+      const share = multiplier * voteWeight(area) / roleWeight;
+      w.weight += share;
       w.areaSum += area || 0;
       weighted.set(gv, w);
-      totalWeight += multiplier / count;
+      totalWeight += share;
     }
   }
 

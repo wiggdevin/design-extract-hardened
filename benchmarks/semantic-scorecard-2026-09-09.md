@@ -61,6 +61,39 @@ Caveats on the truth itself:
 - Wise's "Send money" button is a full pill in its own crop and the answer was softly rounded. The answer stands.
 - Whether photography and product-photography, or 3d-render and ui-screenshot, should count as one family for top-two recall is a scorer question this review does not settle. Three of the five media misses sit on those two lines.
 
+## Geometry fix (v7, 2026-09-11)
+
+The raw element records of all 16 sites were recaptured and the owner inference was traced on every verified miss. Root causes, each locked in `tests/geometry-system.test.js` with the site named:
+
+| Cause | Sites | Fix |
+|---|---|---|
+| Class tokens glued to hashes and modifiers (`Card_bgWhite`, `GkoSzG_panel`, `Section__cta`) never matched a `\b` rule | Wise, Linear, Spline | tokenize class names on punctuation, underscores, and case changes |
+| `<select>` and `<textarea>` counted as buttons; an `<input>` with a `nav` class token became navigation | Monzo, Spline | form-field tags are inputs before any class rule |
+| A `<p>` with `panel` in its class voted as a card | Wise | prose and headings are text before any class rule |
+| A Button-component link with no fill and no padding (Monzo's underlined links, 37 at 4px) outvoted the pill CTAs | Monzo | such a link is text |
+| A `role=checkbox` button decided the input role | Mercury | toggles are role-local like badges |
+| Framer and Tailwind buttons are `<a>` elements with no button token at all, so the page had no button role | Hyper Foundation, Mercury | a painted, padded, control-sized link is a button |
+| A `<button>` whose class names its section or menu became a section | Spline | the `button` tag beats container tokens |
+| 15 pill CTAs against 12 small variant toggles read `mixed` on a head count | Aevi | elements vote by side length, clamped so an overlay cannot swamp a role |
+
+Same v7 run, scored on the human truth:
+
+| Gate | v6 recorded | v7 recorded | v6 verified | v7 verified |
+|---|---|---|---|---|
+| Geometry accuracy | 0.42 (25/60) | 0.63 (38/60) | 0.46 (18/39) | 0.64 (25/39) |
+| Roles | 18/44 | 30/44 | 11/23 | 17/23 |
+| Global | 7/16 | 8/16 | 7/16 | 8/16 |
+| Incidental flips | 1 | 0 | 1 | 0 |
+
+Fonts and media are unchanged. Wall time 95 s for 16 sites at 3 workers.
+
+What is still wrong on verified fields, and why it was left:
+
+- **Filling Pieces buttons** (truth square, extractor rounded): the truth was judged on a newsletter popup's crops; the page's own 290 button elements are 8px quick-add buttons. Not an extractor defect.
+- **Linear, Wise, Spline buttons** (pill against rounded in both directions): Linear's CTAs are `role=button` links at 9999px and Wise's are `btn` links at 9999px, so pill is what the DOM paints; Spline's button-shaped elements are 8 to 12px on 40 to 96px boxes, so rounded is what the DOM paints. The truth answers came from crops of boxless nav items (Linear), a chip cut from its context (Wise), and framework tiles (Spline). These are truth disputes, recorded here rather than tuned for.
+- **Mercury and Spline inputs** (extractor finds no input): the `<input>` and `<textarea>` are transparent and the wrapper paints the box. Letting unpainted fields vote would fix Mercury (the field carries the pill radius) and break Spline (the field is 0px inside a rounded wrapper). Left as the known gap.
+- **Global, 8/16**: the truth calls any disagreement between judged roles `mixed`; the extractor weights roles by share. Apple (pill buttons, rounded cards), Aevi (pill buttons, a square field), Monzo and Spline (pill buttons, rounded inputs) sit on that rule, not on a wrong role. Emma Lewisham's truth is `mixed` because the button answer was "mixed"; Linear's and Wise's follow from the button dispute above.
+
 ## Font precision disputes (v4)
 
 | Site | Promoted | Evidence | Labelers |
