@@ -1709,11 +1709,17 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
                   .sort((p, q) => p.r.top - q.r.top || p.r.left - q.r.left);
                 if (members.length >= 3 && (!best || members.length > best.count)) {
                   const top0 = members[0].r.top;
+                  const sameTop = members.filter((b) => Math.abs(b.r.top - top0) <= 10).sort((p, q) => p.r.left - q.r.left);
+                  const disjoint = [];
+                  for (const b of sameTop) {
+                    const prevRight = disjoint.length ? disjoint[disjoint.length - 1].r.right : -Infinity;
+                    if (b.r.left >= prevRight - 2) disjoint.push(b);
+                  }
                   best = {
                     count: members.length,
                     w: Math.round(members[0].r.width),
                     h: Math.round(median),
-                    perRow: members.filter((b) => Math.abs(b.r.top - top0) <= 10).length,
+                    perRow: disjoint.length,
                     withImage: members.filter((b) => Array.from(b.el.querySelectorAll('img, video, svg')).some((m) => areaOf(m) >= 32 * 32)).length,
                     withButton: members.filter((b) => b.el.querySelector(BUTTON_SELECTOR)).length,
                   };
