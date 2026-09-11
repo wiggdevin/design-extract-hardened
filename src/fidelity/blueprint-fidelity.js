@@ -10,10 +10,12 @@ const COLOR_TOLERANCE = 0.08;
 const HEIGHT_TOLERANCE = 0.15;
 
 function backgroundMatch(a = {}, b = {}) {
-  if (a.hasVideo || b.hasVideo) return !!a.hasVideo && !!b.hasVideo;
-  if (a.imageUrl || b.imageUrl) return !!a.imageUrl && !!b.imageUrl;
-  if (!a.color || !b.color) return !a.color && !b.color;
-  return colorDistance(a.color, b.color) <= COLOR_TOLERANCE;
+  const x = a && typeof a === 'object' ? a : {};
+  const y = b && typeof b === 'object' ? b : {};
+  if (x.hasVideo || y.hasVideo) return !!x.hasVideo && !!y.hasVideo;
+  if (x.imageUrl || y.imageUrl) return !!x.imageUrl && !!y.imageUrl;
+  if (!x.color || !y.color) return !x.color && !y.color;
+  return colorDistance(x.color, y.color) <= COLOR_TOLERANCE;
 }
 
 function heightMatch(ha, hb) {
@@ -32,16 +34,18 @@ export function scoreBlueprintFidelity(original, clone) {
   const bands = [];
   let matched = 0;
   for (let i = 0; i < aligned; i++) {
+    const aBand = a[i] && typeof a[i] === 'object' ? a[i] : {};
+    const bBand = b[i] && typeof b[i] === 'object' ? b[i] : {};
     const checks = {
-      role: a[i].role === b[i].role,
-      background: backgroundMatch(a[i].background, b[i].background),
-      columns: (a[i].columns || 1) === (b[i].columns || 1),
-      media: (a[i].media?.kind || 'none') === (b[i].media?.kind || 'none'),
-      height: heightMatch(a[i].bounds?.h, b[i].bounds?.h),
+      role: aBand.role === bBand.role,
+      background: backgroundMatch(aBand.background, bBand.background),
+      columns: (aBand.columns || 1) === (bBand.columns || 1),
+      media: (aBand.media?.kind || 'none') === (bBand.media?.kind || 'none'),
+      height: heightMatch(aBand.bounds?.h, bBand.bounds?.h),
     };
     const hits = Object.values(checks).filter(Boolean).length;
     matched += hits;
-    bands.push({ index: i, original: a[i].role, clone: b[i].role, checks, matched: hits });
+    bands.push({ index: i, original: aBand.role, clone: bBand.role, checks, matched: hits });
   }
   const total = CHECKS * (aligned + unmatchedBands);
   return {

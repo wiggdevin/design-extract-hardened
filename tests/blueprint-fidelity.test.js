@@ -67,4 +67,18 @@ describe('scoreBlueprintFidelity', () => {
     assert.equal(scoreBlueprintFidelity(undefined, undefined).score, null);
     assert.equal(scoreBlueprintFidelity(original, { bands: [] }).score, 0);
   });
+
+  it('never throws on null background, media, bounds, or a null band entry', () => {
+    const sparse = { bands: [
+      { role: 'content', background: null, columns: 1, media: null, bounds: null },
+      null,
+    ] };
+    const r = scoreBlueprintFidelity(sparse, structuredClone(sparse));
+    assert.equal(r.aligned, 2);
+    assert.equal(r.bands[0].checks.background, true, 'two empty backgrounds match');
+    assert.equal(r.bands[0].checks.media, true, 'two missing media kinds both read as none');
+    assert.equal(r.bands[0].checks.height, true, 'two zero heights match');
+    assert.equal(typeof r.bands[1].matched, 'number');
+    assert.equal(r.score, Math.round((100 * r.matched) / r.total));
+  });
 });
