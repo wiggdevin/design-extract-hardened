@@ -299,7 +299,7 @@ Each run writes 17+ files to `./design-extract-output/`. The headline outputs:
 | `*-variables.css` | CSS custom properties |
 | `*-anatomy.tsx` | Typed React stubs for every detected component + variants |
 | `*-motion-tokens.json` | Durations, easings, springs, scroll-linked flag; with `--motion-runtime` also choreography (stagger) + scroll recipes + observed durations |
-| `*-blueprint.json` | The page as ordered horizontal bands: bounds, background, columns, media, heading, role, reveal, reading order and hero index |
+| `*-blueprint.json` | The page as ordered horizontal bands: bounds, background (inherited when the band paints nothing), columns, media (photo, video, svg, canvas, embed), heading, role, reveal, repeats (card grids), overlay flags, reading order and hero index |
 | `*-voice.json` | Brand voice — tone, pronoun posture, CTA verbs |
 | `*-prompts/` | Paste-ready prompts for v0, Lovable, Cursor, Claude Artifacts |
 | `*-mcp.json` | Disk-backed MCP server payload |

@@ -54,6 +54,34 @@ rebuild, its notes and the scored report live under `benchmarks/rebuild/` and
   the page scrolled before collection.
 - **Band classifier text no longer survives into `rawData`.**
 
+**Round two**
+
+- **Lazy media resolves.** A lazysizes placeholder (a transparent `data:` SVG
+  in `src`) now yields the real URL from `data-orig-src`, `data-src`,
+  `data-lazy-src`, `data-srcset`, `srcset` or a `picture` source; `images[]`
+  marks `lazyUnresolved`, the scroll evidence counts `placeholders`, and
+  `data-bg` backgrounds are read.
+- **Embeds are media.** Iframes, embeds and objects count toward band media as
+  kind `embed` with their URL.
+- **Repeated structure.** Each band records `repeats` (count, size, per row,
+  with image, with button) from its largest same-size sibling group; card and
+  column counts use it, and a grid of four or more cards where half carry a
+  button classifies as `feature-grid` before the testimonial rule.
+- **Inherited backgrounds and video posters.** An unpainted band records the
+  nearest painted ancestor with `inherited: true`; a video band records
+  `media.poster` or null.
+- **Overlay bands.** Pinned, absolutely positioned, or contained bands carry
+  `overlay: true`; the blueprint fidelity scorer aligns without them and its
+  rows keep the original band index.
+- **Section text stripped from `rawData`** after voice, intent and role
+  classification, in both lanes.
+- **Fidelity screenshots go through the safe browsing proxy** with the
+  crawl's launch arguments; `--clone-local` reaches the clone shot only.
+- **Benchmark gate** "No placeholder media source on any site" (an empty
+  non-base64 SVG data URI).
+- **Round-two rebuild and report** under `benchmarks/rebuild/odyssey-round-2/`
+  and `benchmarks/rebuild-round-2.md`.
+
 ## [13.2.0] — 2026-08-31
 
 **Depth pass on extraction: the inventories become systems.**
