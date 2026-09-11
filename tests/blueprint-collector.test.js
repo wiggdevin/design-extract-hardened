@@ -138,6 +138,17 @@ test('the band-box width test is parent-relative below the top level, so an Avad
   await avadaPage.setContent(avadaFixtureHtml);
   const avada = await avadaPage.evaluate(collectPageData, COLLECT_OPTS);
 
+  // The leading section (a landmark-shaped Wise/N26 reproduction: section >
+  // div > div > div, that innermost div holding two REAL width-qualifying
+  // siblings, a 150px-tall one and a 400px-tall one) stays ONE band with
+  // the section's own bounds — the sibling pair would trigger the ordinary
+  // multi-kid branch just fine on their own, but chain[0] here is the
+  // section, so that branch must not reset chain and hand the band to one
+  // of the two children instead (Wise's exact regression: section > div >
+  // mw-container x3, the innermost mw-container's own two real children —
+  // a 268px row and an 871px block — became their own bands, one of them
+  // inheriting the hero role that belonged to the section).
+  //
   // Row 1 (two 50%-width columns) stays one band — the fullwidth — since a
   // real side-by-side grid is not decomposed further. Row 2 (three stacked
   // 100%-of-row columns) decomposes into three bands, one per column, each
@@ -152,8 +163,15 @@ test('the band-box width test is parent-relative below the top level, so an Avad
   // landmark is never peered into for a lone-child bypass, so the walk
   // never reaches the nav blocks that would otherwise pass the strict width
   // test one level down and replace the footer's own bounds.
-  assert.equal(avada.bands.length, 7, JSON.stringify(avada.bands.map(b => [b.tag, b.className, b.bounds.w, b.bounds.h])));
-  assert.deepEqual(avada.bands.map(b => b.bounds.w), [1280, 1100, 1100, 1100, 1280, 1280, 1280]);
+  assert.equal(avada.bands.length, 8, JSON.stringify(avada.bands.map(b => [b.tag, b.className, b.bounds.w, b.bounds.h])));
+  assert.deepEqual(avada.bands.map(b => b.bounds.w), [1280, 1280, 1100, 1100, 1100, 1280, 1280, 1280]);
+  const heroLikeBand = avada.bands.find((b) => b.tag === 'section');
+  assert.ok(heroLikeBand, `expected a section band, got tags ${JSON.stringify(avada.bands.map((b) => b.tag))}`);
+  // ~550 (150 + 400) plus the h3 headings' own margin, which collapses
+  // through the unpadded wrapper divs into the section's rendered height.
+  assert.ok(heroLikeBand.bounds.h >= 540 && heroLikeBand.bounds.h <= 600, JSON.stringify(heroLikeBand));
+  assert.equal(avada.bands.filter((b) => /hs-short|hs-tall/.test(b.className)).length, 0,
+    'the section must not decompose into its short/tall inner children');
   for (let i = 1; i < avada.bands.length; i++) assert.ok(avada.bands[i].bounds.y >= avada.bands[i - 1].bounds.y);
   for (const b of avada.bands) assert.ok(b.bounds.h <= 0.8 * avada.pageHeight, `${b.tag}.${b.className} is ${b.bounds.h} of ${avada.pageHeight}`);
   assert.equal(avada.bandsCapped, false);

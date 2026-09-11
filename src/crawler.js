@@ -1435,7 +1435,21 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
       const kids = bandKids(el, share, PASS_THROUGH_DEPTH, refWidth);
       const h = el.getBoundingClientRect().height || 1;
       const kidsH = kids.reduce((n, k) => n + k.getBoundingClientRect().height, 0);
-      if (kids.length >= 2 && kidsH >= h * 0.6) {
+      // Once chain[0] (the outer boundary already established for this
+      // band) is a landmark or section, the multi-kid branch below must
+      // not reset chain to a fresh [k] — that's the actual mechanism that
+      // ate real sites' landmarks: single-kid/bypass hops correctly extend
+      // chain (chain[0] never changes), but a plain div two or three levels
+      // inside a <section> can still hold two ordinary width-qualifying
+      // siblings, and resetting there discards the section's own bounds
+      // for theirs (Wise: section > div > mw-container > mw-container >
+      // mw-container, whose own two children — a 268px-tall row and an
+      // 871px-tall block — passed the strict width test and became their
+      // own bands, one of them wrongly inheriting the hero role).
+      // Single-kid and the soleRealChild bypass never hit this because
+      // they already extend chain rather than reset it.
+      const insideLandmarkChain = chain.length > 0 && blocksWrapperDescent(chain[0]);
+      if (kids.length >= 2 && kidsH >= h * 0.6 && !insideLandmarkChain) {
         for (const k of kids) walk(k, [k], depth + 1, share, k.getBoundingClientRect().width);
         return;
       }
