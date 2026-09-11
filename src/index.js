@@ -32,7 +32,7 @@ import { extractComponentAnatomy } from './extractors/component-anatomy.js';
 import { extractVoice } from './extractors/voice.js';
 import { extractPageIntent } from './extractors/page-intent.js';
 import { extractSectionRoles } from './extractors/section-roles.js';
-import { extractBlueprint, sectionRolesFromBlueprint } from './extractors/blueprint.js';
+import { extractBlueprint, sectionRolesFromBlueprint, stripBandText } from './extractors/blueprint.js';
 import { extractComponentLibrary } from './extractors/component-library.js';
 import { extractMaterialLanguage } from './extractors/material-language.js';
 import { extractImageryStyle } from './extractors/imagery-style.js';
@@ -218,6 +218,9 @@ export async function extractDesignLanguage(url, options = {}) {
     design.pageIntent,
     { pageHeight: rawData.light?.pageHeight || 0, viewportHeight: rawData.light?.viewport?.height || 800 },
   ) || { bands: [], readingOrder: [], heroIndex: -1, counts: { bands: 0, oversizedDropped: 0, byRole: {} } };
+  // rawData is cached as _raw by the website; page copy must not accumulate
+  // there once the blueprint classifier has consumed it.
+  stripBandText(rawData.light?.bands || []);
   // sectionRoles.readingOrder and sectionRoles.sections must describe the
   // same thing: when the blueprint found bands, both come from it (see
   // sectionRolesFromBlueprint); the landmark list stays available separately

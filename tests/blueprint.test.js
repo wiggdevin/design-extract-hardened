@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { extractBlueprint } from '../src/extractors/blueprint.js';
+import { extractBlueprint, stripBandText } from '../src/extractors/blueprint.js';
 import { classifyRole } from '../src/extractors/section-roles.js';
 
 const band = (over) => ({
@@ -116,5 +116,21 @@ describe('hero candidate skips nav landmarks and overlays (Opus One records)', (
   });
   it('never gives the hero slot to a fixed empty overlay', () => {
     assert.notEqual(bp.bands.find(b => b.className.startsWith('go2933276541')).role, 'hero');
+  });
+});
+
+describe('stripBandText: raw band text must not survive into rawData', () => {
+  it('deletes text in place, leaving every other field untouched', () => {
+    const bands = odyssey.map((b) => ({ ...b }));
+    const stripped = stripBandText(bands);
+    assert.equal(stripped, bands, 'must return the same array, mutated in place');
+    for (const b of stripped) assert.ok(!('text' in b), JSON.stringify(b));
+    assert.equal(bands[0].tag, 'header');
+    assert.equal(bands[0].textLength, 22, 'textLength is a count, not raw copy, and must survive');
+  });
+
+  it('tolerates a missing or empty bands array', () => {
+    assert.deepEqual(stripBandText([]), []);
+    assert.deepEqual(stripBandText(undefined), undefined);
   });
 });
