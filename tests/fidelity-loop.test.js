@@ -229,3 +229,29 @@ describe('fullPageShot: goes through the safe browsing proxy with injectable sta
     assert.deepEqual(proxyCalls, [{}]);
   });
 });
+
+describe('measureCloneFidelity: a rejection on one side of a paired launch does not race the other', () => {
+  const stubDesign = { motion: { runtime: null }, blueprint: { bands: [], readingOrder: [], heroIndex: -1, counts: { bands: 0, oversizedDropped: 0, byRole: {} } } };
+
+  it('rejects with the screenshot error once both sides have settled, closing normally', async () => {
+    const cloneError = new Error('clone screenshot failed');
+    let originalClosed = false;
+    const screenshot = async (url) => {
+      if (url === 'http://127.0.0.1:4173') throw cloneError;
+      // The original side resolves slower than the clone rejects, so a plain
+      // Promise.all would already have returned (and rejected) before this
+      // settles — Promise.allSettled must still wait for it.
+      await new Promise((resolve) => setTimeout(resolve, 5));
+      originalClosed = true;
+      return Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
+    };
+    await assert.rejects(
+      measureCloneFidelity({
+        originalUrl: 'https://example.com', cloneUrl: 'http://127.0.0.1:4173',
+        opts: { extractor: async () => stubDesign, screenshot },
+      }),
+      (error) => error === cloneError,
+    );
+    assert.equal(originalClosed, true, 'the original-side promise must be allowed to settle, not abandoned');
+  });
+});

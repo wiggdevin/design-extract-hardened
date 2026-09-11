@@ -49,6 +49,18 @@ function choreographyOf(design) {
   return design?.motion?.runtime?.choreography || [];
 }
 
+// Each side of a paired launch owns a browser (and, for shots, a proxy) that
+// must be allowed to close before we return — a plain Promise.all rejects
+// (and callers move on) the moment either side rejects, abandoning the
+// other side's cleanup mid-flight. Wait for both to settle, then surface the
+// first rejection, positionally.
+async function settledPair(promises) {
+  const [a, b] = await Promise.allSettled(promises);
+  if (a.status === 'rejected') throw a.reason;
+  if (b.status === 'rejected') throw b.reason;
+  return [a.value, b.value];
+}
+
 /**
  * Measure how faithfully `cloneUrl` reproduces `originalUrl`.
  * @returns {{ report:object, heatmap:Buffer|null }}
@@ -65,7 +77,7 @@ export async function measureCloneFidelity({ originalUrl, cloneUrl, opts = {} } 
   // (fidelity --clone-local) applies to the clone-side crawl only — the
   // original is never a loopback target.
   const cloneExtractOpts = opts.allowOrigin ? { ...extractOpts, allowOrigin: opts.allowOrigin } : extractOpts;
-  const [originalDesign, cloneDesign] = await Promise.all([
+  const [originalDesign, cloneDesign] = await settledPair([
     extractor(originalUrl, extractOpts),
     extractor(cloneUrl, cloneExtractOpts),
   ]);
@@ -81,7 +93,7 @@ export async function measureCloneFidelity({ originalUrl, cloneUrl, opts = {} } 
   let visualFidelity = null;
   let heatmap = null;
   const shotOpts = { width: opts.width, height: opts.height, channel: opts.channel };
-  const [origShot, cloneShot] = await Promise.all([
+  const [origShot, cloneShot] = await settledPair([
     takeScreenshot(originalUrl, shotOpts),
     takeScreenshot(cloneUrl, opts.allowOrigin ? { ...shotOpts, allowOrigin: opts.allowOrigin } : shotOpts),
   ]);
