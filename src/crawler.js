@@ -49,6 +49,7 @@ export async function crawlPage(url, options = {}) {
     screencastOpts,     // CDP screencast streams what the page paints during load.
     pixelEvidence = true, // Pixel lane: features of images the page loaded (no extra fetch).
     dismissConsent = true, // Reject or hide a consent banner before measuring. Never accepts.
+    scrollPass = true, // Shared viewport-step scroll pass so lazy images and reveal animations fire.
   } = options;
 
   const launchArgs = [
@@ -164,23 +165,36 @@ export async function crawlPage(url, options = {}) {
 
     const title = await page.title();
 
-    // Auto-interact pass (Tier 2): scroll, open menus, hover, open accordions & a first modal.
+    // Shared scroll pass: viewport steps so lazy images and reveal observers
+    // fire for every band. Runtime motion reads scroll animations per step.
+    let scroll = null;
+    const scrollObservations = [];
+    if (scrollPass) {
+      scroll = await scrollThroughPage(page, {
+        onStep: motionRuntime
+          ? async () => { scrollObservations.push(...await readRuntimeAnimations(page, 'scroll')); }
+          : undefined,
+      }).catch(() => null);
+      if (scroll) scroll.images = await waitForImages(page);
+    }
+
+    // Auto-interact pass (Tier 2): open menus, hover, open accordions & a first modal.
     let interactState = null;
     if (deepInteract) {
       interactState = await runInteractionPass(page).catch(() => null);
     }
 
-    // Runtime motion capture (Motion v3, opt-in): drive the page and read what
-    // ACTUALLY animates via document.getAnimations(). Best-effort enrichment on
-    // top of static parsing — must never break extraction.
+    // Runtime motion capture (Motion v3, opt-in): load + hover/focus reads,
+    // merged with the scroll observations from the shared pass.
     let motionRuntimeObs = null;
     if (motionRuntime) {
-      motionRuntimeObs = await captureRuntimeMotion(page).catch(() => null);
+      motionRuntimeObs = await captureRuntimeMotion(page, { scrollObservations }).catch(() => null);
     }
 
     const lightData = await extractPageData(page, ignore, selector);
     lightData.cssCoverage = cssCoverage;
     lightData.consent = consent;
+    lightData.scroll = scroll;
     if (ledger) {
       try {
         const candidates = selectPixelCandidates({
@@ -401,6 +415,46 @@ async function snapshotSelector(page, selector) {
   } catch { return null; }
 }
 
+// One shared scroll pass. Steps by the viewport height so lazy loaders and
+// intersection observers fire for every band, settles briefly per step, then
+// returns to the top. Capped so a very tall page cannot run away with the crawl.
+export async function scrollThroughPage(page, { stepPx, maxSteps = 60, settleMs = 150, idleMs = 1000, onStep } = {}) {
+  const pageHeightPx = await page.evaluate(() => Math.max(
+    document.documentElement.scrollHeight, document.body ? document.body.scrollHeight : 0,
+  )).catch(() => 0);
+  const viewportHeight = (page.viewportSize() || {}).height || 800;
+  const step = stepPx || viewportHeight;
+  const needed = Math.max(1, Math.ceil(Math.max(0, pageHeightPx - viewportHeight) / step));
+  const steps = Math.min(needed, maxSteps);
+  for (let i = 1; i <= steps; i++) {
+    await page.evaluate((y) => window.scrollTo(0, y), i * step).catch(() => {});
+    await page.waitForTimeout(settleMs);
+    await page.waitForLoadState('networkidle', { timeout: idleMs }).catch(() => {});
+    if (typeof onStep === 'function') await onStep(i);
+  }
+  await page.evaluate(() => window.scrollTo(0, 0)).catch(() => {});
+  await page.waitForTimeout(200);
+  return {
+    steps,
+    coveredPx: Math.min(steps * step + viewportHeight, pageHeightPx),
+    pageHeightPx,
+    capped: needed > maxSteps,
+  };
+}
+
+// Wait (bounded) for every image with a source to finish loading.
+export async function waitForImages(page, { timeoutMs = 3000 } = {}) {
+  await page.waitForFunction(
+    () => Array.from(document.images).every((img) => !img.getAttribute('src') || img.complete),
+    null,
+    { timeout: timeoutMs },
+  ).catch(() => {});
+  return page.evaluate(() => {
+    const withSrc = Array.from(document.images).filter((img) => img.getAttribute('src'));
+    return { total: withSrc.length, incomplete: withSrc.filter((img) => !img.complete).length };
+  }).catch(() => ({ total: 0, incomplete: 0 }));
+}
+
 async function runInteractionPass(page) {
   const state = {
     scrollSettled: false,
@@ -410,20 +464,8 @@ async function runInteractionPass(page) {
     modals: [],
   };
 
-  // 1) Full-page scroll in 4 steps to trigger lazy-load + scroll-linked animations
-  try {
-    for (let i = 1; i <= 4; i++) {
-      await page.evaluate((step) => {
-        const h = document.body.scrollHeight;
-        window.scrollTo(0, (h * step) / 4);
-      }, i).catch(() => {});
-      await page.waitForTimeout(300);
-      await page.waitForLoadState('networkidle', { timeout: 2000 }).catch(() => {});
-    }
-    await page.evaluate(() => window.scrollTo(0, 0)).catch(() => {});
-    await page.waitForTimeout(200);
-    state.scrollSettled = true;
-  } catch { /* ignore */ }
+  // 1) The shared scroll pass already ran in crawlPage; nothing to scroll here.
+  state.scrollSettled = true;
 
   // 2) Open menus / dropdowns
   try {
@@ -516,97 +558,98 @@ async function runInteractionPass(page) {
   return state;
 }
 
-// Runtime motion capture: read document.getAnimations() at load, after staged
-// scroll, and after hovering/focusing a sample of interactive elements. Returns
-// raw observations consumed by src/extractors/motion-runtime.js. Defensive:
-// every step is best-effort and any failure yields fewer observations, not a throw.
-async function captureRuntimeMotion(page) {
-  // In-page reader. mode = { trigger, selector? }. Serializes running animations
-  // (CSS animations + transitions + WAAPI) into plain objects.
-  const readScript = (mode) => {
-    const { trigger, selector } = mode;
-    const cssPath = (el) => {
-      if (!el || el.nodeType !== 1) return '';
-      const parts = [];
-      let node = el;
-      let depth = 0;
-      while (node && node.nodeType === 1 && depth < 4) {
-        let part = node.tagName.toLowerCase();
-        if (node.id) { part += `#${node.id}`; parts.unshift(part); break; }
-        const parent = node.parentElement;
-        if (parent) {
-          const sibs = Array.from(parent.children).filter(c => c.tagName === node.tagName);
-          if (sibs.length > 1) part += `:nth-of-type(${sibs.indexOf(node) + 1})`;
-        }
-        parts.unshift(part);
-        node = node.parentElement;
-        depth++;
+// In-page reader. mode = { trigger, selector? }. Serializes running animations
+// (CSS animations + transitions + WAAPI) into plain objects, including each
+// target's document-relative box so reveal matching (Task 4) can line an
+// observation up with the scroll step that would have revealed it.
+const READ_ANIMATIONS = (mode) => {
+  const { trigger, selector } = mode;
+  const cssPath = (el) => {
+    if (!el || el.nodeType !== 1) return '';
+    const parts = [];
+    let node = el;
+    let depth = 0;
+    while (node && node.nodeType === 1 && depth < 4) {
+      let part = node.tagName.toLowerCase();
+      if (node.id) { part += `#${node.id}`; parts.unshift(part); break; }
+      const parent = node.parentElement;
+      if (parent) {
+        const sibs = Array.from(parent.children).filter(c => c.tagName === node.tagName);
+        if (sibs.length > 1) part += `:nth-of-type(${sibs.indexOf(node) + 1})`;
       }
-      return parts.join(' > ').slice(0, 200);
-    };
-    const serialize = (anim) => {
-      try {
-        const eff = anim.effect;
-        if (!eff || typeof eff.getTiming !== 'function') return null;
-        const t = eff.getTiming();
-        const target = eff.target;
-        if (selector && target && target.closest && !target.matches(selector) && !target.closest(selector)) {
-          // when scoped to a hovered/focused element, keep only its subtree
-        }
-        const props = new Set();
-        try {
-          for (const kf of eff.getKeyframes()) {
-            for (const k of Object.keys(kf)) {
-              if (['offset', 'composite', 'computedOffset', 'easing'].includes(k)) continue;
-              props.add(k.replace(/([A-Z])/g, '-$1').toLowerCase());
-            }
-          }
-        } catch { /* ignore */ }
-        const ctor = anim.constructor ? anim.constructor.name : '';
-        const isTransition = ctor === 'CSSTransition' || !!anim.transitionProperty;
-        return {
-          trigger,
-          selector: cssPath(target),
-          tag: target && target.tagName ? target.tagName.toLowerCase() : '',
-          type: isTransition ? 'transition' : 'animation',
-          name: anim.animationName || anim.transitionProperty || ctor || '',
-          duration: typeof t.duration === 'number' ? t.duration : 0,
-          delay: t.delay || 0,
-          easing: t.easing || 'linear',
-          iterations: t.iterations === Infinity ? 'Infinity' : t.iterations,
-          properties: [...props],
-        };
-      } catch { return null; }
-    };
-    let anims = [];
-    try { anims = document.getAnimations(); } catch { anims = []; }
-    if (selector) {
-      anims = anims.filter(a => {
-        const tgt = a.effect && a.effect.target;
-        if (!tgt || !tgt.matches) return false;
-        try { return tgt.matches(selector) || (tgt.closest && tgt.closest(selector)); } catch { return false; }
-      });
+      parts.unshift(part);
+      node = node.parentElement;
+      depth++;
     }
-    return anims.map(serialize).filter(Boolean).slice(0, 60);
+    return parts.join(' > ').slice(0, 200);
   };
+  const serialize = (anim) => {
+    try {
+      const eff = anim.effect;
+      if (!eff || typeof eff.getTiming !== 'function') return null;
+      const t = eff.getTiming();
+      const target = eff.target;
+      if (selector && target && target.closest && !target.matches(selector) && !target.closest(selector)) {
+        // when scoped to a hovered/focused element, keep only its subtree
+      }
+      const props = new Set();
+      try {
+        for (const kf of eff.getKeyframes()) {
+          for (const k of Object.keys(kf)) {
+            if (['offset', 'composite', 'computedOffset', 'easing'].includes(k)) continue;
+            props.add(k.replace(/([A-Z])/g, '-$1').toLowerCase());
+          }
+        }
+      } catch { /* ignore */ }
+      const ctor = anim.constructor ? anim.constructor.name : '';
+      const isTransition = ctor === 'CSSTransition' || !!anim.transitionProperty;
+      const rect = target && typeof target.getBoundingClientRect === 'function' ? target.getBoundingClientRect() : null;
+      return {
+        trigger,
+        selector: cssPath(target),
+        tag: target && target.tagName ? target.tagName.toLowerCase() : '',
+        type: isTransition ? 'transition' : 'animation',
+        name: anim.animationName || anim.transitionProperty || ctor || '',
+        duration: typeof t.duration === 'number' ? t.duration : 0,
+        delay: t.delay || 0,
+        easing: t.easing || 'linear',
+        iterations: t.iterations === Infinity ? 'Infinity' : t.iterations,
+        properties: [...props],
+        top: rect ? Math.round(rect.top + window.scrollY) : null,
+        height: rect ? Math.round(rect.height) : null,
+      };
+    } catch { return null; }
+  };
+  let anims = [];
+  try { anims = document.getAnimations(); } catch { anims = []; }
+  if (selector) {
+    anims = anims.filter(a => {
+      const tgt = a.effect && a.effect.target;
+      if (!tgt || !tgt.matches) return false;
+      try { return tgt.matches(selector) || (tgt.closest && tgt.closest(selector)); } catch { return false; }
+    });
+  }
+  return anims.map(serialize).filter(Boolean).slice(0, 60);
+};
 
+async function readRuntimeAnimations(page, trigger, selector) {
+  return page.evaluate(READ_ANIMATIONS, { trigger, selector }).catch(() => []);
+}
+
+// Runtime motion capture: read document.getAnimations() at load, during the
+// shared scroll pass (observations passed in via scrollObservations), and
+// after hovering/focusing a sample of interactive elements. Returns raw
+// observations consumed by src/extractors/motion-runtime.js. Defensive: every
+// step is best-effort and any failure yields fewer observations, not a throw.
+async function captureRuntimeMotion(page, { scrollObservations = [] } = {}) {
   const obs = [];
   const push = (arr) => { if (Array.isArray(arr)) obs.push(...arr); };
 
   // 1) Load — entrance + infinite animations still running.
-  push(await page.evaluate(readScript, { trigger: 'load' }).catch(() => []));
+  push(await readRuntimeAnimations(page, 'load'));
 
-  // 2) Scroll — reveal/parallax/scroll-timeline motion, captured per step.
-  try {
-    for (let i = 1; i <= 4; i++) {
-      await page.evaluate((step) => {
-        window.scrollTo(0, (document.body.scrollHeight * step) / 4);
-      }, i).catch(() => {});
-      await page.waitForTimeout(220);
-      push(await page.evaluate(readScript, { trigger: 'scroll' }).catch(() => []));
-    }
-    await page.evaluate(() => window.scrollTo(0, 0)).catch(() => {});
-  } catch { /* ignore */ }
+  // 2) Scroll — collected during the shared scroll pass in crawlPage.
+  push(scrollObservations);
 
   // 3) Hover + focus — interaction transitions on a sample of controls.
   let samples = [];
@@ -624,12 +667,12 @@ async function captureRuntimeMotion(page) {
     try {
       await page.hover(sel, { timeout: 500 });
       await page.waitForTimeout(90);
-      push(await page.evaluate(readScript, { trigger: 'hover', selector: sel }).catch(() => []));
+      push(await readRuntimeAnimations(page, 'hover', sel));
     } catch { /* ignore */ }
     try {
       await page.focus(sel, { timeout: 500 });
       await page.waitForTimeout(70);
-      push(await page.evaluate(readScript, { trigger: 'focus', selector: sel }).catch(() => []));
+      push(await readRuntimeAnimations(page, 'focus', sel));
     } catch { /* ignore */ }
   }
 

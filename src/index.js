@@ -127,7 +127,7 @@ export async function extractDesignLanguage(url, options = {}) {
     },
     // What the crawler did to the page before measuring it. consent is null
     // when the step was turned off (dismissConsent: false).
-    capture: { consent: rawData.light.consent ?? null },
+    capture: { consent: rawData.light.consent ?? null, scroll: rawData.light.scroll ?? null },
     warnings: [],
   };
   const promote = (name, fn, ...args) => {
