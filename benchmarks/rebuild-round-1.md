@@ -180,8 +180,8 @@ From `fidelity-blueprint.json`: **score 29**, matched 22 of 75, **14 aligned**
 bands, **1 unmatched** band.
 
 The comparer aligns band `i` of the original to band `i` of the clone
-(`src/fidelity/blueprint-fidelity.js`), where "clone" bands are not the
-hand-authored `data-role` attributes in `index.html` — they come from the
+(`src/fidelity/blueprint-fidelity.js`). The "clone" bands here are not the
+hand-authored `data-role` attributes in `index.html`. They come from the
 extractor independently re-walking the running clone at
 `http://127.0.0.1:4173`, the same way it walks any live site. That re-walk
 detects **14 bands** on the clone against the original's 15
@@ -215,7 +215,7 @@ clone differs in ways the drift does not explain; **flagged** = a defect
 | 2 | content | content | background, columns, height | 2 | content |
 | 3 | content | feature-grid | role, background, columns, height | 1 | drift |
 | 4 | content | comparison | role, background, height | 2 | drift |
-| 5 | comparison | content | columns, media, height | 1 | drift, the real comparison band (confirmed correct in section 3) is being scored against the wrong slot |
+| 5 | comparison | content | role, columns, media, height | 1 | drift, the real comparison band (confirmed correct in section 3) is being scored against the wrong slot |
 | 6 | content | testimonial | role, background, media, height | 1 | drift |
 | 7 | content | content | background, columns, height | 2 | drift, plus the ratings band being near-empty (section 6) |
 | 8 | testimonial | cta | role, background, columns, media, height | 0 | flagged, the single worst-scoring band; the role/content conflict below, compounded by drift |
