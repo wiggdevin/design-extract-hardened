@@ -60,7 +60,7 @@ New band field `repeats`: `{ count, w, h, perRow, withImage, withButton }` for t
 
 Fixture `tests/fixtures/blueprint-card-grid.html`: an Avada-shaped band with a heading column and ten 50 percent columns, each with an image and a button; assert `repeats.count 10`, `perRow 2`, `columns 2`, `cardCount >= 10`, and role `feature-grid` through `extractBlueprint`.
 
-Blueprint output: `repeats` is carried onto the band (it holds no text). `<host>-blueprint.json` and the markdown band table show it as `cards 10 (2 per row)`.
+Blueprint output: `repeats` is carried onto the band (it holds no text). `<host>-blueprint.json` shows it as `cards 10 (2 per row)`.
 
 ### 4. Background inheritance and video poster (miss 5)
 
