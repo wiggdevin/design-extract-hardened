@@ -32,6 +32,7 @@ import { extractComponentAnatomy } from './extractors/component-anatomy.js';
 import { extractVoice } from './extractors/voice.js';
 import { extractPageIntent } from './extractors/page-intent.js';
 import { extractSectionRoles } from './extractors/section-roles.js';
+import { extractBlueprint } from './extractors/blueprint.js';
 import { extractComponentLibrary } from './extractors/component-library.js';
 import { extractMaterialLanguage } from './extractors/material-language.js';
 import { extractImageryStyle } from './extractors/imagery-style.js';
@@ -209,6 +210,15 @@ export async function extractDesignLanguage(url, options = {}) {
   // imagery style. All additive — no existing field is modified.
   design.pageIntent = safeExtract(extractPageIntent, rawData, { url: rawData.url, title: rawData.title }) || { type: 'unknown', confidence: 0, signals: [] };
   design.sectionRoles = safeExtract(extractSectionRoles, rawData.light?.sections || [], design.regions, design.pageIntent) || { sections: [], counts: {}, readingOrder: [] };
+  // Section blueprint: geometry bands classified with reveals attached. When
+  // it found bands, its order replaces the landmark-only reading order.
+  design.blueprint = safeExtract(extractBlueprint,
+    rawData.light?.bands || [],
+    design.motion?.runtime?.observations || [],
+    design.pageIntent,
+    { pageHeight: rawData.light?.pageHeight || 0, viewportHeight: rawData.light?.viewport?.height || 800 },
+  ) || { bands: [], readingOrder: [], heroIndex: -1, counts: { bands: 0, oversizedDropped: 0, byRole: {} } };
+  if (design.blueprint.bands.length) design.sectionRoles.readingOrder = design.blueprint.readingOrder;
   design.componentLibrary = safeExtract(extractComponentLibrary, rawData.light?.stack || {}) || { library: 'unknown', confidence: 0, evidence: [], alternates: [] };
   design.materialLanguage = safeExtract(extractMaterialLanguage, design) || { label: 'flat', confidence: 0, signals: [], metrics: {} };
   design.imageryStyle = promote('media', extractImageryStyle, rawData.light?.images || [], {
@@ -285,6 +295,7 @@ export { visualDiff, formatVisualDiffHtml } from './visual-diff.js';
 // v10
 export { extractPageIntent } from './extractors/page-intent.js';
 export { extractSectionRoles } from './extractors/section-roles.js';
+export { extractBlueprint } from './extractors/blueprint.js';
 export { extractComponentLibrary } from './extractors/component-library.js';
 export { extractMaterialLanguage } from './extractors/material-language.js';
 export { extractImageryStyle } from './extractors/imagery-style.js';

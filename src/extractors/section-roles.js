@@ -35,7 +35,7 @@ function detectBento(s) {
   return false;
 }
 
-function classifyRole(s, existingRole, pageType) {
+export function classifyRole(s, existingRole, pageType) {
   const text = (s.text || '').slice(0, 2000);
   const b = blob(s);
   const headings = s.headings || [];
@@ -43,7 +43,17 @@ function classifyRole(s, existingRole, pageType) {
 
   // Landmarks come first.
   if (s.tag === 'footer') return { role: 'footer', confidence: 0.95 };
-  if (s.tag === 'nav' || /^nav|header-nav|top-?bar/.test(b)) return { role: 'nav', confidence: 0.9 };
+  // nav: only nav/header tags or navigation/banner roles, and only near the
+  // page top or pinned. A footer menu or a mid-page menu wrapper is not nav.
+  const navTag = s.tag === 'nav' || s.tag === 'header' || /^(navigation|banner)$/.test(s.role || '');
+  if (navTag) {
+    const nearTop = !s.bounds || (s.bounds.y || 0) <= 200;
+    const pinned = s.position === 'fixed' || s.position === 'sticky';
+    if (nearTop || pinned) return { role: 'nav', confidence: 0.9 };
+  }
+  // The blueprint marks the first band with big media or a big heading near
+  // the top as the hero candidate; that beats every text rule below.
+  if (s.heroCandidate) return { role: 'hero', confidence: 0.9 };
 
   // Strong class-based hints.
   if (/logo-?(wall|cloud|grid|strip)|trusted-?by/.test(b) || detectLogoWall(s)) {

@@ -440,6 +440,7 @@ program
 
       // v10: page intent + section roles + visual DNA + component library + multi-page + prompt pack.
       files.push({ name: `${prefix}-intent.json`, content: JSON.stringify({ pageIntent: design.pageIntent, sectionRoles: design.sectionRoles }, null, 2), label: 'Page Intent + Section Roles' });
+      files.push({ name: `${prefix}-blueprint.json`, content: JSON.stringify(design.blueprint || { bands: [], readingOrder: [] }, null, 2), label: 'Section blueprint (bands, roles, media, reveals)' });
       files.push({ name: `${prefix}-visual-dna.json`, content: JSON.stringify({ materialLanguage: design.materialLanguage, imageryStyle: design.imageryStyle, backgroundPatterns: design.backgroundPatterns }, null, 2), label: 'Visual DNA' });
       files.push({ name: `${prefix}-library.json`, content: JSON.stringify(design.componentLibrary || {}, null, 2), label: 'Component Library Detection' });
       if (design.logo && design.logo.found) {
