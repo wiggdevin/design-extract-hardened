@@ -96,4 +96,11 @@ describe('overlay bands are skipped when aligning', () => {
     assert.equal(r.driftSuspected, false);
     assert.equal(r.score, 100);
   });
+  it('rows carry the original band index, not the filtered loop counter', () => {
+    const withIndex = (i, band) => ({ index: i, ...band });
+    const original = { bands: [withIndex(0, b('nav', 107, true)), withIndex(1, b('hero', 800)), withIndex(2, b('hero', 800, true)), withIndex(3, b('content', 144))] };
+    const clone = { bands: [b('hero', 800), b('content', 144)] };
+    const r = scoreBlueprintFidelity(original, clone);
+    assert.deepEqual(r.bands.map((row) => row.index), [1, 3]);
+  });
 });

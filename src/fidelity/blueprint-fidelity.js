@@ -45,7 +45,9 @@ export function scoreBlueprintFidelity(original, clone) {
     };
     const hits = Object.values(checks).filter(Boolean).length;
     matched += hits;
-    bands.push({ index: i, original: aBand.role, clone: bBand.role, checks, matched: hits });
+    // index is the original band's own index (overlay bands are filtered
+    // out above, so the loop counter no longer lines up with the blueprint).
+    bands.push({ index: Number.isInteger(aBand.index) ? aBand.index : i, original: aBand.role, clone: bBand.role, checks, matched: hits });
   }
   const total = CHECKS * (aligned + unmatchedBands);
   return {
