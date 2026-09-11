@@ -158,6 +158,9 @@ test('waitForImages counts placeholder images that still carry a lazy attribute'
   await p.route('http://fixture.test/**', (route) => route.fulfill({ status: 200, contentType: 'image/png', body: PNG }));
   await p.setContent(lazyHtml);
   const r = await waitForImages(p, { timeoutMs: 1000 });
-  assert.equal(r.placeholders, 1, JSON.stringify(r));
+  // Two placeholder images with a lazy attribute: .lazy-a's data-orig-src
+  // one, and .js-e's javascript: data-src one (added for the scheme
+  // allowlist test in tests/lazy-media.test.js).
+  assert.equal(r.placeholders, 2, JSON.stringify(r));
   await p.close();
 });

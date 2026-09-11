@@ -535,6 +535,10 @@ export async function waitForImages(page, { timeoutMs = 3000 } = {}) {
   return page.evaluate(() => {
     const withSrc = Array.from(document.images).filter((img) => img.getAttribute('src'));
     const isPlaceholder = (s) => !s || /^data:/i.test(s);
+    // placeholders counts every document.images entry with a placeholder src
+    // (any lazy-load attribute present), while total counts only images with
+    // a src attribute — a lazy image with no src at all is still a
+    // placeholder, so placeholders can exceed total.
     const placeholders = Array.from(document.images).filter((img) => isPlaceholder(img.currentSrc || img.getAttribute('src') || '')
       && ['data-orig-src', 'data-src', 'data-lazy-src', 'data-srcset'].some((a) => img.hasAttribute(a))).length;
     return { total: withSrc.length, incomplete: withSrc.filter((img) => !img.complete).length, placeholders };
