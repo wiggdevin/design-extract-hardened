@@ -282,3 +282,16 @@ test('a position: fixed header gets document y 0, not the scroll offset', async 
 
   await fixedPage.close();
 });
+
+test('a lazy iframe under a heading is embed media with its lazy URL', async () => {
+  const html = readFileSync(fileURLToPath(new URL('./fixtures/blueprint-embed.html', import.meta.url)), 'utf8');
+  const p = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  await p.route('http://fixture.test/**', (route) => route.fulfill({ status: 200, contentType: 'image/png', body: PNG }));
+  await p.setContent(html);
+  const d = await p.evaluate(collectPageData, COLLECT_OPTS);
+  const reviews = d.bands.find((b) => b.className.includes('reviews'));
+  assert.equal(reviews.media.kind, 'embed');
+  assert.equal(reviews.media.src, 'http://fixture.test/embed/reviews');
+  assert.ok(reviews.media.share >= 0.1 && reviews.media.share <= 0.2, `share ${reviews.media.share}`);
+  await p.close();
+});

@@ -1632,14 +1632,14 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
       }
 
       // Media: dominant kind by area among img/video/svg/canvas and background images.
-      const kinds = { photo: 0, video: 0, svg: 0, canvas: 0 };
-      const largest = { photo: null, video: null, svg: null, canvas: null };
+      const kinds = { photo: 0, video: 0, svg: 0, canvas: 0, embed: 0 };
+      const largest = { photo: null, video: null, svg: null, canvas: null, embed: null };
       let videoPoster = null;
       const consider = (kind, a, src) => {
         kinds[kind] += a;
         if (!largest[kind] || a > largest[kind].area) largest[kind] = { area: a, src: src || null };
       };
-      for (const el of outer.querySelectorAll('img, video, svg, canvas')) {
+      for (const el of outer.querySelectorAll('img, video, svg, canvas, iframe, embed, object')) {
         const a = areaOf(el);
         if (a < 32 * 32) continue;
         const tag = el.tagName.toLowerCase();
@@ -1651,6 +1651,9 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
           const poster = el.getAttribute('poster');
           if (poster && !videoPoster) videoPoster = absUrl(poster).slice(0, 500);
           consider('video', a, (el.currentSrc || el.getAttribute('src') || (source && source.getAttribute('src')) || poster || '').slice(0, 500));
+        } else if (tag === 'iframe' || tag === 'embed' || tag === 'object') {
+          const src = el.getAttribute('src') || el.getAttribute('data-lazy-src') || el.getAttribute('data-src') || el.getAttribute('data') || '';
+          consider('embed', a, isPlaceholderSrc(src) ? null : absUrl(src).slice(0, 500));
         } else {
           consider(tag, a, null);
         }
@@ -1662,7 +1665,7 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
         if (a >= 100 * 100) consider('photo', a, bg.imageUrl);
       }
       const dominant = Object.keys(kinds).sort((p, q) => kinds[q] - kinds[p])[0];
-      const totalMedia = kinds.photo + kinds.video + kinds.svg + kinds.canvas;
+      const totalMedia = kinds.photo + kinds.video + kinds.svg + kinds.canvas + kinds.embed;
       const kind = totalMedia < area * 0.05 ? 'none' : dominant;
       const media = {
         kind,
