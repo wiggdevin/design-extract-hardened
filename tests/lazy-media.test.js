@@ -62,3 +62,12 @@ test('an unpainted band inherits the nearest painted ancestor background and say
   assert.equal(a.background.color, '#ffffff');
   assert.equal(a.background.inherited, true);
 });
+
+test('a javascript: lazy candidate is never recorded as an image src', () => {
+  const js = data.images.find((i) => i.currentSrc.startsWith('data:image/svg+xml') && i.lazyUnresolved
+    && !i.src.includes('fixture.test'));
+  assert.ok(js, JSON.stringify(data.images));
+  assert.equal(js.src, '');
+  assert.equal(js.lazyUnresolved, true);
+  assert.ok(!js.src.startsWith('javascript:'), js.src);
+});

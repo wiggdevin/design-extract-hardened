@@ -1527,6 +1527,11 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
     };
     const isPlaceholderSrc = (s) => !s || /^data:/i.test(s) || /^about:blank$/i.test(s);
     const absUrl = (u) => { try { return new URL(u, location.href).href; } catch { return u || ''; } };
+    // A resolved candidate whose scheme is not http(s) is not a usable image
+    // source: javascript:/blob: URLs some sites park in a lazy-load
+    // attribute, a data: URI outside the placeholder check, and the raw
+    // input absUrl falls back to when new URL() throws.
+    const isHttpUrl = (u) => /^https?:/i.test(u);
     // First URL in a srcset ("a.jpg 1x, b.jpg 2x").
     function firstSrcsetUrl(srcset) {
       if (!srcset) return '';
@@ -1538,9 +1543,12 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
     // headless capture cannot rely on). 1x sources before srcsets.
     const realImageSrc = (img) => {
       const cur = img.currentSrc || '';
-      if (!isPlaceholderSrc(cur)) return cur;
+      if (!isPlaceholderSrc(cur) && isHttpUrl(cur)) return cur;
       const attr = img.getAttribute('src') || '';
-      if (!isPlaceholderSrc(attr)) return absUrl(attr);
+      if (!isPlaceholderSrc(attr)) {
+        const abs = absUrl(attr);
+        if (isHttpUrl(abs)) return abs;
+      }
       const picture = img.closest('picture');
       const source = picture && picture.querySelector('source[srcset]');
       const candidates = [
@@ -1548,8 +1556,12 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
         firstSrcsetUrl(img.getAttribute('data-srcset')), firstSrcsetUrl(img.getAttribute('srcset')),
         source ? firstSrcsetUrl(source.getAttribute('srcset')) : '',
       ];
-      for (const c of candidates) if (c && !isPlaceholderSrc(c)) return absUrl(c);
-      return cur || attr || '';
+      for (const c of candidates) {
+        if (!c || isPlaceholderSrc(c)) continue;
+        const abs = absUrl(c);
+        if (isHttpUrl(abs)) return abs;
+      }
+      return '';
     };
     const isLazyUnresolved = (img) => isPlaceholderSrc(img.currentSrc || img.getAttribute('src') || '')
       && ['data-orig-src', 'data-src', 'data-lazy-src', 'data-srcset'].some((a) => img.hasAttribute(a));
@@ -1557,10 +1569,13 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
       const cs = getComputedStyle(el);
       const color = toHex(cs.backgroundColor);
       const url = (cs.backgroundImage || '').match(/url\(["']?([^"')]+)["']?\)/);
-      let imageUrl = url ? url[1].slice(0, 500) : null;
+      let imageUrl = url && isHttpUrl(url[1]) ? url[1].slice(0, 500) : null;
       if (!imageUrl) {
         const lazy = el.getAttribute('data-bg') || el.getAttribute('data-background-image') || '';
-        if (lazy && !isPlaceholderSrc(lazy)) imageUrl = absUrl(lazy).slice(0, 500);
+        if (lazy && !isPlaceholderSrc(lazy)) {
+          const abs = absUrl(lazy);
+          if (isHttpUrl(abs)) imageUrl = abs.slice(0, 500);
+        }
       }
       return { color, imageUrl };
     };
