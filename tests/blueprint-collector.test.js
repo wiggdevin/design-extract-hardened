@@ -295,3 +295,19 @@ test('a lazy iframe under a heading is embed media with its lazy URL', async () 
   assert.ok(reviews.media.share >= 0.1 && reviews.media.share <= 0.2, `share ${reviews.media.share}`);
   await p.close();
 });
+
+test('a repeated card grid records repeats, uses them for cardCount and columns', async () => {
+  const html = readFileSync(fileURLToPath(new URL('./fixtures/blueprint-card-grid.html', import.meta.url)), 'utf8');
+  const p = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  await p.route('http://fixture.test/**', (route) => route.fulfill({ status: 200, contentType: 'image/png', body: PNG }));
+  await p.setContent(html);
+  const d = await p.evaluate(collectPageData, COLLECT_OPTS);
+  const grid = d.bands.find((b) => b.className.includes('reviews-grid'));
+  assert.ok(grid, JSON.stringify(d.bands.map((b) => b.className)));
+  assert.deepEqual(grid.repeats, { count: 10, w: 624, h: 616, perRow: 2, withImage: 10, withButton: 10 });
+  assert.equal(grid.columns, 2);
+  assert.ok(grid.cardCount >= 10, `cardCount ${grid.cardCount}`);
+  const header = d.bands.find((b) => b.tag === 'header');
+  assert.equal(header.repeats, null);
+  await p.close();
+});

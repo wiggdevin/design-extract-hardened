@@ -67,6 +67,13 @@ export function classifyRole(s, existingRole, pageType) {
   if (COMPARE_RE.test(text) && (s.cardCount || 0) >= 2) return { role: 'comparison', confidence: 0.7 };
   if (PRICING_RE.test(text) && (s.cardCount || 0) >= 2) return { role: 'pricing-table', confidence: 0.9 };
 
+  // A grid of four or more same-size cards where at least half carry a
+  // button is a feature or services grid, whatever its class says. A
+  // testimonial carousel repeats too, but its cards are quotes, not CTAs.
+  if (s.repeats && s.repeats.count >= 4 && s.repeats.withButton >= s.repeats.count * 0.5) {
+    return { role: 'feature-grid', subrole: 'cards', confidence: 0.85 };
+  }
+
   // Testimonials vs hero vs features — existing classifier handled most of these;
   // re-run with tighter signals.
   if (TESTIMONIAL_RE.test(text) || /testimonial|review|quote/.test(b)) {

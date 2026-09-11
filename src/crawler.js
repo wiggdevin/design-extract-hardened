@@ -1683,6 +1683,54 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
         }
       }
 
+      // Repeated structure: the largest group of sibling boxes (to depth 4)
+      // with the same width and similar height. A services grid, a pricing
+      // row, a testimonial carousel all show up here even when nothing is
+      // called "card". Bounded by depth and by a visit budget.
+      const repeatsOf = (root) => {
+        let best = null;
+        let visited = 0;
+        const visit = (el, depth) => {
+          if (depth > 4 || visited > 400) return;
+          visited++;
+          const kids = Array.from(el.children).filter((c) => c.nodeType === 1 && !SKIP_TAG.test(c.tagName.toLowerCase()));
+          const boxes = kids.map((c) => ({ el: c, r: rectOf(c) })).filter((b) => b.r.width >= 100 && b.r.height >= 120);
+          if (boxes.length >= 3) {
+            const sorted = [...boxes].sort((p, q) => p.r.width - q.r.width);
+            let i = 0;
+            while (i < sorted.length) {
+              let j = i;
+              while (j + 1 < sorted.length && sorted[j + 1].r.width - sorted[i].r.width <= 4) j++;
+              const group = sorted.slice(i, j + 1);
+              if (group.length >= 3) {
+                const hs = group.map((b) => b.r.height).sort((p, q) => p - q);
+                const median = hs[Math.floor(hs.length / 2)];
+                const members = group.filter((b) => Math.abs(b.r.height - median) <= median * 0.15)
+                  .sort((p, q) => p.r.top - q.r.top || p.r.left - q.r.left);
+                if (members.length >= 3 && (!best || members.length > best.count)) {
+                  const top0 = members[0].r.top;
+                  best = {
+                    count: members.length,
+                    w: Math.round(members[0].r.width),
+                    h: Math.round(median),
+                    perRow: members.filter((b) => Math.abs(b.r.top - top0) <= 10).length,
+                    withImage: members.filter((b) => Array.from(b.el.querySelectorAll('img, video, svg')).some((m) => areaOf(m) >= 32 * 32)).length,
+                    withButton: members.filter((b) => b.el.querySelector(BUTTON_SELECTOR)).length,
+                  };
+                }
+              }
+              i = j + 1;
+            }
+          }
+          for (const c of kids) visit(c, depth + 1);
+        };
+        visit(root, 0);
+        return best;
+      };
+      const repeats = repeatsOf(outer);
+      if (repeats && repeats.perRow >= 2) columns = repeats.perRow;
+      const selectorCards = outer.querySelectorAll(CARD_SELECTOR).length;
+
       const outerText = outer.innerText || '';
       const text = outerText.slice(0, 2000);
       return {
@@ -1699,7 +1747,8 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
         text,
         textLength: outerText.length,
         buttonCount: outer.querySelectorAll(BUTTON_SELECTOR).length,
-        cardCount: outer.querySelectorAll(CARD_SELECTOR).length,
+        cardCount: Math.max(selectorCards, repeats ? repeats.count : 0),
+        repeats,
       };
     }).sort((a, b) => a.bounds.y - b.bounds.y);
     results.bandsCapped = bandsCapped;

@@ -8,7 +8,7 @@ const band = (over) => ({
   bounds: { x: 0, y: 0, w: 1280, h: 600 },
   background: { color: '#ffffff', imageUrl: null, hasVideo: false },
   columns: 1, media: { kind: 'none', share: 0, src: null }, heading: null,
-  text: '', textLength: 0, buttonCount: 0, cardCount: 0, ...over,
+  text: '', textLength: 0, buttonCount: 0, cardCount: 0, repeats: null, ...over,
 });
 
 // Shaped after the odysseycontracting.com capture (20,564 px tall at 1280 wide).
@@ -132,5 +132,29 @@ describe('stripBandText: raw band text must not survive into rawData', () => {
   it('tolerates a missing or empty bands array', () => {
     assert.deepEqual(stripBandText([]), []);
     assert.deepEqual(stripBandText(undefined), undefined);
+  });
+});
+
+describe('repeated cards with buttons beat the testimonial class hint', () => {
+  const bands = [
+    band({ tag: 'header', position: 'fixed', bounds: { x: 0, y: 0, w: 1280, h: 80 }, text: '' }),
+    band({ tag: 'div', className: 'fusion-fullwidth reviews-grid', bounds: { x: 0, y: 880, w: 1280, h: 3188 },
+      heading: { level: 2, fontSize: 36, text: 'Home Remodeling Services' }, buttonCount: 10, cardCount: 1,
+      repeats: { count: 10, w: 624, h: 616, perRow: 2, withImage: 10, withButton: 10 }, text: 'Additions Sunrooms Decks' }),
+    band({ tag: 'div', className: 'fusion-fullwidth quotes', bounds: { x: 0, y: 4068, w: 1280, h: 900 },
+      heading: { level: 2, fontSize: 36, text: 'What homeowners say' }, buttonCount: 0, cardCount: 0,
+      repeats: { count: 4, w: 600, h: 300, perRow: 2, withImage: 0, withButton: 0 }, text: '"They were on time and on budget" — Jane Doe' }),
+  ];
+  const bp = extractBlueprint(bands, [], { type: 'landing' }, { pageHeight: 6000, viewportHeight: 800 });
+  it('classifies the card grid as feature-grid and carries repeats', () => {
+    const grid = bp.bands.find((b) => b.className.includes('reviews-grid'));
+    assert.equal(grid.role, 'feature-grid');
+    assert.deepEqual(grid.repeats, bands[1].repeats);
+  });
+  it('leaves a quote grid without buttons as testimonial', () => {
+    assert.equal(bp.bands.find((b) => b.className.includes('quotes')).role, 'testimonial');
+  });
+  it('records without repeats carry null', () => {
+    assert.equal(bp.bands[0].repeats, null);
   });
 });

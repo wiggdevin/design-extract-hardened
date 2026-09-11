@@ -72,6 +72,7 @@ export function extractBlueprint(bands = [], runtimeObservations = [], pageInten
       text: b.text || '', headings: b.heading && b.heading.text ? [b.heading.text] : [],
       buttonCount: b.buttonCount || 0, cardCount: b.cardCount || 0, bounds: b.bounds,
       heroCandidate: i === heroCandidate,
+      repeats: b.repeats || null,
     }, null, pageType);
     return {
       index: i,
@@ -86,6 +87,7 @@ export function extractBlueprint(bands = [], runtimeObservations = [], pageInten
       textLength: b.textLength || 0,
       buttonCount: b.buttonCount || 0,
       cardCount: b.cardCount || 0,
+      repeats: b.repeats || null,
       reveal: revealFor(b, observations),
     };
   });
