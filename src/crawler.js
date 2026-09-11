@@ -468,16 +468,25 @@ export async function scrollThroughPage(page, { stepPx, maxSteps = 60, settleMs 
   const needed = Math.max(1, Math.ceil(Math.max(0, pageHeightPx - viewportHeight) / step));
   const steps = Math.min(needed, maxSteps);
   for (let i = 1; i <= steps; i++) {
+    // Scroll the inner container AND the window on every step, not one or
+    // the other: a page can have both a scrolling document and a taller
+    // inner pane, and an `else` here would leave the document never
+    // advancing. Guard with isConnected so a scroller element detached
+    // mid-pass (an SPA re-render swapping it out) doesn't leave a stale
+    // truthy reference that silently scrolls nothing for the rest of the
+    // pass — window.scrollTo still runs regardless.
     await page.evaluate((y) => {
-      if (window.__designlangScroller) window.__designlangScroller.scrollTo(0, y);
-      else window.scrollTo(0, y);
+      const s = window.__designlangScroller;
+      if (s && s.isConnected) s.scrollTo(0, y);
+      window.scrollTo(0, y);
     }, i * step).catch(() => {});
     await page.waitForTimeout(settleMs);
     await page.waitForLoadState('networkidle', { timeout: idleMs }).catch(() => {});
     if (typeof onStep === 'function') await onStep(i);
   }
   await page.evaluate(() => {
-    if (window.__designlangScroller) window.__designlangScroller.scrollTo(0, 0);
+    const s = window.__designlangScroller;
+    if (s && s.isConnected) s.scrollTo(0, 0);
     window.scrollTo(0, 0);
     delete window.__designlangScroller;
   }).catch(() => {});
@@ -1332,16 +1341,30 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
     // only children are taken out of flow (position: fixed/absolute), which
     // collapses it to zero height while it keeps its full width (Emma
     // Lewisham: an empty `<main>` wrapping a position:fixed Locomotive Scroll
-    // container — probed live). Either way it hides a whole content tree
-    // behind one invisible wrapper, collapsing real sections into a single
-    // oversized leaf or, walked from the top, into no bands at all. See
-    // through it so its real children are visible to the walk, bounded so a
-    // page with nested pass-through wrappers can't make this unbounded.
+    // container — probed live, overflow: visible there). Either way it hides
+    // a whole content tree behind one invisible wrapper, collapsing real
+    // sections into a single oversized leaf or, walked from the top, into no
+    // bands at all. See through it so its real children are visible to the
+    // walk, bounded so a page with nested pass-through wrappers can't make
+    // this unbounded.
+    //
+    // A single-axis-zero box additionally requires overflow: visible on
+    // both axes. `display: contents` (both axes 0) generates no box at all,
+    // so overflow doesn't apply and it is always seen through. But a
+    // single-axis-zero box with overflow: hidden is the CSS idiom for a
+    // deliberately collapsed panel — a closed accordion, a modal mid-animate
+    // shut — whose children are real but meant to stay hidden; that one is
+    // not flattened.
     const isPassThrough = (el) => {
       if (el.nodeType !== 1 || SKIP_TAG.test(el.tagName.toLowerCase())) return false;
       if (el.children.length === 0) return false;
       const r = el.getBoundingClientRect();
-      return r.width === 0 || r.height === 0;
+      if (r.width === 0 && r.height === 0) return true;
+      if (r.width === 0 || r.height === 0) {
+        const cs = getComputedStyle(el);
+        return cs.overflowX === 'visible' && cs.overflowY === 'visible';
+      }
+      return false;
     };
     const bandKids = (el, minWidthShare, passDepth) => {
       const out = [];

@@ -96,3 +96,30 @@ test('an oversized leaf whose real sections sit under the width threshold is re-
   assert.equal(narrow.bandsCapped, false);
   await narrowPage.close();
 });
+
+const passthroughFixtureHtml = readFileSync(fileURLToPath(new URL('./fixtures/blueprint-passthrough.html', import.meta.url)), 'utf8');
+
+test('the walk sees through pass-through wrappers: display:contents, a zero-height flow wrapper, but not a collapsed overflow:hidden panel', async () => {
+  const ptPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  await ptPage.setContent(passthroughFixtureHtml);
+  const pt = await ptPage.evaluate(collectPageData, COLLECT_OPTS);
+
+  // (a) #site is display:contents and holds header + main; both are seen
+  // through to their real content. (b) one of main's sections is wrapped in
+  // a zero-height div.zero (overflow: visible) and is still found as a band.
+  // (c) div.accordion is zero-height with overflow: hidden — a deliberately
+  // collapsed panel — and its section is NOT flattened into a band; see the
+  // comment on isPassThrough in src/crawler.js for why.
+  assert.equal(pt.bands.length, 5, JSON.stringify(pt.bands.map(b => [b.tag, b.className, b.bounds.h])));
+  assert.deepEqual(pt.bands.map(b => b.tag), ['header', 'section', 'section', 'section', 'section']);
+  const headings = pt.bands.map(b => b.heading && b.heading.text).filter(Boolean);
+  assert.deepEqual(headings, ['One', 'Two', 'Three', 'Four (zero-height wrapper)']);
+  assert.ok(!headings.includes('Hidden panel'), 'the collapsed accordion panel must not become a band');
+
+  for (const b of pt.bands) assert.equal(b.bounds.w, 1280, `${b.tag}.${b.className} is ${b.bounds.w} wide`);
+  for (const b of pt.bands) assert.ok(b.bounds.h <= 0.8 * pt.pageHeight, `${b.tag}.${b.className} is ${b.bounds.h} of ${pt.pageHeight}`);
+  const ys = pt.bands.map(b => b.bounds.y);
+  assert.equal(new Set(ys).size, ys.length, `duplicate bounds.y among ${JSON.stringify(ys)}`);
+  assert.equal(pt.bandsCapped, false);
+  await ptPage.close();
+});
