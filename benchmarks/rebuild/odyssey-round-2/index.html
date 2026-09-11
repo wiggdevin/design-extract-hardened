@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Odyssey Contracting - Raleigh Remodeling and Roofing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kumbh+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Band 0: nav (overlay: true -> fixed header on top of hero) -->
+<header class="band band-0" data-band="0" data-role="nav">
+  <div class="container nav-inner">
+    <a class="nav-logo" href="#top">
+      <img src="https://odysseycontracting.com/wp-content/uploads/odyssey-contracting-840x200-svg.svg" alt="Odyssey Contracting logo" width="180" height="43">
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#about">About</a>
+      <a href="#services">Remodeling Services</a>
+      <a href="#projects">Project Gallery</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <a class="btn btn-accent nav-cta" href="#quote">Get A Quote</a>
+  </div>
+</header>
+
+<!-- Bands 1 + 2: hero video (overlay: true, absolute) wrapped with its content band (relative), same bounds -->
+<div class="hero-wrap">
+  <section class="band band-1" data-band="1" data-role="hero" data-slider>
+    <div class="slider-track">
+      <div class="slide is-active">
+        <video class="hero-media" autoplay muted loop playsinline>
+          <source src="https://odysseycontracting.com/wp-content/uploads/odyssey-contracting-home-bewley.webm" type="video/webm">
+        </video>
+      </div>
+    </div>
+    <button class="slider-prev" type="button" aria-label="Previous slide">&#8249;</button>
+    <button class="slider-next" type="button" aria-label="Next slide">&#8250;</button>
+  </section>
+  <section class="band band-2" data-band="2" data-role="content">
+    <h1 class="sr-only">Home Remodeling Company Near Raleigh</h1>
+  </section>
+</div>
+
+<!-- Band 3: content, 3-column button row below hero -->
+<section class="band band-3" data-band="3" data-role="content">
+  <div class="container button-row" data-reveal>
+    <a class="btn btn-secondary" href="#services">Remodeling Services</a>
+    <a class="btn btn-secondary" href="#projects">Project Gallery</a>
+    <a class="btn btn-accent" href="#quote">Get a Quote</a>
+  </div>
+</section>
+
+<!-- Band 4: content, intro heading + paragraph, 2 columns -->
+<section class="band band-4" data-band="4" data-role="content" id="about">
+  <div class="container two-col">
+    <div class="col-text" data-reveal>
+      <h2>Odyssey Contracting - The Trusted Home Remodeling Company in Raleigh</h2>
+      <p>For years, homeowners throughout the Raleigh area have turned to our team when it is time to update a kitchen, finish a basement, or replace an aging roof. We built our company around a simple idea: remodeling should feel exciting, not stressful. Every project starts with an honest conversation about your goals and your budget, followed by a clear plan that spells out timelines, materials, and scope before any work begins. Our crews are trained and held to the same standard of craftsmanship on every job, whether it is a small repair or a full home addition. From the first estimate to the final walkthrough, we stay in touch so you always know what is happening next.</p>
+    </div>
+    <div class="col-accent" data-reveal>
+      <div class="accent-card">Trusted Local Craftsmanship</div>
+    </div>
+  </div>
+</section>
+
+<!-- Band 5: comparison -->
+<section class="band band-5" data-band="5" data-role="comparison">
+  <div class="container">
+    <div class="discover-block" data-reveal>
+      <div class="two-col two-col--narrow">
+        <div class="discover-media" style="background-image:url('https://odysseycontracting.com/wp-content/uploads/Rectangle-4-3.png')" role="img" aria-label="Recent remodeling project photo"></div>
+        <div class="discover-copy">
+          <h3>Why Homeowners Choose Us</h3>
+          <ul class="checklist">
+            <li>Locally owned, on every job site</li>
+            <li>Flexible financing to fit your budget</li>
+            <li>Warranties that back up the work</li>
+            <li>Free estimates, no pressure attached</li>
+          </ul>
+          <a class="btn btn-accent" href="#about">Learn More About Our Team</a>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="section-heading center" data-reveal>The Industry Reality vs. The Odyssey Standard</h2>
+
+    <div class="compare-grid" data-reveal>
+      <div class="compare-card compare-card--bad">
+        <span class="badge badge--light">Industry Standard</span>
+        <h3>What Most Contractors Do</h3>
+        <hr>
+        <div class="compare-item">
+          <h4>Rough Guesses, Real Surprises</h4>
+          <p>Estimates that grow once work is already underway.</p>
+        </div>
+        <div class="compare-item">
+          <h4>Long Waits for Updates</h4>
+          <p>Unclear timelines and delayed callbacks.</p>
+        </div>
+        <div class="compare-item">
+          <h4>Rotating, Unvetted Crews</h4>
+          <p>Different workers show up on site every visit.</p>
+        </div>
+        <div class="compare-item">
+          <h4>Gone After the Final Payment</h4>
+          <p>Hard to reach once the check has cleared.</p>
+        </div>
+      </div>
+      <div class="compare-card compare-card--good">
+        <span class="badge badge--dark">The Superior Choice</span>
+        <h3>How Odyssey Gets It Done</h3>
+        <hr>
+        <div class="compare-item">
+          <h4>Clear, Itemized Estimates</h4>
+          <p>Every cost explained before work ever starts.</p>
+        </div>
+        <div class="compare-item">
+          <h4>Steady Progress Updates</h4>
+          <p>Regular check-ins at each stage of the job.</p>
+        </div>
+        <div class="compare-item">
+          <h4>Consistent, Trained Crews</h4>
+          <p>The same skilled team from start to finish.</p>
+        </div>
+        <div class="compare-item">
+          <h4>Support After the Job Ends</h4>
+          <p>We stand behind the work long after move-in.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Band 6: certification strip -->
+<section class="band band-6" data-band="6" data-role="content">
+  <div class="container cert-strip" data-reveal>
+    <img src="https://odysseycontracting.com/wp-content/uploads/certainteed-msa1-1.png" alt="Manufacturer certification badge" class="cert-logo">
+  </div>
+</section>
+
+<!-- Band 7: ratings / reviews embed -->
+<section class="band band-7" data-band="7" data-role="content">
+  <div class="container">
+    <h2 class="section-heading center" data-reveal>Ratings &amp; Reviews</h2>
+    <div class="embed-placeholder" data-reveal>
+      <p>Embedded review widget</p>
+      <p class="embed-src">links.odysseycontracting.com/reputation/widgets/review_widget</p>
+    </div>
+  </div>
+</section>
+
+<!-- Band 8: feature-grid, services -->
+<section class="band band-8" data-band="8" data-role="feature-grid" id="services">
+  <div class="container">
+    <h2 class="section-heading center light" data-reveal>Home Remodeling Services</h2>
+    <div class="card-grid card-grid--2col">
+      <article class="service-card" data-reveal style="background-image:url('https://odysseycontracting.com/wp-content/uploads/Addition-and-deck.jpg')">
+        <div class="service-card-body">
+          <h3>Room &amp; Home Additions</h3>
+          <p>Expand your living space with a custom addition built to fit your home.</p>
+          <a class="btn btn-accent btn-sm" href="#quote">Get Started</a>
+        </div>
+      </article>
+      <article class="service-card" data-reveal style="background-image:url('https://odysseycontracting.com/wp-content/uploads/Addition-and-deck.jpg')">
+        <div class="service-card-body">
+          <h3>Three-Season Sunrooms</h3>
+          <p>Bring in natural light with a sunroom designed around how you live.</p>
+          <a class="btn btn-accent btn-sm" href="#quote">Get Started</a>
+        </div>
+      </article>
+      <article class="service-card" data-reveal style="background-image:url('https://odysseycontracting.com/wp-content/uploads/Addition-and-deck.jpg')">
+        <div class="service-card-body">
+          <h3>Custom Deck Building</h3>
+          <p>Durable, low-maintenance decks built for years of outdoor living.</p>
+          <a class="btn btn-accent btn-sm" href="#quote">Get Started</a>
+        </div>
+      </article>
+      <article class="service-card" data-reveal style="background-image:url('https://odysseycontracting.com/wp-content/uploads/Addition-and-deck.jpg')">
+        <div class="service-card-body">
+          <h3>Roofing Repair &amp; Replacement</h3>
+          <p>Dependable roof work backed by careful, code-aware installation.</p>
+          <a class="btn btn-accent btn-sm" href="#quote">Get Started</a>
+        </div>
+      </article>
+      <article class="service-card" data-reveal style="background-image:url('https://odysseycontracting.com/wp-content/uploads/Addition-and-deck.jpg')">
+        <div class="service-card-body">
+          <h3>Vinyl &amp; Fiber Cement Siding</h3>
+          <p>Refresh your home's exterior with siding built to handle the weather.</p>
+          <a class="btn btn-accent btn-sm" href="#quote">Get Started</a>
+        </div>
+      </article>
+      <article class="service-card" data-reveal style="background-image:url('https://odysseycontracting.com/wp-content/uploads/Addition-and-deck.jpg')">
+        <div class="service-card-body">
+          <h3>Window Replacement</h3>
+          <p>Energy-conscious windows fitted with careful attention to detail.</p>
+          <a class="btn btn-accent btn-sm" href="#quote">Get Started</a>
+        </div>
+      </article>
+      <article class="service-card" data-reveal style="background-image:url('https://odysseycontracting.com/wp-content/uploads/Addition-and-deck.jpg')">
+        <div class="service-card-body">
+          <h3>Entry, Patio &amp; Sliding Doors</h3>
+          <p>Secure, well-fitted doors that improve comfort and curb appeal.</p>
+          <a class="btn btn-accent btn-sm" href="#quote">Get Started</a>
+        </div>
+      </article>
+      <article class="service-card" data-reveal style="background-image:url('https://odysseycontracting.com/wp-content/uploads/Addition-and-deck.jpg')">
+        <div class="service-card-body">
+          <h3>Seamless Gutter Systems</h3>
+          <p>Custom-fit gutters that keep water moving away from your home.</p>
+          <a class="btn btn-accent btn-sm" href="#quote">Get Started</a>
+        </div>
+      </article>
+      <article class="service-card" data-reveal style="background-image:url('https://odysseycontracting.com/wp-content/uploads/Addition-and-deck.jpg')">
+        <div class="service-card-body">
+          <h3>Kitchen Renovations</h3>
+          <p>Thoughtful layouts and finishes built around how you cook and gather.</p>
+        </div>
+      </article>
+      <article class="service-card" data-reveal style="background-image:url('https://odysseycontracting.com/wp-content/uploads/Addition-and-deck.jpg')">
+        <div class="service-card-body">
+          <h3>Bathroom Renovations</h3>
+          <p>Refresh a dated bathroom with fixtures, tile, and layouts that last.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- Band 9: cta -->
+<section class="band band-9" data-band="9" data-role="cta" style="background-image:url('https://odysseycontracting.com/wp-content/uploads/Frame-1.png')">
+  <div class="container two-col">
+    <div class="col-text" data-reveal>
+      <h2>Professional Installation and Superior Results</h2>
+      <p>Our #1 goal is client satisfaction. From the first phone call through the final walkthrough, every step is planned so the process feels calm and predictable, not stressful.</p>
+      <ul class="checklist checklist--compact">
+        <li>Fast, local scheduling</li>
+        <li>Trained, accountable crews</li>
+        <li>Clear communication at every stage</li>
+      </ul>
+      <div class="button-row">
+        <a class="btn btn-outline" href="#about">Learn More</a>
+        <a class="btn btn-accent" href="#quote">Get a Quote</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Band 10: feature-grid, featured projects -->
+<section class="band band-10" data-band="10" data-role="feature-grid" id="projects">
+  <div class="container">
+    <h2 class="section-heading center light" data-reveal>Explore Some of Our Featured Projects</h2>
+    <div class="card-grid card-grid--3col">
+      <article class="project-card" data-reveal style="background-image:url('https://odysseycontracting.com/wp-content/uploads/1-7.jpg')">
+        <div class="project-card-body">
+          <h3>Backyard Deck &amp; Pergola</h3>
+          <a href="#projects">See Project Photos &rsaquo;</a>
+        </div>
+      </article>
+      <article class="project-card" data-reveal style="background-image:url('https://odysseycontracting.com/wp-content/uploads/1-7.jpg')">
+        <div class="project-card-body">
+          <h3>Home Addition with Deck</h3>
+          <a href="#projects">See Project Photos &rsaquo;</a>
+        </div>
+      </article>
+      <article class="project-card" data-reveal style="background-image:url('https://odysseycontracting.com/wp-content/uploads/1-7.jpg')">
+        <div class="project-card-body">
+          <h3>Screened Porch &amp; Patio</h3>
+          <a href="#projects">See Project Photos &rsaquo;</a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- Band 11: faq -->
+<section class="band band-11" data-band="11" data-role="faq">
+  <div class="container">
+    <h2 class="section-heading center" data-reveal>Frequently Asked Questions About Odyssey Contracting</h2>
+    <div class="faq-list" data-reveal>
+      <details class="faq-item">
+        <summary>How long does a typical remodel take?</summary>
+        <p>Timelines vary by project scope; we outline an estimated schedule before work begins.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Do you handle permits and inspections?</summary>
+        <p>Yes, our team coordinates the permitting and inspection steps a project requires.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Do you offer financing?</summary>
+        <p>Financing options are available; ask your project consultant for current details.</p>
+      </details>
+      <details class="faq-item">
+        <summary>What areas do you serve?</summary>
+        <p>We serve homeowners across the local region. Contact us to confirm coverage for your address.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- Band 12: content, mid-page CTA strip -->
+<section class="band band-12" data-band="12" data-role="content" style="background-image:url('https://odysseycontracting.com/wp-content/uploads/Rectangle-5-4.png')">
+  <div class="container cta-strip" data-reveal>
+    <h3>Ready to Start Your Next Project?</h3>
+    <div class="button-row">
+      <a class="btn btn-secondary" href="#quote">Get a Quote</a>
+      <a class="btn btn-outline" href="#contact">Contact Us</a>
+    </div>
+  </div>
+</section>
+
+<!-- Band 13: footer columns -->
+<section class="band band-13" data-band="13" data-role="content">
+  <div class="container">
+    <div class="footer-grid" data-reveal>
+      <div class="footer-col">
+        <h5>ABOUT US</h5>
+        <ul>
+          <li><a href="#top">Home</a></li>
+          <li><a href="#about">Our Story</a></li>
+          <li><a href="#top">Reviews</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>OUR SERVICES</h5>
+        <ul>
+          <li><a href="#services">Kitchen Renovations</a></li>
+          <li><a href="#services">Bathroom Renovations</a></li>
+          <li><a href="#services">Roofing</a></li>
+          <li><a href="#services">Siding &amp; Windows</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>GET IN TOUCH</h5>
+        <ul>
+          <li><a href="#quote">Request a Quote</a></li>
+          <li><a href="#contact">Contact Us</a></li>
+          <li><a href="#projects">Project Gallery</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Band 14: bottom bar -->
+<section class="band band-14" data-band="14" data-role="content" id="contact">
+  <div class="container footer-bottom">
+    <div class="footer-bottom-col">
+      <h3>Address</h3>
+      <p>Address details were not included in this extraction.</p>
+    </div>
+    <div class="footer-bottom-col footer-bottom-col--social">
+      <h3>Social</h3>
+      <div class="social-row">
+        <a href="#" aria-label="Facebook">FB</a>
+        <a href="#" aria-label="Instagram">IG</a>
+        <a href="#" aria-label="Google">G</a>
+        <a href="#" aria-label="Yelp">Y</a>
+      </div>
+    </div>
+    <button class="back-to-top" type="button" aria-label="Back to top">&#8593;</button>
+  </div>
+  <div class="container copyright-row">
+    <p>&copy; Odyssey Contracting. All rights reserved.</p>
+    <div class="legal-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+    </div>
+  </div>
+</section>
+
+<script src="app.js"></script>
+</body>
+</html>
