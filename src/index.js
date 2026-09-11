@@ -221,6 +221,7 @@ export async function extractDesignLanguage(url, options = {}) {
   // rawData is cached as _raw by the website; page copy must not accumulate
   // there once the blueprint classifier has consumed it.
   stripBandText(rawData.light?.bands || []);
+  stripBandText(rawData.dark?.bands || []);
   // sectionRoles.readingOrder and sectionRoles.sections must describe the
   // same thing: when the blueprint found bands, both come from it (see
   // sectionRolesFromBlueprint); the landmark list stays available separately

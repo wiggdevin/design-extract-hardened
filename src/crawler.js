@@ -201,8 +201,10 @@ export async function crawlPage(url, options = {}) {
     // The interaction and runtime-motion passes above scroll elements into
     // view via Playwright's actionability checks, so the page may be
     // scrolled away from the top here; sections and bands both compute
-    // document-relative y from window.scrollY, so reset before collecting.
-    await page.evaluate(() => window.scrollTo(0, 0)).catch(() => {});
+    // document-relative y from window.scrollY, so reset the window scroller
+    // before collecting (instant, so a smooth scroll-behavior page cannot
+    // still be mid-flight when the settle wait expires).
+    await page.evaluate(() => window.scrollTo({ top: 0, left: 0, behavior: 'instant' })).catch(() => {});
     await page.waitForTimeout(200);
 
     const lightData = await extractPageData(page, ignore, selector);
