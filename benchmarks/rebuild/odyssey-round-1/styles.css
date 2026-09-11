@@ -276,7 +276,7 @@ p { margin: 0 0 16px; }
 
 /* band 14 — footer bottom */
 .band-footer-bottom { background: var(--color-bg-charcoal); color: rgba(255,255,255,0.6); font-size: 12px; }
-.footer-bottom-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; align-items: start; }
+.footer-bottom-grid { display: grid; grid-template-columns: 1fr; gap: 16px; align-items: start; }
 .footer-bottom-grid h3 { font-size: var(--fs-title-6); color: var(--color-text-onDark); margin-bottom: 10px; }
 .footer-legal { display: flex; gap: 16px; flex-wrap: wrap; }
 .footer-social-mini { display: flex; gap: 10px; }
