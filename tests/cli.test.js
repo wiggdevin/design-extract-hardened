@@ -70,6 +70,15 @@ describe('CLI', () => {
     assert.ok(failed, 'expected a non-zero exit');
   });
 
+  it('the --clone-local loopback allowance is fidelity-only: absent from extraction, clone, and pack', () => {
+    const extraction = execFileSync('node', [CLI_PATH, '--help'], { encoding: 'utf-8' });
+    const clone = execFileSync('node', [CLI_PATH, 'clone', '--help'], { encoding: 'utf-8' });
+    const pack = execFileSync('node', [CLI_PATH, 'pack', '--help'], { encoding: 'utf-8' });
+    assert.ok(!extraction.includes('--clone-local'), extraction);
+    assert.ok(!clone.includes('--clone-local'), clone);
+    assert.ok(!pack.includes('--clone-local'), pack);
+  });
+
   it('registers the gallery command', () => {
     const output = execFileSync('node', [CLI_PATH, 'gallery', '--help'], { encoding: 'utf-8' });
     assert.ok(output.includes('Build a static, shareable gallery'));

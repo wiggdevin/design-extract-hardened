@@ -41,14 +41,18 @@ export async function measureCloneFidelity({ originalUrl, cloneUrl, opts = {} } 
   if (!originalUrl || !cloneUrl) throw new Error('measureCloneFidelity needs originalUrl and cloneUrl');
   const browserOpts = opts.channel ? { channel: opts.channel } : {};
   const extractOpts = { ...(opts.extract || {}) };
+  // Injectable for tests (a stub recording calls, or one that never touches
+  // the network); default path is the real extractor/screenshot functions.
+  const extractor = opts.extractor || extractDesignLanguage;
+  const takeScreenshot = opts.screenshot || fullPageShot;
 
   // Motion is extracted from both sides via the normal pipeline. allowOrigin
   // (fidelity --clone-local) applies to the clone-side crawl only — the
   // original is never a loopback target.
   const cloneExtractOpts = opts.allowOrigin ? { ...extractOpts, allowOrigin: opts.allowOrigin } : extractOpts;
   const [originalDesign, cloneDesign] = await Promise.all([
-    extractDesignLanguage(originalUrl, extractOpts),
-    extractDesignLanguage(cloneUrl, cloneExtractOpts),
+    extractor(originalUrl, extractOpts),
+    extractor(cloneUrl, cloneExtractOpts),
   ]);
 
   const motion = scoreMotionFidelity(originalDesign.motion, cloneDesign.motion, {
@@ -64,8 +68,8 @@ export async function measureCloneFidelity({ originalUrl, cloneUrl, opts = {} } 
   const browser = await chromium.launch({ headless: true, ...browserOpts });
   try {
     const [origShot, cloneShot] = await Promise.all([
-      fullPageShot(browser, originalUrl, opts),
-      fullPageShot(browser, cloneUrl, opts),
+      takeScreenshot(browser, originalUrl, opts),
+      takeScreenshot(browser, cloneUrl, opts),
     ]);
     const diff = diffPngBuffers(origShot, cloneShot);
     visualFidelity = ratioToFidelity(diff.ratio);

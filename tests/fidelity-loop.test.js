@@ -144,3 +144,32 @@ describe('measureCloneFidelity input guard', () => {
     await assert.rejects(measureCloneFidelity({ originalUrl: 'https://example.com' }), /needs originalUrl and cloneUrl/);
   });
 });
+
+describe('measureCloneFidelity: allowOrigin threads to the clone-side crawl only', () => {
+  const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
+  const stubDesign = {
+    motion: { runtime: null },
+    blueprint: { bands: [], readingOrder: [], heroIndex: -1, counts: { bands: 0, oversizedDropped: 0, byRole: {} } },
+  };
+
+  it('the original call has no allowOrigin key; the clone call carries the loopback origin', async () => {
+    const calls = [];
+    const extractor = async (url, options) => { calls.push({ url, options }); return stubDesign; };
+    const screenshot = async () => PNG;
+
+    const { report } = await measureCloneFidelity({
+      originalUrl: 'https://example.com',
+      cloneUrl: 'http://127.0.0.1:4173',
+      opts: { extractor, screenshot, allowOrigin: 'http://127.0.0.1:4173' },
+    });
+
+    assert.equal(calls.length, 2);
+    const original = calls.find((c) => c.url === 'https://example.com');
+    const clone = calls.find((c) => c.url === 'http://127.0.0.1:4173');
+    assert.ok(original, JSON.stringify(calls));
+    assert.ok(!('allowOrigin' in original.options), JSON.stringify(original.options));
+    assert.ok(clone, JSON.stringify(calls));
+    assert.equal(clone.options.allowOrigin, 'http://127.0.0.1:4173');
+    assert.ok(report);
+  });
+});
