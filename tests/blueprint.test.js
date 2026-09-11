@@ -175,3 +175,12 @@ describe('overlay bands: fixed or absolute, or contained in an earlier band', ()
     assert.equal(bp.heroIndex, 1);
   });
 });
+
+describe('stripBandText also clears landmark section records', () => {
+  it('deletes text from section records in place', () => {
+    const sections = [{ tag: 'section', text: 'page copy', textLength: 9, bounds: { y: 0, h: 10 } }];
+    stripBandText(sections);
+    assert.ok(!('text' in sections[0]));
+    assert.equal(sections[0].textLength, 9);
+  });
+});

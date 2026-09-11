@@ -122,10 +122,10 @@ export function extractBlueprint(bands = [], runtimeObservations = [], pageInten
   };
 }
 
-// Strips the raw page text from band records in place (the blueprint
-// classifier above has already consumed it and never re-emits it on
-// design.blueprint.bands). rawData is cached as _raw by the website, so
-// page copy left on it accumulates there across requests.
+// Strips the raw page text from band and landmark section records in place
+// (the blueprint classifier above has already consumed it and never
+// re-emits it on design.blueprint.bands). rawData is cached as _raw by the
+// website, so page copy left on it accumulates there across requests.
 export function stripBandText(bands) {
   for (const b of Array.isArray(bands) ? bands : []) {
     if (b && typeof b === 'object') delete b.text;

@@ -222,6 +222,8 @@ export async function extractDesignLanguage(url, options = {}) {
   // there once the blueprint classifier has consumed it.
   stripBandText(rawData.light?.bands || []);
   stripBandText(rawData.dark?.bands || []);
+  stripBandText(rawData.light?.sections || []);
+  stripBandText(rawData.dark?.sections || []);
   // sectionRoles.readingOrder and sectionRoles.sections must describe the
   // same thing: when the blueprint found bands, both come from it (see
   // sectionRolesFromBlueprint); the landmark list stays available separately
