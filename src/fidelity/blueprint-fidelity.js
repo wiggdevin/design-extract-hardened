@@ -54,6 +54,10 @@ export function scoreBlueprintFidelity(original, clone) {
     total,
     aligned,
     unmatchedBands,
+    // A band-count mismatch shifts every band after the first missing one
+    // out of alignment, so the per-band checks below it compare unrelated
+    // bands rather than a true build fault. driftSuspected flags that.
+    driftSuspected: unmatchedBands > 0,
     bands,
   };
 }

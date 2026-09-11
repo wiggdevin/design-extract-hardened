@@ -16,10 +16,11 @@ describe('scoreBlueprintFidelity', () => {
     assert.equal(r.matched, 15);
     assert.equal(r.total, 15);
     assert.equal(r.unmatchedBands, 0);
+    assert.equal(r.driftSuspected, false);
     assert.deepEqual(r.bands[0].checks, { role: true, background: true, columns: true, media: true, height: true });
   });
 
-  it('charges one full band for a missing band', () => {
+  it('charges one full band for a missing band and flags drift', () => {
     const clone = { bands: original.bands.slice(0, 2) };
     const r = scoreBlueprintFidelity(original, clone);
     assert.equal(r.aligned, 2);
@@ -27,6 +28,7 @@ describe('scoreBlueprintFidelity', () => {
     assert.equal(r.total, 15);
     assert.equal(r.matched, 10);
     assert.equal(r.score, 67);
+    assert.equal(r.driftSuspected, true);
   });
 
   it('charges one check for a column mismatch and reports which band', () => {

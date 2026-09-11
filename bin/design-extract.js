@@ -2184,6 +2184,9 @@ program
       spinner.succeed(`Fidelity ${report.overall == null ? 'n/a' : report.overall + '/100'} (${report.grade}) → ${join(outDir, 'fidelity.md')}`);
       console.log(`  ${chalk.bold('visual')} ${chalk.cyan(String(report.visual ?? '—'))}   ${chalk.bold('motion')} ${chalk.cyan(String(report.motion ?? '—'))}`);
       console.log(`  ${chalk.bold('blueprint')} ${chalk.cyan(String(report.blueprint?.score ?? '—'))}  (${report.blueprint?.aligned ?? 0} bands aligned, ${report.blueprint?.unmatchedBands ?? 0} unmatched)`);
+      if (report.blueprint?.driftSuspected) {
+        console.log(chalk.yellow(`  blueprint score is drift-dominated: band counts differ by ${report.blueprint.unmatchedBands}; per-band checks after the first mismatch are unreliable`));
+      }
       for (const d of report.directives.slice(0, 6)) {
         console.log(`  ${chalk.gray(`[${d.priority}/${d.area}]`)} ${d.issue}`);
       }
