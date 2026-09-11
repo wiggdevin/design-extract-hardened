@@ -158,3 +158,20 @@ describe('repeated cards with buttons beat the testimonial class hint', () => {
     assert.equal(bp.bands[0].repeats, null);
   });
 });
+
+describe('overlay bands: fixed or absolute, or contained in an earlier band', () => {
+  const bands = [
+    band({ tag: 'header', position: 'fixed', bounds: { x: 0, y: 0, w: 1280, h: 107 }, text: '' }),
+    band({ tag: 'div', className: 'fullwidth-video', position: 'relative', bounds: { x: 0, y: 0, w: 1280, h: 800 }, media: { kind: 'video', share: 1, src: 'https://example.com/v.webm' }, text: '' }),
+    band({ tag: 'div', className: 'fusion-builder-row hero-copy', position: 'relative', bounds: { x: 0, y: 0, w: 1280, h: 800 }, heading: { level: 1, fontSize: 65, text: 'Trusted' }, text: 'Trusted' }),
+    band({ tag: 'div', className: 'fusion-fullwidth intro', position: 'relative', bounds: { x: 0, y: 800, w: 1280, h: 144 }, text: '' }),
+  ];
+  const bp = extractBlueprint(bands, [], { type: 'landing' }, { pageHeight: 10822, viewportHeight: 800 });
+  it('marks the fixed nav and the contained headline row, not the video or the next band', () => {
+    assert.deepEqual(bp.bands.map((b) => b.overlay), [true, false, true, false]);
+  });
+  it('keeps the reading order and hero unchanged', () => {
+    assert.equal(bp.readingOrder.length, 4);
+    assert.equal(bp.heroIndex, 1);
+  });
+});

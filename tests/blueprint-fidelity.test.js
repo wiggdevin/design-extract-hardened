@@ -84,3 +84,16 @@ describe('scoreBlueprintFidelity', () => {
     assert.equal(r.score, Math.round((100 * r.matched) / r.total));
   });
 });
+
+describe('overlay bands are skipped when aligning', () => {
+  const b = (role, h, overlay = false) => ({ role, overlay, bounds: { h }, background: { color: '#ffffff' }, columns: 1, media: { kind: 'none' } });
+  it('a clone that stacks overlays on the band before them is not drift', () => {
+    const original = { bands: [b('nav', 107, true), b('hero', 800), b('hero', 800, true), b('content', 144)] };
+    const clone = { bands: [b('hero', 800), b('content', 144)] };
+    const r = scoreBlueprintFidelity(original, clone);
+    assert.equal(r.aligned, 2);
+    assert.equal(r.unmatchedBands, 0);
+    assert.equal(r.driftSuspected, false);
+    assert.equal(r.score, 100);
+  });
+});

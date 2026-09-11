@@ -9,6 +9,19 @@ const HERO_MEDIA_SHARE = 0.4;
 const HERO_HEADING_PX = 40;
 const HERO_WITHIN_VIEWPORTS = 1.5;
 const NAV_NEAR_TOP_PX = 200;
+const OVERLAY_TOLERANCE_PX = 8;
+
+// A band that sits on top of another rather than after it: pinned or
+// absolutely positioned, or its box lies inside an earlier band's box (a
+// headline row inside a full-bleed video wrapper). A rebuild stacks these
+// on the band before them; they add no height to the page.
+function isOverlay(b, earlier) {
+  if (b.position === 'fixed' || b.position === 'absolute') return true;
+  const t = OVERLAY_TOLERANCE_PX;
+  const { x = 0, y, w = 0, h } = b.bounds;
+  return earlier.some((e) => x >= (e.bounds.x || 0) - t && y >= e.bounds.y - t
+    && x + w <= (e.bounds.x || 0) + (e.bounds.w || 0) + t && y + h <= e.bounds.y + e.bounds.h + t);
+}
 
 // classifyRole claims a nav/header landmark near the top (or pinned) before it
 // ever looks at heroCandidate — see section-roles.js. A band that will be
@@ -66,6 +79,12 @@ export function extractBlueprint(bands = [], runtimeObservations = [], pageInten
 
   const pageType = pageIntent && pageIntent.type;
   const observations = Array.isArray(runtimeObservations) ? runtimeObservations : [];
+  const overlays = [];
+  const flags = kept.map((b) => {
+    const f = isOverlay(b, overlays);
+    if (!f) overlays.push(b);
+    return f;
+  });
   const out = kept.map((b, i) => {
     const classified = classifyRole({
       tag: b.tag, role: b.role, className: b.className, id: b.id, position: b.position,
@@ -80,6 +99,7 @@ export function extractBlueprint(bands = [], runtimeObservations = [], pageInten
       confidence: Number((classified.confidence || 0).toFixed(3)),
       tag: b.tag, className: b.className || '', id: b.id || '', position: b.position || 'static',
       bounds: b.bounds,
+      overlay: flags[i],
       background: b.background || { color: null, imageUrl: null, hasVideo: false },
       columns: b.columns || 1,
       media: b.media || { kind: 'none', share: 0, src: null },

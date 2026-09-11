@@ -27,8 +27,8 @@ function heightMatch(ha, hb) {
 }
 
 export function scoreBlueprintFidelity(original, clone) {
-  const a = Array.isArray(original?.bands) ? original.bands : [];
-  const b = Array.isArray(clone?.bands) ? clone.bands : [];
+  const a = (Array.isArray(original?.bands) ? original.bands : []).filter((b) => !(b && b.overlay));
+  const b = (Array.isArray(clone?.bands) ? clone.bands : []).filter((b) => !(b && b.overlay));
   const aligned = Math.min(a.length, b.length);
   const unmatchedBands = Math.abs(a.length - b.length);
   const bands = [];
