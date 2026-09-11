@@ -50,6 +50,7 @@ export async function crawlPage(url, options = {}) {
     pixelEvidence = true, // Pixel lane: features of images the page loaded (no extra fetch).
     dismissConsent = true, // Reject or hide a consent banner before measuring. Never accepts.
     scrollPass = true, // Shared viewport-step scroll pass so lazy images and reveal animations fire.
+    allowOrigin,
   } = options;
 
   const launchArgs = [
@@ -72,7 +73,9 @@ export async function crawlPage(url, options = {}) {
   // through this proxy. The proxy resolves each destination itself, rejects
   // any private/special-use answer, and connects to the validated IP rather
   // than allowing a second DNS lookup (DNS-rebinding protection).
-  const safeProxy = await startSafeBrowsingProxy();
+  // allowOrigin is the one loopback allowance (fidelity --clone-local). The
+  // proxy validates its shape again; anything else is ignored here.
+  const safeProxy = await startSafeBrowsingProxy(typeof allowOrigin === 'string' ? { allowOrigin } : {});
   let browser;
   try {
     browser = await chromium.launch({

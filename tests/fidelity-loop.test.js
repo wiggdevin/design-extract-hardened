@@ -136,3 +136,11 @@ describe('runFidelityLoop', () => {
     await assert.rejects(() => runFidelityLoop({}), /measure/);
   });
 });
+
+import { measureCloneFidelity } from '../src/fidelity/run.js';
+
+describe('measureCloneFidelity input guard', () => {
+  it('rejects a missing clone URL before touching a browser', async () => {
+    await assert.rejects(measureCloneFidelity({ originalUrl: 'https://example.com' }), /needs originalUrl and cloneUrl/);
+  });
+});

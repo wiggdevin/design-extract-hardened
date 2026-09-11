@@ -10,6 +10,7 @@ import { extractDesignLanguage } from '../index.js';
 import { diffPngBuffers, ratioToFidelity } from '../verify/diff.js';
 import { scoreMotionFidelity } from './motion-fidelity.js';
 import { combineFidelity } from './index.js';
+import { scoreBlueprintFidelity } from './blueprint-fidelity.js';
 
 function hostOf(url) {
   try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return url; }
@@ -41,16 +42,21 @@ export async function measureCloneFidelity({ originalUrl, cloneUrl, opts = {} } 
   const browserOpts = opts.channel ? { channel: opts.channel } : {};
   const extractOpts = { ...(opts.extract || {}) };
 
-  // Motion is extracted from both sides via the normal pipeline.
+  // Motion is extracted from both sides via the normal pipeline. allowOrigin
+  // (fidelity --clone-local) applies to the clone-side crawl only — the
+  // original is never a loopback target.
+  const cloneExtractOpts = opts.allowOrigin ? { ...extractOpts, allowOrigin: opts.allowOrigin } : extractOpts;
   const [originalDesign, cloneDesign] = await Promise.all([
     extractDesignLanguage(originalUrl, extractOpts),
-    extractDesignLanguage(cloneUrl, extractOpts),
+    extractDesignLanguage(cloneUrl, cloneExtractOpts),
   ]);
 
   const motion = scoreMotionFidelity(originalDesign.motion, cloneDesign.motion, {
     originalChoreography: choreographyOf(originalDesign),
     cloneChoreography: choreographyOf(cloneDesign),
   });
+
+  const blueprint = scoreBlueprintFidelity(originalDesign.blueprint, cloneDesign.blueprint);
 
   // Visual: pixel-diff full-page screenshots.
   let visualFidelity = null;
@@ -78,6 +84,7 @@ export async function measureCloneFidelity({ originalUrl, cloneUrl, opts = {} } 
     generatedAt: new Date().toISOString(),
     ...combined,
     motionAspects: motion.aspects,
+    blueprint,
   };
 
   return { report, heatmap };

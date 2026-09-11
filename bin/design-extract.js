@@ -2145,12 +2145,23 @@ program
   .option('-o, --out <dir>', 'output directory')
   .option('--min <score>', 'exit non-zero if overall fidelity is below this (CI gate)', parseInt)
   .option('--motion-runtime', 'capture runtime motion (real durations + choreography) on both sides')
+  .option('--clone-local', 'allow a clone served from http://127.0.0.1:<port> or http://localhost:<port> (the only loopback exception; fidelity only)')
   .option('--system-chrome', 'use the system Chrome install instead of bundled Chromium')
   .action(async (original, opts, command) => {
     if (!original.startsWith('http')) original = `https://${original}`;
     let clone = opts.clone;
     if (!clone.startsWith('http')) clone = `https://${clone}`;
     validateUrl(original); validateUrl(clone);
+    let allowOrigin;
+    if (opts.cloneLocal) {
+      try {
+        const { loopbackOrigin } = await import('../src/security/url-safety.js');
+        allowOrigin = loopbackOrigin(clone);
+      } catch (err) {
+        console.error(chalk.red(`\n  ${err.message}\n`));
+        process.exit(1);
+      }
+    }
     const spinner = ora('Measuring clone fidelity (visual + motion)').start();
     try {
       const { measureCloneFidelity } = await import('../src/fidelity/run.js');
@@ -2159,7 +2170,7 @@ program
       const { report, heatmap } = await measureCloneFidelity({
         originalUrl: original,
         cloneUrl: clone,
-        opts: { channel, extract: { motionRuntime: !!opts.motionRuntime } },
+        opts: { channel, extract: { motionRuntime: !!opts.motionRuntime }, allowOrigin },
       });
 
       const outDir = resolveOut(opts, command, './design-extract-output');
@@ -2168,9 +2179,11 @@ program
       writeFileSync(join(outDir, 'fidelity.md'), formatFidelityMarkdown(report), 'utf8');
       writeFileSync(join(outDir, 'fidelity-card.svg'), formatFidelityCard(report), 'utf8');
       if (heatmap) writeFileSync(join(outDir, 'fidelity-diff.png'), heatmap);
+      writeFileSync(join(outDir, 'fidelity-blueprint.json'), JSON.stringify(report.blueprint, null, 2) + '\n', 'utf8');
 
       spinner.succeed(`Fidelity ${report.overall == null ? 'n/a' : report.overall + '/100'} (${report.grade}) → ${join(outDir, 'fidelity.md')}`);
       console.log(`  ${chalk.bold('visual')} ${chalk.cyan(String(report.visual ?? '—'))}   ${chalk.bold('motion')} ${chalk.cyan(String(report.motion ?? '—'))}`);
+      console.log(`  ${chalk.bold('blueprint')} ${chalk.cyan(String(report.blueprint?.score ?? '—'))}  (${report.blueprint?.aligned ?? 0} bands aligned, ${report.blueprint?.unmatchedBands ?? 0} unmatched)`);
       for (const d of report.directives.slice(0, 6)) {
         console.log(`  ${chalk.gray(`[${d.priority}/${d.area}]`)} ${d.issue}`);
       }

@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer, request } from 'node:http';
+import { connect } from 'node:net';
 import { loopbackOrigin, validateTargetUrl, resolvePublicTarget, UnsafeNetworkTargetError } from '../src/security/url-safety.js';
 import { startSafeBrowsingProxy } from '../src/security/safe-proxy.js';
 
@@ -48,7 +49,7 @@ function viaProxy(proxy, url) {
 
 test('the proxy forwards the allowed origin and refuses every other loopback or private hop, including a redirect target', async () => {
   const origin = createServer((req, res) => {
-    if (req.url === '/redirect') { res.writeHead(302, { location: 'http://192.168.1.5:4173/' }); res.end(); return; }
+    if (req.url === '/redirect') { res.writeHead(302, { location: 'http://192.168.1.5/' }); res.end(); return; }
     res.writeHead(200, { 'content-type': 'text/plain' }); res.end('hello from the clone');
   });
   await new Promise((r) => origin.listen(0, '127.0.0.1', r));
@@ -76,5 +77,25 @@ test('the proxy with no allowance still refuses loopback', async () => {
   const proxy = await startSafeBrowsingProxy();
   try {
     assert.equal((await viaProxy(proxy, 'http://127.0.0.1:4173/')).status, 403);
+  } finally { await proxy.close(); }
+});
+
+function connectViaProxy(proxy, hostPort) {
+  return new Promise((resolve, reject) => {
+    const socket = connect({ host: proxy.host, port: proxy.port }, () => {
+      socket.write(`CONNECT ${hostPort} HTTP/1.1\r\nHost: ${hostPort}\r\n\r\n`);
+    });
+    let data = '';
+    socket.on('data', (chunk) => { data += chunk; if (data.includes('\r\n\r\n')) { socket.destroy(); resolve(data.split('\r\n')[0]); } });
+    socket.on('error', reject);
+    socket.setTimeout(3000, () => { socket.destroy(); reject(new Error('timeout')); });
+  });
+}
+
+test('a CONNECT tunnel to the allowed host:port is refused: the allowance is http only', async () => {
+  const proxy = await startSafeBrowsingProxy({ allowOrigin: 'http://127.0.0.1:4173' });
+  try {
+    const status = await connectViaProxy(proxy, '127.0.0.1:4173');
+    assert.match(status, /^HTTP\/1\.1 403 /);
   } finally { await proxy.close(); }
 });
