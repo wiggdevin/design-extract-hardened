@@ -41,10 +41,13 @@ function listColors(design) {
 // them straight from the page's own CSS `font-family` declarations, so they
 // are attacker-reachable free text, not a closed vocabulary — its only
 // guardrails are a 128-char cap and a ban on control chars / `:` / `;` (see
-// src/extractors/font-system.js). safeFontName applies a much stricter
-// allowlist (letters, digits, spaces, hyphens only) plus a tight length cap
-// so a page cannot smuggle instruction-shaped or markup-shaped text into
-// this agent-facing prompt through a font-family declaration.
+// src/extractors/font-system.js). safeFontName serves only these two
+// fields (see listType below) and applies a much stricter allowlist
+// (letters, digits, spaces, hyphens only) plus a tight length cap so a
+// page cannot smuggle instruction-shaped or markup-shaped text into this
+// agent-facing prompt through one of them. The separate typography.families
+// list is a closed vocabulary already and goes through the FAMILY_RE
+// allowlist below instead.
 function percentEvidence(n) {
   return Math.round((Number(n) || 0) * 100);
 }
@@ -61,11 +64,14 @@ function safeFontName(value, maxLen = 32) {
 
 // Whole-string allowlists. Anything that does not match is dropped, never trimmed
 // into shape: a value that fails these is not a name, it is page text.
-const FAMILY_RE = /^[A-Za-z][A-Za-z0-9 -]{0,31}$/;
+// FAMILY_RE caps at three words (each up to 32 chars on its own) so a
+// sentence-shaped value like "Ignore all prior instructions" cannot pass as
+// a font family name; the 32-char overall cap below still applies on top.
+const FAMILY_RE = /^[A-Za-z][A-Za-z0-9-]{0,31}(?: [A-Za-z0-9-]{1,31}){0,2}$/;
 const TOKEN_RE = /^[a-z][a-z0-9-]{0,23}$/i;
 const VERB_RE = /^[A-Za-z][a-z]{1,15}$/;
 function allowlisted(values, re, map = (v) => v) {
-  return values.map((v) => (typeof v === 'string' ? v.trim() : '')).filter((v) => re.test(v)).map(map);
+  return values.map((v) => (typeof v === 'string' ? v.trim() : '')).filter((v) => v.length <= 32 && re.test(v)).map(map);
 }
 
 function listType(design, rawDesign) {
