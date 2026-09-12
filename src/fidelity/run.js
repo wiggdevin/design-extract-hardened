@@ -10,26 +10,55 @@ import { extractDesignLanguage } from '../index.js';
 import { diffPngBuffers, ratioToFidelity } from '../verify/diff.js';
 import { scoreMotionFidelity } from './motion-fidelity.js';
 import { combineFidelity } from './index.js';
+import { scoreBlueprintFidelity } from './blueprint-fidelity.js';
+import { startSafeBrowsingProxy } from '../security/safe-proxy.js';
 
 function hostOf(url) {
   try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return url; }
 }
 
-async function fullPageShot(browser, url, { width = 1280, height = 800 } = {}) {
-  const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 1, colorScheme: 'light' });
+// Full-page screenshot through the safe browsing proxy, the same egress
+// policy as the crawl. allowOrigin is the fidelity --clone-local allowance
+// and is passed for the clone shot only. startProxy/launch are injectable so
+// this proxied lane can be tested without a network or a real browser; the
+// default behaviour (real proxy, real chromium) is unchanged.
+export async function fullPageShot(url, { width = 1280, height = 800, channel, allowOrigin } = {},
+  { startProxy = startSafeBrowsingProxy, launch = (o) => chromium.launch(o) } = {}) {
+  const safeProxy = await startProxy(typeof allowOrigin === 'string' ? { allowOrigin } : {});
+  let browser;
   try {
+    browser = await launch({
+      headless: true,
+      ...(channel && { channel }),
+      args: ['--disable-quic', '--force-webrtc-ip-handling-policy=disable_non_proxied_udp', '--proxy-bypass-list=<-loopback>', '--disable-dev-shm-usage'],
+      proxy: { server: safeProxy.url },
+    });
+    const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 1, colorScheme: 'light' });
     const page = await context.newPage();
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
     await page.waitForLoadState('networkidle').catch(() => {});
     await page.evaluate(() => document.fonts?.ready).catch(() => {});
     return await page.screenshot({ type: 'png', fullPage: true });
   } finally {
-    await context.close();
+    if (browser) await browser.close().catch(() => {});
+    await safeProxy.close();
   }
 }
 
 function choreographyOf(design) {
   return design?.motion?.runtime?.choreography || [];
+}
+
+// Each side of a paired launch owns a browser (and, for shots, a proxy) that
+// must be allowed to close before we return; a plain Promise.all rejects
+// (and callers move on) the moment either side rejects, abandoning the
+// other side's cleanup mid-flight. Wait for both to settle, then surface the
+// first rejection, positionally.
+async function settledPair(promises) {
+  const [a, b] = await Promise.allSettled(promises);
+  if (a.status === 'rejected') throw a.reason;
+  if (b.status === 'rejected') throw b.reason;
+  return [a.value, b.value];
 }
 
 /**
@@ -38,13 +67,19 @@ function choreographyOf(design) {
  */
 export async function measureCloneFidelity({ originalUrl, cloneUrl, opts = {} } = {}) {
   if (!originalUrl || !cloneUrl) throw new Error('measureCloneFidelity needs originalUrl and cloneUrl');
-  const browserOpts = opts.channel ? { channel: opts.channel } : {};
   const extractOpts = { ...(opts.extract || {}) };
+  // Injectable for tests (a stub recording calls, or one that never touches
+  // the network); default path is the real extractor/screenshot functions.
+  const extractor = opts.extractor || extractDesignLanguage;
+  const takeScreenshot = opts.screenshot || fullPageShot;
 
-  // Motion is extracted from both sides via the normal pipeline.
-  const [originalDesign, cloneDesign] = await Promise.all([
-    extractDesignLanguage(originalUrl, extractOpts),
-    extractDesignLanguage(cloneUrl, extractOpts),
+  // Motion is extracted from both sides via the normal pipeline. allowOrigin
+  // (fidelity --clone-local) applies to the clone-side crawl only — the
+  // original is never a loopback target.
+  const cloneExtractOpts = opts.allowOrigin ? { ...extractOpts, allowOrigin: opts.allowOrigin } : extractOpts;
+  const [originalDesign, cloneDesign] = await settledPair([
+    extractor(originalUrl, extractOpts),
+    extractor(cloneUrl, cloneExtractOpts),
   ]);
 
   const motion = scoreMotionFidelity(originalDesign.motion, cloneDesign.motion, {
@@ -52,21 +87,19 @@ export async function measureCloneFidelity({ originalUrl, cloneUrl, opts = {} } 
     cloneChoreography: choreographyOf(cloneDesign),
   });
 
+  const blueprint = scoreBlueprintFidelity(originalDesign.blueprint, cloneDesign.blueprint);
+
   // Visual: pixel-diff full-page screenshots.
   let visualFidelity = null;
   let heatmap = null;
-  const browser = await chromium.launch({ headless: true, ...browserOpts });
-  try {
-    const [origShot, cloneShot] = await Promise.all([
-      fullPageShot(browser, originalUrl, opts),
-      fullPageShot(browser, cloneUrl, opts),
-    ]);
-    const diff = diffPngBuffers(origShot, cloneShot);
-    visualFidelity = ratioToFidelity(diff.ratio);
-    heatmap = diff.heatmap;
-  } finally {
-    await browser.close();
-  }
+  const shotOpts = { width: opts.width, height: opts.height, channel: opts.channel };
+  const [origShot, cloneShot] = await settledPair([
+    takeScreenshot(originalUrl, shotOpts),
+    takeScreenshot(cloneUrl, opts.allowOrigin ? { ...shotOpts, allowOrigin: opts.allowOrigin } : shotOpts),
+  ]);
+  const diff = diffPngBuffers(origShot, cloneShot);
+  visualFidelity = ratioToFidelity(diff.ratio);
+  heatmap = diff.heatmap;
 
   const verify = { fidelity: visualFidelity, components: [] };
   const combined = combineFidelity({ verify, motion });
@@ -78,6 +111,7 @@ export async function measureCloneFidelity({ originalUrl, cloneUrl, opts = {} } 
     generatedAt: new Date().toISOString(),
     ...combined,
     motionAspects: motion.aspects,
+    blueprint,
   };
 
   return { report, heatmap };

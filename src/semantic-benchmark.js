@@ -196,6 +196,63 @@ function scoreMedia(site, extraction) {
 
 const ratio = (num, den) => (den > 0 ? num / den : 0);
 
+const HERO_WINDOW = 3;
+
+// A lazy-loader placeholder: a data: SVG with nothing drawn in it (the
+// lazysizes shape). Base64 SVG drawings and base64 raster images are real
+// inline media and must not count.
+const DRAWING_ELEMENT_RE = /<(path|rect|circle|ellipse|polygon|polyline|line|image|text|g|use)\b/i;
+const BASE64_RASTER_PLACEHOLDER_BYTES = 200;
+
+export function isPlaceholderMediaSrc(src) {
+  if (typeof src !== 'string') return false;
+
+  const base64Svg = /^data:image\/svg\+xml;base64,(.*)$/i.exec(src);
+  if (base64Svg) {
+    let markup;
+    try { markup = Buffer.from(base64Svg[1], 'base64').toString('utf8'); } catch { return false; }
+    return !DRAWING_ELEMENT_RE.test(markup);
+  }
+
+  const base64Raster = /^data:image\/(gif|png|jpeg|jpg|webp|avif);base64,(.*)$/i.exec(src);
+  if (base64Raster) {
+    let bytes;
+    try { bytes = Buffer.from(base64Raster[2], 'base64').length; } catch { return false; }
+    return bytes < BASE64_RASTER_PLACEHOLDER_BYTES;
+  }
+
+  if (!/^data:image\/svg\+xml/i.test(src)) return false;
+  let markup = src;
+  try { markup = decodeURIComponent(src); } catch { /* keep raw */ }
+  return !DRAWING_ELEMENT_RE.test(markup);
+}
+
+/** Blueprint gates need no ground truth: they read the extraction alone. */
+export function scoreBlueprintGates(extractionsById = {}) {
+  const perSite = Object.entries(extractionsById).map(([id, extraction]) => {
+    const bp = extraction?.blueprint || {};
+    const roles = Array.isArray(bp.readingOrder) ? bp.readingOrder : [];
+    const heroIndex = roles.indexOf('hero');
+    const bands = Array.isArray(bp.bands) ? bp.bands : [];
+    return {
+      id,
+      bands: bands.length,
+      heroIndex,
+      heroAtTop: heroIndex >= 0 && heroIndex < HERO_WINDOW,
+      oversizedDropped: Number(bp.counts?.oversizedDropped) || 0,
+      firstRoles: roles.slice(0, HERO_WINDOW),
+      placeholderMedia: bands.filter((b) => isPlaceholderMediaSrc(b.media && b.media.src)).length,
+    };
+  });
+  return {
+    sites: perSite.length,
+    heroAtTop: perSite.filter((s) => s.heroAtTop).length,
+    oversizedSites: perSite.filter((s) => s.oversizedDropped > 0).length,
+    placeholderMediaSites: perSite.filter((s) => s.placeholderMedia > 0).length,
+    perSite,
+  };
+}
+
 /** Score an extractor's output against a loaded ground-truth set. Only 'reviewed' sites count. */
 export function scoreSemanticExtraction(groundTruth, extractionsById) {
   const unscored = [];
@@ -258,6 +315,7 @@ export function scoreSemanticExtraction(groundTruth, extractionsById) {
     },
     unscored,
     perSite,
+    blueprint: scoreBlueprintGates(extractionsById),
   };
 }
 
@@ -298,6 +356,11 @@ export function formatSemanticScorecard(score) {
       `${score.media.photographyFalsePositiveRate.toFixed(2)} (${score.media.photographyFalsePositives}/${score.media.scored})`,
       score.media.scored,
     ),
+    ...(score.blueprint ? [
+      gateRow('Hero at top on >= 14/16 sites', score.blueprint.sites === 0 || score.blueprint.heroAtTop / score.blueprint.sites >= 14 / 16, `${score.blueprint.heroAtTop}/${score.blueprint.sites}`, score.blueprint.sites),
+      gateRow('No oversized band on any site', score.blueprint.oversizedSites === 0, `${score.blueprint.oversizedSites} sites`, score.blueprint.sites),
+      gateRow('No placeholder media source on any site', score.blueprint.placeholderMediaSites === 0, `${score.blueprint.placeholderMediaSites} sites`, score.blueprint.sites),
+    ] : []),
   ];
 
   return [

@@ -49,6 +49,8 @@ export async function crawlPage(url, options = {}) {
     screencastOpts,     // CDP screencast streams what the page paints during load.
     pixelEvidence = true, // Pixel lane: features of images the page loaded (no extra fetch).
     dismissConsent = true, // Reject or hide a consent banner before measuring. Never accepts.
+    scrollPass = true, // Shared viewport-step scroll pass so lazy images and reveal animations fire.
+    allowOrigin,
   } = options;
 
   const launchArgs = [
@@ -71,7 +73,9 @@ export async function crawlPage(url, options = {}) {
   // through this proxy. The proxy resolves each destination itself, rejects
   // any private/special-use answer, and connects to the validated IP rather
   // than allowing a second DNS lookup (DNS-rebinding protection).
-  const safeProxy = await startSafeBrowsingProxy();
+  // allowOrigin is the one loopback allowance (fidelity --clone-local). The
+  // proxy validates its shape again; anything else is ignored here.
+  const safeProxy = await startSafeBrowsingProxy(typeof allowOrigin === 'string' ? { allowOrigin } : {});
   let browser;
   try {
     browser = await chromium.launch({
@@ -164,23 +168,49 @@ export async function crawlPage(url, options = {}) {
 
     const title = await page.title();
 
-    // Auto-interact pass (Tier 2): scroll, open menus, hover, open accordions & a first modal.
+    // Shared scroll pass: viewport steps so lazy images and reveal observers
+    // fire for every band. Runtime motion reads scroll animations per step.
+    let scroll = null;
+    const scrollObservations = [];
+    if (scrollPass) {
+      scroll = await scrollThroughPage(page, {
+        // Called twice per step ('early' and 'settled' — see
+        // scrollThroughPage); pushed both times so a reveal that has already
+        // finished by the settled read is still caught early. Exact
+        // duplicates across the two phases collapse in processRuntimeMotion.
+        onStep: motionRuntime
+          ? async (_i, _phase) => { scrollObservations.push(...await readRuntimeAnimations(page, 'scroll')); }
+          : undefined,
+      }).catch(() => null);
+      if (scroll) scroll.images = await waitForImages(page);
+    }
+
+    // Auto-interact pass (Tier 2): open menus, hover, open accordions & a first modal.
     let interactState = null;
     if (deepInteract) {
       interactState = await runInteractionPass(page).catch(() => null);
     }
 
-    // Runtime motion capture (Motion v3, opt-in): drive the page and read what
-    // ACTUALLY animates via document.getAnimations(). Best-effort enrichment on
-    // top of static parsing — must never break extraction.
+    // Runtime motion capture (Motion v3, opt-in): load + hover/focus reads,
+    // merged with the scroll observations from the shared pass.
     let motionRuntimeObs = null;
     if (motionRuntime) {
-      motionRuntimeObs = await captureRuntimeMotion(page).catch(() => null);
+      motionRuntimeObs = await captureRuntimeMotion(page, { scrollObservations }).catch(() => null);
     }
+
+    // The interaction and runtime-motion passes above scroll elements into
+    // view via Playwright's actionability checks, so the page may be
+    // scrolled away from the top here; sections and bands both compute
+    // document-relative y from window.scrollY, so reset the window scroller
+    // before collecting (instant, so a smooth scroll-behavior page cannot
+    // still be mid-flight when the settle wait expires).
+    await page.evaluate(() => window.scrollTo({ top: 0, left: 0, behavior: 'instant' })).catch(() => {});
+    await page.waitForTimeout(200);
 
     const lightData = await extractPageData(page, ignore, selector);
     lightData.cssCoverage = cssCoverage;
     lightData.consent = consent;
+    lightData.scroll = scroll;
     if (ledger) {
       try {
         const candidates = selectPixelCandidates({
@@ -401,6 +431,120 @@ async function snapshotSelector(page, selector) {
   } catch { return null; }
 }
 
+// One shared scroll pass. Steps by the viewport height so lazy loaders and
+// intersection observers fire for every band, settles briefly per step, then
+// returns to the top. Capped so a very tall page cannot run away with the crawl.
+export async function scrollThroughPage(page, { stepPx, maxSteps = 60, settleMs = 150, idleMs = 1000, onStep } = {}) {
+  // Page height: the larger of the document's own scrollHeight and the
+  // tallest scrollHeight among the first 2500 full-width elements in
+  // document order, not counting <head> and its descendants or
+  // non-rendering tags (script/style/link/meta/etc.). Probed live: on N26
+  // the real scroll container sits at counted index ~293 (past a large
+  // <head> plus srcset <source> boilerplate); on Emma Lewisham, a Shopify
+  // theme with several hidden app widgets (cart drawer, search modal,
+  // consent widget) ahead of it in document order, the real content wrapper
+  // sits past index 1200. 300, the figure this was originally sized to, does
+  // not reach either live site; 2500 covers both with a wide margin and is
+  // still a single cheap pass (no style computation, just tag/rect checks).
+  // Same expression as collectPageData's results.pageHeight (that one is
+  // serialized into the page separately and must stay self-contained, so it
+  // is duplicated there rather than shared). If the tallest such element is
+  // itself scrollable and taller than the document by more than one
+  // viewport, it is an inner scroll container (or a transformed scroll
+  // library, e.g. Locomotive Scroll) and the pass scrolls it too, stashed on
+  // `window` for the per-step evaluates below and cleared at the end.
+  const { pageHeightPx } = await page.evaluate(() => {
+    const docHeight = Math.max(document.documentElement.scrollHeight, document.body ? document.body.scrollHeight : 0);
+    const vw = window.innerWidth;
+    const SKIP_TAG = /^(script|style|link|template|noscript|source|track|title|base|meta)$/;
+    let tallest = null;
+    let tallestHeight = 0;
+    let counted = 0;
+    for (const el of document.querySelectorAll('*')) {
+      if (el.closest('head') || SKIP_TAG.test(el.tagName.toLowerCase()) || el.ownerSVGElement) continue;
+      if (counted++ >= 2500) break;
+      if (el.getBoundingClientRect().width < vw * 0.9) continue;
+      if (el.scrollHeight > tallestHeight) { tallestHeight = el.scrollHeight; tallest = el; }
+    }
+    const pageHeightPx = Math.max(docHeight, tallestHeight);
+    let scroller = null;
+    if (tallest && tallestHeight > docHeight + window.innerHeight) {
+      const overflowY = getComputedStyle(tallest).overflowY;
+      if (overflowY === 'auto' || overflowY === 'scroll') scroller = tallest;
+    }
+    window.__designlangScroller = scroller;
+    return { pageHeightPx };
+  }).catch(() => ({ pageHeightPx: 0 }));
+  const scroller = (await page.evaluate(() => !!window.__designlangScroller).catch(() => false)) ? 'element' : 'window';
+  const viewportHeight = (page.viewportSize() || {}).height || 800;
+  const step = stepPx || viewportHeight;
+  const needed = Math.max(1, Math.ceil(Math.max(0, pageHeightPx - viewportHeight) / step));
+  const steps = Math.min(needed, maxSteps);
+  for (let i = 1; i <= steps; i++) {
+    // Scroll the inner container AND the window on every step, not one or
+    // the other: a page can have both a scrolling document and a taller
+    // inner pane, and an `else` here would leave the document never
+    // advancing. Guard with isConnected so a scroller element detached
+    // mid-pass (an SPA re-render swapping it out) doesn't leave a stale
+    // truthy reference that silently scrolls nothing for the rest of the
+    // pass — window.scrollTo still runs regardless.
+    await page.evaluate((y) => {
+      const s = window.__designlangScroller;
+      if (s && s.isConnected) s.scrollTo(0, y);
+      window.scrollTo(0, y);
+    }, i * step).catch(() => {});
+    // Two reads per step: 'early', ~60ms after the scroll, while a
+    // 0.3-1s reveal animation (fadeUp-on-scroll, etc.) is still running, and
+    // 'settled' after the usual settle + networkidle wait, by which point a
+    // short reveal has already finished and document.getAnimations() no
+    // longer lists it. Reading only 'settled' was why reveals came back
+    // empty on pages whose animations are shorter than the settle window.
+    await page.waitForTimeout(60);
+    if (typeof onStep === 'function') await onStep(i, 'early');
+    await page.waitForTimeout(Math.max(0, settleMs - 60));
+    await page.waitForLoadState('networkidle', { timeout: idleMs }).catch(() => {});
+    if (typeof onStep === 'function') await onStep(i, 'settled');
+  }
+  await page.evaluate(() => {
+    const s = window.__designlangScroller;
+    if (s && s.isConnected) s.scrollTo(0, 0);
+    window.scrollTo(0, 0);
+    delete window.__designlangScroller;
+  }).catch(() => {});
+  // Best-effort cleanup regardless of whether the scroll-back above threw
+  // partway through (e.g. a detached scroller's scrollTo): a stale
+  // __designlangScroller would otherwise leak into later evaluates.
+  await page.evaluate(() => { delete window.__designlangScroller; }).catch(() => {});
+  await page.waitForTimeout(200);
+  return {
+    steps,
+    coveredPx: Math.min(steps * step + viewportHeight, pageHeightPx),
+    pageHeightPx,
+    scroller,
+    capped: needed > maxSteps,
+  };
+}
+
+// Wait (bounded) for every image with a source to finish loading.
+export async function waitForImages(page, { timeoutMs = 3000 } = {}) {
+  await page.waitForFunction(
+    () => Array.from(document.images).every((img) => !img.getAttribute('src') || img.complete),
+    null,
+    { timeout: timeoutMs },
+  ).catch(() => {});
+  return page.evaluate(() => {
+    const withSrc = Array.from(document.images).filter((img) => img.getAttribute('src'));
+    const isPlaceholder = (s) => !s || /^data:/i.test(s);
+    // placeholders counts every document.images entry with a placeholder src
+    // (any lazy-load attribute present), while total counts only images with
+    // a src attribute; a lazy image with no src at all is still a
+    // placeholder, so placeholders can exceed total.
+    const placeholders = Array.from(document.images).filter((img) => isPlaceholder(img.currentSrc || img.getAttribute('src') || '')
+      && ['data-orig-src', 'data-src', 'data-lazy-src', 'data-srcset'].some((a) => img.hasAttribute(a))).length;
+    return { total: withSrc.length, incomplete: withSrc.filter((img) => !img.complete).length, placeholders };
+  }).catch(() => ({ total: 0, incomplete: 0, placeholders: 0 }));
+}
+
 async function runInteractionPass(page) {
   const state = {
     scrollSettled: false,
@@ -410,20 +554,8 @@ async function runInteractionPass(page) {
     modals: [],
   };
 
-  // 1) Full-page scroll in 4 steps to trigger lazy-load + scroll-linked animations
-  try {
-    for (let i = 1; i <= 4; i++) {
-      await page.evaluate((step) => {
-        const h = document.body.scrollHeight;
-        window.scrollTo(0, (h * step) / 4);
-      }, i).catch(() => {});
-      await page.waitForTimeout(300);
-      await page.waitForLoadState('networkidle', { timeout: 2000 }).catch(() => {});
-    }
-    await page.evaluate(() => window.scrollTo(0, 0)).catch(() => {});
-    await page.waitForTimeout(200);
-    state.scrollSettled = true;
-  } catch { /* ignore */ }
+  // 1) The shared scroll pass already ran in crawlPage; nothing to scroll here.
+  state.scrollSettled = true;
 
   // 2) Open menus / dropdowns
   try {
@@ -516,97 +648,98 @@ async function runInteractionPass(page) {
   return state;
 }
 
-// Runtime motion capture: read document.getAnimations() at load, after staged
-// scroll, and after hovering/focusing a sample of interactive elements. Returns
-// raw observations consumed by src/extractors/motion-runtime.js. Defensive:
-// every step is best-effort and any failure yields fewer observations, not a throw.
-async function captureRuntimeMotion(page) {
-  // In-page reader. mode = { trigger, selector? }. Serializes running animations
-  // (CSS animations + transitions + WAAPI) into plain objects.
-  const readScript = (mode) => {
-    const { trigger, selector } = mode;
-    const cssPath = (el) => {
-      if (!el || el.nodeType !== 1) return '';
-      const parts = [];
-      let node = el;
-      let depth = 0;
-      while (node && node.nodeType === 1 && depth < 4) {
-        let part = node.tagName.toLowerCase();
-        if (node.id) { part += `#${node.id}`; parts.unshift(part); break; }
-        const parent = node.parentElement;
-        if (parent) {
-          const sibs = Array.from(parent.children).filter(c => c.tagName === node.tagName);
-          if (sibs.length > 1) part += `:nth-of-type(${sibs.indexOf(node) + 1})`;
-        }
-        parts.unshift(part);
-        node = node.parentElement;
-        depth++;
+// In-page reader. mode = { trigger, selector? }. Serializes running animations
+// (CSS animations + transitions + WAAPI) into plain objects, including each
+// target's document-relative box so reveal matching (Task 4) can line an
+// observation up with the scroll step that would have revealed it.
+const READ_ANIMATIONS = (mode) => {
+  const { trigger, selector } = mode;
+  const cssPath = (el) => {
+    if (!el || el.nodeType !== 1) return '';
+    const parts = [];
+    let node = el;
+    let depth = 0;
+    while (node && node.nodeType === 1 && depth < 4) {
+      let part = node.tagName.toLowerCase();
+      if (node.id) { part += `#${node.id}`; parts.unshift(part); break; }
+      const parent = node.parentElement;
+      if (parent) {
+        const sibs = Array.from(parent.children).filter(c => c.tagName === node.tagName);
+        if (sibs.length > 1) part += `:nth-of-type(${sibs.indexOf(node) + 1})`;
       }
-      return parts.join(' > ').slice(0, 200);
-    };
-    const serialize = (anim) => {
-      try {
-        const eff = anim.effect;
-        if (!eff || typeof eff.getTiming !== 'function') return null;
-        const t = eff.getTiming();
-        const target = eff.target;
-        if (selector && target && target.closest && !target.matches(selector) && !target.closest(selector)) {
-          // when scoped to a hovered/focused element, keep only its subtree
-        }
-        const props = new Set();
-        try {
-          for (const kf of eff.getKeyframes()) {
-            for (const k of Object.keys(kf)) {
-              if (['offset', 'composite', 'computedOffset', 'easing'].includes(k)) continue;
-              props.add(k.replace(/([A-Z])/g, '-$1').toLowerCase());
-            }
-          }
-        } catch { /* ignore */ }
-        const ctor = anim.constructor ? anim.constructor.name : '';
-        const isTransition = ctor === 'CSSTransition' || !!anim.transitionProperty;
-        return {
-          trigger,
-          selector: cssPath(target),
-          tag: target && target.tagName ? target.tagName.toLowerCase() : '',
-          type: isTransition ? 'transition' : 'animation',
-          name: anim.animationName || anim.transitionProperty || ctor || '',
-          duration: typeof t.duration === 'number' ? t.duration : 0,
-          delay: t.delay || 0,
-          easing: t.easing || 'linear',
-          iterations: t.iterations === Infinity ? 'Infinity' : t.iterations,
-          properties: [...props],
-        };
-      } catch { return null; }
-    };
-    let anims = [];
-    try { anims = document.getAnimations(); } catch { anims = []; }
-    if (selector) {
-      anims = anims.filter(a => {
-        const tgt = a.effect && a.effect.target;
-        if (!tgt || !tgt.matches) return false;
-        try { return tgt.matches(selector) || (tgt.closest && tgt.closest(selector)); } catch { return false; }
-      });
+      parts.unshift(part);
+      node = node.parentElement;
+      depth++;
     }
-    return anims.map(serialize).filter(Boolean).slice(0, 60);
+    return parts.join(' > ').slice(0, 200);
   };
+  const serialize = (anim) => {
+    try {
+      const eff = anim.effect;
+      if (!eff || typeof eff.getTiming !== 'function') return null;
+      const t = eff.getTiming();
+      const target = eff.target;
+      if (selector && target && target.closest && !target.matches(selector) && !target.closest(selector)) {
+        // when scoped to a hovered/focused element, keep only its subtree
+      }
+      const props = new Set();
+      try {
+        for (const kf of eff.getKeyframes()) {
+          for (const k of Object.keys(kf)) {
+            if (['offset', 'composite', 'computedOffset', 'easing'].includes(k)) continue;
+            props.add(k.replace(/([A-Z])/g, '-$1').toLowerCase());
+          }
+        }
+      } catch { /* ignore */ }
+      const ctor = anim.constructor ? anim.constructor.name : '';
+      const isTransition = ctor === 'CSSTransition' || !!anim.transitionProperty;
+      const rect = target && typeof target.getBoundingClientRect === 'function' ? target.getBoundingClientRect() : null;
+      return {
+        trigger,
+        selector: cssPath(target),
+        tag: target && target.tagName ? target.tagName.toLowerCase() : '',
+        type: isTransition ? 'transition' : 'animation',
+        name: anim.animationName || anim.transitionProperty || ctor || '',
+        duration: typeof t.duration === 'number' ? t.duration : 0,
+        delay: t.delay || 0,
+        easing: t.easing || 'linear',
+        iterations: t.iterations === Infinity ? 'Infinity' : t.iterations,
+        properties: [...props],
+        top: rect ? Math.round(rect.top + window.scrollY) : null,
+        height: rect ? Math.round(rect.height) : null,
+      };
+    } catch { return null; }
+  };
+  let anims = [];
+  try { anims = document.getAnimations(); } catch { anims = []; }
+  if (selector) {
+    anims = anims.filter(a => {
+      const tgt = a.effect && a.effect.target;
+      if (!tgt || !tgt.matches) return false;
+      try { return tgt.matches(selector) || (tgt.closest && tgt.closest(selector)); } catch { return false; }
+    });
+  }
+  return anims.map(serialize).filter(Boolean).slice(0, 60);
+};
 
+async function readRuntimeAnimations(page, trigger, selector) {
+  return page.evaluate(READ_ANIMATIONS, { trigger, selector }).catch(() => []);
+}
+
+// Runtime motion capture: read document.getAnimations() at load, during the
+// shared scroll pass (observations passed in via scrollObservations), and
+// after hovering/focusing a sample of interactive elements. Returns raw
+// observations consumed by src/extractors/motion-runtime.js. Defensive: every
+// step is best-effort and any failure yields fewer observations, not a throw.
+async function captureRuntimeMotion(page, { scrollObservations = [] } = {}) {
   const obs = [];
   const push = (arr) => { if (Array.isArray(arr)) obs.push(...arr); };
 
   // 1) Load — entrance + infinite animations still running.
-  push(await page.evaluate(readScript, { trigger: 'load' }).catch(() => []));
+  push(await readRuntimeAnimations(page, 'load'));
 
-  // 2) Scroll — reveal/parallax/scroll-timeline motion, captured per step.
-  try {
-    for (let i = 1; i <= 4; i++) {
-      await page.evaluate((step) => {
-        window.scrollTo(0, (document.body.scrollHeight * step) / 4);
-      }, i).catch(() => {});
-      await page.waitForTimeout(220);
-      push(await page.evaluate(readScript, { trigger: 'scroll' }).catch(() => []));
-    }
-    await page.evaluate(() => window.scrollTo(0, 0)).catch(() => {});
-  } catch { /* ignore */ }
+  // 2) Scroll — collected during the shared scroll pass in crawlPage.
+  push(scrollObservations);
 
   // 3) Hover + focus — interaction transitions on a sample of controls.
   let samples = [];
@@ -624,12 +757,12 @@ async function captureRuntimeMotion(page) {
     try {
       await page.hover(sel, { timeout: 500 });
       await page.waitForTimeout(90);
-      push(await page.evaluate(readScript, { trigger: 'hover', selector: sel }).catch(() => []));
+      push(await readRuntimeAnimations(page, 'hover', sel));
     } catch { /* ignore */ }
     try {
       await page.focus(sel, { timeout: 500 });
       await page.waitForTimeout(70);
-      push(await page.evaluate(readScript, { trigger: 'focus', selector: sel }).catch(() => []));
+      push(await readRuntimeAnimations(page, 'focus', sel));
     } catch { /* ignore */ }
   }
 
@@ -1163,26 +1296,499 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
     }
 
     // Semantic regions (v7): landmark + heading + bounds data for classifier.
+    const BUTTON_SELECTOR = 'button, a[role="button"], .btn, [class*="button"]';
+    const CARD_SELECTOR = 'article, li, [class*="card"], [class*="item"]';
     results.sections = Array.from(document.querySelectorAll(
       'header, nav, main, section, footer, aside, [role="banner"], [role="contentinfo"], [role="complementary"], [role="navigation"]'
     )).slice(0, 100).map(el => {
       const r = el.getBoundingClientRect();
+      const position = getComputedStyle(el).position;
+      const y = position === 'fixed' ? Math.round(r.top) : Math.round(r.top + window.scrollY);
       return {
         tag: el.tagName.toLowerCase(),
         role: el.getAttribute('role') || '',
         className: typeof el.className === 'string' ? el.className : '',
         id: el.id || '',
+        position,
         text: (el.innerText || '').slice(0, 2000),
         headings: Array.from(el.querySelectorAll('h1,h2,h3')).slice(0, 5).map(h => h.innerText || ''),
-        buttonCount: el.querySelectorAll('button, a[role="button"], .btn, [class*="button"]').length,
-        cardCount: el.querySelectorAll('article, li, [class*="card"], [class*="item"]').length,
-        bounds: { x: r.x, y: r.y, w: r.width, h: r.height },
+        buttonCount: el.querySelectorAll(BUTTON_SELECTOR).length,
+        cardCount: el.querySelectorAll(CARD_SELECTOR).length,
+        bounds: { x: r.x, y, w: r.width, h: r.height },
       };
     });
 
+    // Section blueprint: full-width bands found by geometry, not by landmark
+    // tags. Walk down from body: an element with two or more full-width tall
+    // children that fill most of it is a container (descend); one such child
+    // of the same height is a wrapper (descend, remember the outer element);
+    // anything else is a band. The outermost element of a wrapper chain is
+    // the band's box; the innermost is where columns are measured.
+    const vw = window.innerWidth;
+    // Page height: the larger of the document's own scrollHeight and the
+    // tallest scrollHeight among the first 2500 full-width elements in
+    // document order, not counting <head> and its descendants or
+    // non-rendering tags (script/style/link/meta/etc.). Probed live: on N26
+    // the real scroll container sits at counted index ~293 (past a large
+    // <head> plus srcset <source> boilerplate); on Emma Lewisham, a Shopify
+    // theme with several hidden app widgets (cart drawer, search modal,
+    // consent widget) ahead of it in document order, the real content
+    // wrapper sits past index 1200. 300, the figure this was originally
+    // sized to, does not reach either live site; 2500 covers both with a
+    // wide margin and is still a single cheap pass (no style computation,
+    // just tag/rect checks). A page whose scrolling happens in an inner
+    // container (or a transformed scroll library, e.g. Locomotive Scroll)
+    // leaves the document itself only one viewport tall; this catches the
+    // container instead. Duplicated verbatim in scrollThroughPage, which
+    // cannot reach into this serialized function.
+    {
+      const docHeight = Math.max(document.documentElement.scrollHeight, document.body ? document.body.scrollHeight : 0);
+      const PAGE_HEIGHT_SKIP_TAG = /^(script|style|link|template|noscript|source|track|title|base|meta)$/;
+      let wideScrollHeight = 0;
+      let counted = 0;
+      for (const el of document.querySelectorAll('*')) {
+        if (el.closest('head') || PAGE_HEIGHT_SKIP_TAG.test(el.tagName.toLowerCase()) || el.ownerSVGElement) continue;
+        if (counted++ >= 2500) break;
+        if (el.getBoundingClientRect().width < vw * 0.9) continue;
+        if (el.scrollHeight > wideScrollHeight) wideScrollHeight = el.scrollHeight;
+      }
+      results.pageHeight = Math.max(docHeight, wideScrollHeight);
+    }
+    const BAND_CAP = 40;
+    const OVERSIZED_LEAF_SHARE = 0.8;
+    const MIN_WIDTH_SHARE = 0.9;
+    const RELAXED_WIDTH_SHARES = [0.6, 0.4];
+    const PASS_THROUGH_DEPTH = 4;
+    const SKIP_TAG = /^(script|style|link|template|noscript|svg|img|video|canvas|iframe|picture|source)$/;
+    const isLandmarkBand = (el) => /^(header|nav|footer)$/.test(el.tagName.toLowerCase())
+      || /^(banner|navigation|contentinfo)$/.test(el.getAttribute('role') || '');
+    // refWidth is the width a candidate's own width is measured against: the
+    // viewport at the top level (checking body's children), and the width of
+    // the element whose children are being tested at every level below that
+    // (see the `walk`/`bandKids` call sites). A theme that nests a full-width
+    // wrapper around a site-width row (Avada: fusion-fullwidth 100% vw >
+    // fusion-builder-row ~86-98% of its fullwidth parent) needs the row
+    // measured against ITS parent, not the viewport, or the fullwidth simply
+    // absorbs the row and everything under it into one leaf.
+    const isBandBox = (el, minWidthShare, refWidth) => {
+      if (el.nodeType !== 1 || SKIP_TAG.test(el.tagName.toLowerCase())) return false;
+      const r = el.getBoundingClientRect();
+      if (r.width < refWidth * minWidthShare) return false;
+      return r.height >= (isLandmarkBand(el) ? 40 : 120);
+    };
+    // A degenerate-box element paints nothing usable of its own but its
+    // children still lay out as real content, either `display: contents`
+    // (both axes 0 — Monzo's `HideUntilExperimentResolved` wrapper inside
+    // <main>, Hyperliquid's Framer motion wrapper) or a normal block whose
+    // only children are taken out of flow (position: fixed/absolute), which
+    // collapses it to zero height while it keeps its full width (Emma
+    // Lewisham: an empty `<main>` wrapping a position:fixed Locomotive Scroll
+    // container — probed live, overflow: visible there). Either way it hides
+    // a whole content tree behind one invisible wrapper, collapsing real
+    // sections into a single oversized leaf or, walked from the top, into no
+    // bands at all. See through it so its real children are visible to the
+    // walk, bounded so a page with nested pass-through wrappers can't make
+    // this unbounded.
+    //
+    // A single-axis-zero box additionally requires overflow: visible on
+    // both axes. `display: contents` (both axes 0) generates no box at all,
+    // so overflow doesn't apply and it is always seen through. But a
+    // single-axis-zero box with overflow: hidden is the CSS idiom for a
+    // deliberately collapsed panel — a closed accordion, a modal mid-animate
+    // shut — whose children are real but meant to stay hidden; that one is
+    // not flattened.
+    const isPassThrough = (el) => {
+      if (el.nodeType !== 1 || SKIP_TAG.test(el.tagName.toLowerCase())) return false;
+      if (el.children.length === 0) return false;
+      const r = el.getBoundingClientRect();
+      if (r.width === 0 && r.height === 0) return true;
+      if (r.width === 0 || r.height === 0) {
+        const cs = getComputedStyle(el);
+        return cs.overflowX === 'visible' && cs.overflowY === 'visible';
+      }
+      return false;
+    };
+    const bandKids = (el, minWidthShare, passDepth, refWidth) => {
+      const out = [];
+      for (const child of el.children) {
+        if (isBandBox(child, minWidthShare, refWidth)) { out.push(child); continue; }
+        if (passDepth > 0 && isPassThrough(child)) {
+          out.push(...bandKids(child, minWidthShare, passDepth - 1, refWidth));
+        }
+      }
+      return out;
+    };
+    // A wrapper with exactly one real (non-skip) child that fills nearly all
+    // of its height is descended into regardless of width — the width test
+    // above is for deciding whether SIBLINGS are separate sections; a lone
+    // child that IS the wrapper's whole content (an Avada site-width row
+    // inside its full-width fullwidth parent, e.g.) is not a sibling
+    // comparison at all.
+    const soleRealChild = (el) => {
+      let only = null;
+      for (const child of el.children) {
+        if (child.nodeType !== 1 || SKIP_TAG.test(child.tagName.toLowerCase())) continue;
+        if (only) return null;
+        only = child;
+      }
+      return only;
+    };
+    // The same-height-regardless-of-width descent is for seeing through
+    // purely structural wrappers (fusion-fullwidth, a plain centered div)
+    // that have no identity of their own. A landmark or a <section> IS
+    // already a real, named piece of the page — its own bounds, background,
+    // and role are meaningful — so peering inside it for a lone child to
+    // bypass into must not happen: on real sites this repeatedly ate a
+    // <footer>/<header>/hero <section> (whose real content sits in a
+    // centered inner wrapper) and replaced it with that wrapper's OWN
+    // children once THEY passed the strict width test one level down,
+    // discarding the landmark's bounds entirely (Apple's footer became
+    // seven nav/list bands; a Shopify header became a mega-menu's panels;
+    // Wise's hero section became one of its inner rows). Width alone can't
+    // tell fusion-fullwidth and <footer> apart — both render at ~100% of
+    // their parent — so this is a tag check, not a geometry one.
+    const blocksWrapperDescent = (el) => isLandmarkBand(el) || el.tagName.toLowerCase() === 'section';
+    const leaves = [];
+    let bandsCapped = false;
+    const walk = (el, chain, depth, minWidthShare, refWidth) => {
+      if (leaves.length >= BAND_CAP) { bandsCapped = true; return; }
+      if (depth > 14) return;
+      const share = minWidthShare || MIN_WIDTH_SHARE;
+      const kids = bandKids(el, share, PASS_THROUGH_DEPTH, refWidth);
+      const h = el.getBoundingClientRect().height || 1;
+      const kidsH = kids.reduce((n, k) => n + k.getBoundingClientRect().height, 0);
+      // Once chain[0] (the outer boundary already established for this
+      // band) is a landmark or section, the multi-kid branch below must
+      // not reset chain to a fresh [k] — that's the actual mechanism that
+      // ate real sites' landmarks: single-kid/bypass hops correctly extend
+      // chain (chain[0] never changes), but a plain div two or three levels
+      // inside a <section> can still hold two ordinary width-qualifying
+      // siblings, and resetting there discards the section's own bounds
+      // for theirs (Wise: section > div > mw-container > mw-container >
+      // mw-container, whose own two children — a 268px-tall row and an
+      // 871px-tall block — passed the strict width test and became their
+      // own bands, one of them wrongly inheriting the hero role).
+      // Single-kid and the soleRealChild bypass never hit this because
+      // they already extend chain rather than reset it.
+      const insideLandmarkChain = chain.length > 0 && blocksWrapperDescent(chain[0]);
+      if (kids.length >= 2 && kidsH >= h * 0.6 && !insideLandmarkChain) {
+        for (const k of kids) walk(k, [k], depth + 1, share, k.getBoundingClientRect().width);
+        return;
+      }
+      if (kids.length === 1 && kids[0].getBoundingClientRect().height >= h * 0.9) {
+        const k = kids[0];
+        walk(k, chain.length ? chain.concat(k) : [k], depth + 1, share, k.getBoundingClientRect().width);
+        return;
+      }
+      if (kids.length === 0 && !blocksWrapperDescent(el)) {
+        const only = soleRealChild(el);
+        if (only && only.getBoundingClientRect().height >= h * 0.9) {
+          walk(only, chain.length ? chain.concat(only) : [only], depth + 1, share, only.getBoundingClientRect().width);
+          return;
+        }
+      }
+      if (!chain.length) return;
+      // A leaf that swallows almost the whole page is usually not one real
+      // band: either a content wrapper whose real sections sit under the
+      // width threshold (a centered max-width container), or one whose
+      // sections are hidden behind a zero-box wrapper the default share
+      // didn't see through. Retry at a relaxed width share before accepting
+      // it as one giant band. The relaxed share is for finding THIS level's
+      // children only — once found, each one walks its own subtree at the
+      // normal MIN_WIDTH_SHARE, or a genuinely narrow grandchild two levels
+      // down would pass a threshold relaxed once but inherited forever
+      // (parent-relative widths mean that compounds: a share carried three
+      // levels deep is an effective floor of 0.6^3 ≈ 22% of the viewport).
+      const leafHeight = el.getBoundingClientRect().height;
+      // Same reasoning as the multi-kid branch above: once chain[0] is a
+      // landmark, this retry must not run at all — resetting chain to a
+      // relaxed child would discard the landmark exactly as before (an
+      // oversized element inside a landmark — a short section whose real
+      // content is two centered, sub-90%-width blocks — otherwise falls
+      // through to this retry and loses the landmark to its own relaxed
+      // children), and extending chain instead (rather than skipping the
+      // retry) still duplicates the landmark once per relaxed child found —
+      // verified empirically against a two-block fixture, which produced
+      // two identical section bands before this was changed to skip
+      // outright.
+      if (share === MIN_WIDTH_SHARE && results.pageHeight > 0 && leafHeight > results.pageHeight * OVERSIZED_LEAF_SHARE && !insideLandmarkChain) {
+        for (const relaxedShare of RELAXED_WIDTH_SHARES) {
+          const relaxedKids = bandKids(el, relaxedShare, PASS_THROUGH_DEPTH, refWidth);
+          if (relaxedKids.length > 0) {
+            for (const k of relaxedKids) walk(k, [k], depth + 1, MIN_WIDTH_SHARE, k.getBoundingClientRect().width);
+            return;
+          }
+        }
+      }
+      leaves.push(chain);
+    };
+    if (document.body) walk(document.body, [], 0, MIN_WIDTH_SHARE, vw);
+
+    const toHex = (color) => {
+      const m = (color || '').match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+      if (!m || (m[4] !== undefined && Number(m[4]) === 0)) return null;
+      return '#' + [m[1], m[2], m[3]].map(n => Number(n).toString(16).padStart(2, '0')).join('');
+    };
+    const isPlaceholderSrc = (s) => !s || /^data:/i.test(s) || /^about:blank$/i.test(s);
+    const absUrl = (u) => { try { return new URL(u, location.href).href; } catch { return u || ''; } };
+    // A resolved candidate whose scheme is not http(s) is not a usable image
+    // source: javascript:/blob: URLs some sites park in a lazy-load
+    // attribute, a data: URI outside the placeholder check, and the raw
+    // input absUrl falls back to when new URL() throws.
+    const isHttpUrl = (u) => /^https?:/i.test(u);
+    // First URL in a srcset ("a.jpg 1x, b.jpg 2x").
+    function firstSrcsetUrl(srcset) {
+      if (!srcset) return '';
+      return srcset.split(',')[0].trim().split(/\s+/)[0] || '';
+    }
+    // The displayed source unless it is a placeholder (lazysizes and its
+    // relatives park a transparent data: SVG in src/currentSrc and keep the
+    // real URL in a data- attribute until their script swaps it in, which a
+    // headless capture cannot rely on). 1x sources before srcsets.
+    const realImageSrc = (img) => {
+      const cur = img.currentSrc || '';
+      if (!isPlaceholderSrc(cur) && isHttpUrl(cur)) return cur;
+      const attr = img.getAttribute('src') || '';
+      if (!isPlaceholderSrc(attr)) {
+        const abs = absUrl(attr);
+        if (isHttpUrl(abs)) return abs;
+      }
+      const picture = img.closest('picture');
+      const source = picture && picture.querySelector('source[srcset]');
+      const candidates = [
+        img.getAttribute('data-orig-src'), img.getAttribute('data-src'), img.getAttribute('data-lazy-src'),
+        firstSrcsetUrl(img.getAttribute('data-srcset')), firstSrcsetUrl(img.getAttribute('srcset')),
+        source ? firstSrcsetUrl(source.getAttribute('srcset')) : '',
+      ];
+      for (const c of candidates) {
+        if (!c || isPlaceholderSrc(c)) continue;
+        const abs = absUrl(c);
+        if (isHttpUrl(abs)) return abs;
+      }
+      return '';
+    };
+    const isLazyUnresolved = (img) => isPlaceholderSrc(img.currentSrc || img.getAttribute('src') || '')
+      && ['data-orig-src', 'data-src', 'data-lazy-src', 'data-srcset'].some((a) => img.hasAttribute(a));
+    const bgOf = (el) => {
+      const cs = getComputedStyle(el);
+      const color = toHex(cs.backgroundColor);
+      const url = (cs.backgroundImage || '').match(/url\(["']?([^"')]+)["']?\)/);
+      let imageUrl = url && isHttpUrl(url[1]) ? url[1].slice(0, 500) : null;
+      if (!imageUrl) {
+        const lazy = el.getAttribute('data-bg') || el.getAttribute('data-background-image') || '';
+        if (lazy && !isPlaceholderSrc(lazy)) {
+          const abs = absUrl(lazy);
+          if (isHttpUrl(abs)) imageUrl = abs.slice(0, 500);
+        }
+      }
+      return { color, imageUrl };
+    };
+    const rectOf = (el) => el.getBoundingClientRect();
+    const areaOf = (el) => { const r = rectOf(el); return r.width * r.height; };
+    const docBox = (el, position) => {
+      const r = rectOf(el);
+      const y = position === 'fixed' ? Math.round(r.top) : Math.round(r.top + window.scrollY);
+      return { x: Math.round(r.left), y, w: Math.round(r.width), h: Math.round(r.height) };
+    };
+
+    results.bands = leaves.map((chain) => {
+      const outer = chain[0];
+      const leaf = chain[chain.length - 1];
+      const position = getComputedStyle(outer).position;
+      const bounds = docBox(outer, position);
+      const area = Math.max(1, bounds.w * bounds.h);
+      const descendants = Array.from(outer.querySelectorAll('*')).slice(0, 600);
+
+      // Background: the wrapper chain first, then any descendant painting ≥80% of the band.
+      let background = { color: null, imageUrl: null };
+      for (const el of chain) { const bg = bgOf(el); if (bg.color || bg.imageUrl) { background = bg; break; } }
+      if (!background.color && !background.imageUrl) {
+        for (const el of descendants) {
+          if (areaOf(el) < area * 0.8) continue;
+          const bg = bgOf(el); if (bg.color || bg.imageUrl) { background = bg; break; }
+        }
+      }
+      let inherited = false;
+      if (!background.color && !background.imageUrl) {
+        for (let el = outer.parentElement; el; el = el.parentElement) {
+          const bg = bgOf(el);
+          if (bg.color || bg.imageUrl) { background = { color: bg.color, imageUrl: bg.imageUrl }; inherited = true; break; }
+        }
+      }
+      background.inherited = inherited;
+      background.hasVideo = Array.from(outer.querySelectorAll('video')).some(v => areaOf(v) >= area * 0.5);
+
+      // Columns: the widest row of two or more equal-width, side-by-side
+      // children. Group by rounded top, not anchored on the first child —
+      // anchoring on rects[0] misreads a grid whose first child is a
+      // full-width heading (e.g. a "Services" title above a card grid) as a
+      // single column, since nothing else shares the heading's own top.
+      let columns = 1; let bestRowWidth = 0;
+      for (const row of [leaf, ...descendants]) {
+        const rects = Array.from(row.children).map(rectOf).filter(r => r.width >= 40 && r.height >= 40);
+        if (rects.length < 2) continue;
+        const groups = new Map();
+        for (const r of rects) {
+          const key = Math.round(r.top / 10);
+          const group = groups.get(key);
+          if (group) group.push(r); else groups.set(key, [r]);
+        }
+        for (const group of groups.values()) {
+          if (group.length < 2) continue;
+          // Same-top is necessary but not sufficient — a stack of
+          // position:absolute slides (a carousel) shares one top with every
+          // other slide too, but they're the same column repeated, not
+          // several columns side by side. Members must also be horizontally
+          // disjoint: sort by left, keep a member only if it starts at or
+          // after the last KEPT member's right edge (2px tolerance for
+          // sub-pixel rounding); an overlapping member is dropped rather
+          // than ending the scan, so unrelated overlaps elsewhere in the
+          // group don't hide a real disjoint pair.
+          const sorted = [...group].sort((a, b) => a.left - b.left);
+          const disjoint = [];
+          for (const r of sorted) {
+            const prevRight = disjoint.length ? disjoint[disjoint.length - 1].right : -Infinity;
+            if (r.left >= prevRight - 2) disjoint.push(r);
+          }
+          if (disjoint.length < 2) continue;
+          const widths = disjoint.map(r => r.width);
+          if (Math.min(...widths) < Math.max(...widths) * 0.9) continue;
+          const total = widths.reduce((n, w) => n + w, 0);
+          if (total > bestRowWidth) { bestRowWidth = total; columns = disjoint.length; }
+        }
+      }
+
+      // Media: dominant kind by area among img/video/svg/canvas and background images.
+      const kinds = { photo: 0, video: 0, svg: 0, canvas: 0, embed: 0 };
+      const largest = { photo: null, video: null, svg: null, canvas: null, embed: null };
+      let videoPoster = null;
+      const consider = (kind, a, src) => {
+        kinds[kind] += a;
+        if (!largest[kind] || a > largest[kind].area) largest[kind] = { area: a, src: src || null };
+      };
+      for (const el of outer.querySelectorAll('img, video, svg, canvas, iframe, embed, object')) {
+        const a = areaOf(el);
+        if (a < 32 * 32) continue;
+        const tag = el.tagName.toLowerCase();
+        if (tag === 'img') {
+          const src = realImageSrc(el).slice(0, 500);
+          consider(/\.svg(\?|$)/i.test(src) ? 'svg' : 'photo', a, src);
+        } else if (tag === 'video') {
+          const source = el.querySelector('source');
+          const poster = el.getAttribute('poster');
+          if (poster && !videoPoster) videoPoster = absUrl(poster).slice(0, 500);
+          consider('video', a, (el.currentSrc || el.getAttribute('src') || (source && source.getAttribute('src')) || poster || '').slice(0, 500));
+        } else if (tag === 'iframe' || tag === 'embed' || tag === 'object') {
+          const src = el.getAttribute('src') || el.getAttribute('data-lazy-src') || el.getAttribute('data-src') || el.getAttribute('data') || '';
+          consider('embed', a, isPlaceholderSrc(src) ? null : absUrl(src).slice(0, 500));
+        } else {
+          consider(tag, a, null);
+        }
+      }
+      for (const el of [outer, ...descendants]) {
+        const bg = bgOf(el);
+        if (!bg.imageUrl) continue;
+        const a = areaOf(el);
+        if (a >= 100 * 100) consider('photo', a, bg.imageUrl);
+      }
+      const dominant = Object.keys(kinds).sort((p, q) => kinds[q] - kinds[p])[0];
+      const totalMedia = kinds.photo + kinds.video + kinds.svg + kinds.canvas + kinds.embed;
+      const kind = totalMedia < area * 0.05 ? 'none' : dominant;
+      const media = {
+        kind,
+        share: kind === 'none' ? 0 : Math.round(Math.min(1, kinds[kind] / area) * 100) / 100,
+        src: kind === 'none' ? null : (largest[kind] && largest[kind].src) || null,
+      };
+      if (kind === 'video') media.poster = videoPoster;
+
+      // Largest heading by font size.
+      let heading = null;
+      for (const hEl of outer.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+        const size = parseFloat(getComputedStyle(hEl).fontSize) || 0;
+        if (!heading || size > heading.fontSize) {
+          heading = { level: Number(hEl.tagName[1]), fontSize: Math.round(size), text: (hEl.innerText || '').trim().slice(0, 120) };
+        }
+      }
+
+      // Repeated structure: the largest group of sibling boxes (to depth 4)
+      // with the same width and similar height. A services grid, a pricing
+      // row, a testimonial carousel all show up here even when nothing is
+      // called "card". Bounded by depth and by a visit budget.
+      const repeatsOf = (root) => {
+        let best = null;
+        let visited = 0;
+        const visit = (el, depth) => {
+          if (depth > 4 || visited > 400) return;
+          visited++;
+          const kids = Array.from(el.children).filter((c) => c.nodeType === 1 && !SKIP_TAG.test(c.tagName.toLowerCase()));
+          const boxes = kids.map((c) => ({ el: c, r: rectOf(c) })).filter((b) => b.r.width >= 100 && b.r.height >= 120);
+          if (boxes.length >= 3) {
+            const sorted = [...boxes].sort((p, q) => p.r.width - q.r.width);
+            let i = 0;
+            while (i < sorted.length) {
+              let j = i;
+              while (j + 1 < sorted.length && sorted[j + 1].r.width - sorted[i].r.width <= 4) j++;
+              const group = sorted.slice(i, j + 1);
+              if (group.length >= 3) {
+                const hs = group.map((b) => b.r.height).sort((p, q) => p - q);
+                const median = hs[Math.floor(hs.length / 2)];
+                const members = group.filter((b) => Math.abs(b.r.height - median) <= median * 0.15)
+                  .sort((p, q) => p.r.top - q.r.top || p.r.left - q.r.left);
+                if (members.length >= 3 && (!best || members.length > best.count)) {
+                  const top0 = members[0].r.top;
+                  const sameTop = members.filter((b) => Math.abs(b.r.top - top0) <= 10).sort((p, q) => p.r.left - q.r.left);
+                  const disjoint = [];
+                  for (const b of sameTop) {
+                    const prevRight = disjoint.length ? disjoint[disjoint.length - 1].r.right : -Infinity;
+                    if (b.r.left >= prevRight - 2) disjoint.push(b);
+                  }
+                  best = {
+                    count: members.length,
+                    w: Math.round(members[0].r.width),
+                    h: Math.round(median),
+                    perRow: disjoint.length,
+                    withImage: members.filter((b) => Array.from(b.el.querySelectorAll('img, video, svg')).some((m) => areaOf(m) >= 32 * 32)).length,
+                    withButton: members.filter((b) => b.el.querySelector(BUTTON_SELECTOR)).length,
+                  };
+                }
+              }
+              i = j + 1;
+            }
+          }
+          for (const c of kids) visit(c, depth + 1);
+        };
+        visit(root, 0);
+        return best;
+      };
+      const repeats = repeatsOf(outer);
+      if (repeats && repeats.perRow >= 2) columns = Math.max(columns, repeats.perRow);
+      const selectorCards = outer.querySelectorAll(CARD_SELECTOR).length;
+
+      const outerText = outer.innerText || '';
+      const text = outerText.slice(0, 2000);
+      return {
+        tag: outer.tagName.toLowerCase(),
+        role: outer.getAttribute('role') || '',
+        className: (typeof outer.className === 'string' ? outer.className : '').slice(0, 300),
+        id: outer.id || '',
+        position,
+        bounds,
+        background,
+        columns,
+        media,
+        heading,
+        text,
+        textLength: outerText.length,
+        buttonCount: outer.querySelectorAll(BUTTON_SELECTOR).length,
+        cardCount: Math.max(selectorCards, repeats ? repeats.count : 0),
+        repeats,
+      };
+    }).sort((a, b) => a.bounds.y - b.bounds.y);
+    results.bandsCapped = bandsCapped;
+
     // Stack fingerprint signals (v7)
     results.stack = {
-      scripts: Array.from(document.scripts).map(s => s.src).filter(Boolean).slice(0, 50),
+      scripts: Array.from(document.scripts).map(s => s.src || s.getAttribute('data-src') || '').filter(Boolean).slice(0, 50),
       metas: Array.from(document.querySelectorAll('meta[name],meta[property]'))
         .map(m => ({ name: m.name || m.getAttribute('property'), content: m.content }))
         .slice(0, 50),
@@ -1190,8 +1796,36 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
         .slice(0, 500)
         .map(e => typeof e.className === 'string' ? e.className : '')
         .filter(Boolean),
-      windowGlobals: ['React', 'Vue', '__NEXT_DATA__', '__NUXT__', '___gatsby', '_remixContext', 'Shopify', 'wp']
+      // Unique class tokens across the first 5000 [class] elements, capped at
+      // 2000 tokens. classNameSample (above) is only the first 500 elements'
+      // whole class strings — a large header alone can run hundreds of
+      // elements deep, so a stack signal that only shows up further down the
+      // page (a swiper carousel, a fusion-lottie wrapper) never reaches it.
+      // This is a wider, deduped net for exactly that case; classNameSample
+      // itself is left as-is because component-library/stack-fingerprint
+      // detection already depend on its exact shape.
+      classTokens: (() => {
+        const tokens = new Set();
+        for (const el of Array.from(document.querySelectorAll('[class]')).slice(0, 5000)) {
+          const cls = typeof el.className === 'string' ? el.className : '';
+          if (!cls) continue;
+          for (const tok of cls.split(/\s+/)) {
+            if (!tok) continue;
+            tokens.add(tok);
+            if (tokens.size >= 2000) break;
+          }
+          if (tokens.size >= 2000) break;
+        }
+        return Array.from(tokens);
+      })(),
+      windowGlobals: ['React', 'Vue', '__NEXT_DATA__', '__NUXT__', '___gatsby', '_remixContext', 'Shopify', 'wp',
+        'gsap', 'ScrollTrigger', 'Lenis', 'LocomotiveScroll', 'AOS', 'lottie', 'bodymovin', 'Swiper', 'Motion']
         .filter(k => typeof window[k] !== 'undefined'),
+      tagCounts: {
+        'lottie-player': document.querySelectorAll('lottie-player').length,
+        canvas: document.querySelectorAll('canvas').length,
+        video: document.querySelectorAll('video').length,
+      },
     };
 
     // SVG icons
@@ -1249,26 +1883,15 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
 
     // Image data
     results.images = [];
-    // First URL in a srcset ("a.jpg 1x, b.jpg 2x") — the fallback source when
-    // neither currentSrc nor src has resolved yet (srcset-only lazy images).
-    function firstSrcsetUrl(srcset) {
-      if (!srcset) return '';
-      return srcset.split(',')[0].trim().split(/\s+/)[0] || '';
-    }
     for (const img of document.querySelectorAll('img, picture img, [role="img"]')) {
       const rect = img.getBoundingClientRect();
       if (rect.width < 5 || rect.height < 5) continue;
       const cs = getComputedStyle(img);
-      const picture = img.closest('picture');
-      let srcsetCandidate = firstSrcsetUrl(img.getAttribute('srcset'));
-      if (!srcsetCandidate && picture) {
-        const source = picture.querySelector('source[srcset]');
-        if (source) srcsetCandidate = firstSrcsetUrl(source.getAttribute('srcset'));
-      }
       results.images.push({
         tag: img.tagName.toLowerCase(),
-        src: (img.currentSrc || img.src || srcsetCandidate || '').slice(0, 500),
+        src: realImageSrc(img).slice(0, 500),
         currentSrc: (img.currentSrc || '').slice(0, 500),
+        lazyUnresolved: img.tagName.toLowerCase() === 'img' ? isLazyUnresolved(img) : false,
         width: rect.width,
         height: rect.height,
         naturalWidth: img.naturalWidth,

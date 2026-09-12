@@ -1,0 +1,316 @@
+/* Odyssey Contracting — static rebuild
+   Tokens sourced from odysseycontracting-com-design-tokens.json / -variables.css / -DESIGN.md / -AGENT.md */
+
+:root {
+  /* colour */
+  --color-primary: #f4a825;
+  --color-secondary: #d87b52;
+  --color-accent: #e2573d;
+  --color-bg-page: #ffffff;
+  --color-bg-black: #000000;
+  --color-bg-cream: #ede6dd;
+  --color-bg-light: #f4f5f7;
+  --color-bg-navydeep: #1b2a4a;
+  --color-bg-steel: #bbc7d4;
+  --color-bg-navy: #2c3142;
+  --color-bg-charcoal: #121212;
+  --color-text: #000000;
+  --color-text-onDark: #ffffff;
+  --color-text-muted: #4c5161;
+  --color-text-link: #339cff;
+
+  /* type */
+  --font-body: 'Kumbh Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Adero Semi-Bold', Georgia, 'Segoe UI', sans-serif;
+
+  --fs-h1: 65px;
+  --fs-title-1: 42px;
+  --fs-h3: 40px;
+  --fs-h2: 36px;
+  --fs-title-2: 35px;
+  --fs-title-3: 29.33px;
+  --fs-title-4: 28px;
+  --fs-title-5: 24px;
+  --fs-h4: 20px;
+  --fs-title-6: 18px;
+  --fs-h5: 13px;
+  --fs-body: 14px;
+
+  /* shape */
+  --radius-sm: 5px;
+  --radius-md: 10px;
+  --radius-xl: 20px;
+  --radius-full: 50px;
+  --shadow-elevated: rgba(27, 42, 74, 0.25) 0px 10px 30px 0px;
+
+  /* layout */
+  --container: 1248px;
+  --section-rhythm: 64px;
+
+  /* motion — odysseycontracting-com-motion-tokens.json */
+  --dur-xs: 100ms;
+  --dur-sm: 200ms;
+  --dur-md: 300ms;
+  --dur-lg: 500ms;
+  --ease-custom: cubic-bezier(0.42, 0.01, 0.58, 1);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+body {
+  min-width: 1280px;
+  max-width: 1280px;
+  margin: 0 auto;
+  background: var(--color-bg-page);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: 1.6;
+}
+
+img, video { max-width: 100%; display: block; }
+
+a { color: inherit; text-decoration: none; }
+
+h1, h2, h3, h4, h5 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  line-height: 1.15;
+  margin: 0 0 16px;
+}
+
+p { margin: 0 0 16px; }
+
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.eyebrow {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-light);
+  color: var(--color-text-muted);
+  margin-bottom: 12px;
+}
+
+/* buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 29px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: var(--fs-body);
+  border: none;
+  cursor: pointer;
+}
+.btn-primary { background: var(--color-primary); color: #000000; }
+.btn-outline-dark { background: transparent; color: var(--color-text-onDark); border: 1px solid rgba(255,255,255,0.4); }
+.btn-outline-light { background: transparent; color: var(--color-text); border: 1px solid var(--color-text-muted); }
+.btn-block { background: var(--color-bg-navy); color: var(--color-text-onDark); }
+
+/* generic band scaffold */
+.band {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--section-rhythm) 0;
+}
+
+/* band 0 — nav */
+.band-nav {
+  background: var(--color-bg-black);
+  color: var(--color-text-onDark);
+  padding: 0;
+}
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  height: 100%;
+}
+.logo img { height: 43px; width: auto; }
+.nav-links { display: flex; gap: 28px; font-size: 13px; letter-spacing: 0.02em; }
+.nav-links a { opacity: 0.85; }
+.nav-links a:hover { opacity: 1; }
+
+/* band 1 — hero video */
+.band-hero { padding: 0; overflow: hidden; background: var(--color-bg-charcoal); }
+.hero-video { width: 100%; height: 100%; object-fit: cover; }
+
+/* band 2 — hero copy overlay (rendered as its own stacked band, see BUILD-NOTES) */
+.band-hero-copy {
+  background: var(--color-bg-navydeep);
+  color: var(--color-text-onDark);
+  text-align: left;
+}
+.band-hero-copy h1 { font-size: var(--fs-h1); max-width: 720px; }
+.band-hero-copy p { max-width: 560px; color: rgba(255,255,255,0.85); }
+.hero-copy-actions { display: flex; gap: 16px; margin-top: 24px; }
+
+/* band 3 — quick action strip */
+.band-quickstrip { background: var(--color-bg-page); }
+.quickstrip-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.quickstrip-grid .btn { justify-content: center; width: 100%; }
+
+/* band 4 — discover / two column */
+.band-discover { background: var(--color-bg-page); }
+.discover-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start; }
+.discover-grid h2 { font-size: var(--fs-title-4); }
+.feature-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 20px; }
+.feature-list li { display: flex; gap: 12px; align-items: flex-start; }
+.feature-list .dot { flex: none; width: 10px; height: 10px; margin-top: 6px; border-radius: 50%; background: var(--color-primary); }
+
+/* band 5 — comparison */
+.band-comparison { background: var(--color-bg-cream); }
+.comparison-heading { text-align: center; font-size: var(--fs-title-3); max-width: 760px; margin: 0 auto 40px; }
+.comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+.comparison-card { border-radius: var(--radius-xl); padding: 40px; }
+.comparison-card.is-reality { background: var(--color-bg-light); color: var(--color-text); }
+.comparison-card.is-standard { background: var(--color-bg-navydeep); color: var(--color-text-onDark); border: 1px solid var(--color-primary); }
+.comparison-card h3 { font-size: var(--fs-title-5); }
+.comparison-item { padding: 18px 0; border-top: 1px solid rgba(0,0,0,0.08); }
+.comparison-card.is-standard .comparison-item { border-top-color: rgba(255,255,255,0.12); }
+.comparison-item h4 { font-size: var(--fs-h4); margin-bottom: 6px; }
+.comparison-item.is-negative h4 { color: #8c1d1d; }
+.comparison-item.is-positive h4 { color: var(--color-primary); }
+.comparison-item p { font-size: 13px; color: var(--color-text-muted); margin: 0; }
+.comparison-card.is-standard .comparison-item p { color: rgba(255,255,255,0.75); }
+
+/* band 6 — trust badges */
+.band-badges { background: var(--color-bg-page); padding-top: 32px; padding-bottom: 32px; }
+.badges-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 40px; }
+.badge { display: flex; align-items: center; gap: 10px; color: var(--color-text-muted); font-size: 13px; font-weight: 600; }
+.badge .media-placeholder { width: 40px; height: 40px; border-radius: var(--radius-md); }
+
+/* band 7 — ratings */
+.band-ratings { background: var(--color-bg-steel); text-align: center; }
+.band-ratings h2 { font-size: var(--fs-title-1); color: var(--color-text); }
+.ratings-widget-placeholder {
+  margin-top: 32px;
+  border-radius: var(--radius-md);
+  background: rgba(0,0,0,0.06);
+  border: 1px dashed rgba(0,0,0,0.25);
+  padding: 48px 24px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+/* band 8 — services grid */
+.band-services { background: var(--color-bg-navy); color: var(--color-text-onDark); }
+.band-services h2 { font-size: var(--fs-h2); text-align: center; max-width: 640px; margin: 0 auto 48px; }
+.services-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px; }
+.service-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-md); padding: 32px; display: flex; flex-direction: column; gap: 16px; min-height: 260px; }
+.service-card .media-placeholder { width: 100%; aspect-ratio: 1200 / 800; border-radius: var(--radius-sm); }
+.service-card h3 { font-size: var(--fs-h4); margin: 0; }
+.service-card p { font-size: 13px; color: rgba(255,255,255,0.75); margin: 0 0 8px; flex-grow: 1; }
+
+/* band 9 — install / cta with stats (single column per blueprint) */
+.band-install { background: var(--color-bg-page); }
+.install-inner { max-width: 720px; margin: 0 auto; text-align: center; }
+.install-inner h2 { font-size: var(--fs-title-1); }
+.install-actions { display: flex; justify-content: center; gap: 16px; margin: 24px 0 40px; }
+.stat-chip-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-bottom: 40px; }
+.stat-chip { padding: 8px 18px; border-radius: var(--radius-full); background: var(--color-bg-light); font-size: 12px; font-weight: 700; color: var(--color-text-muted); }
+.install-inner .media-placeholder { width: 100%; max-width: 480px; margin: 0 auto; aspect-ratio: 724 / 671; border-radius: var(--radius-xl); }
+
+/* band 10 — featured projects slider */
+.band-projects { background: var(--color-bg-navy); color: var(--color-text-onDark); }
+.band-projects h2 { font-size: var(--fs-title-1); text-align: center; margin-bottom: 40px; }
+.slider { position: relative; overflow: hidden; }
+.slider-track { display: flex; transition: transform var(--dur-lg) var(--ease-custom); }
+.slide { flex: none; width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.project-card { background: rgba(255,255,255,0.04); border-radius: var(--radius-md); overflow: hidden; }
+.project-card .media-placeholder { width: 100%; aspect-ratio: 4 / 3; border-radius: 0; }
+.project-card .project-card-body { padding: 20px; }
+.project-card h3 { font-size: var(--fs-body); margin: 0 0 8px; }
+.project-card a { font-size: 12px; color: var(--color-text-link); font-weight: 600; }
+.slider-controls { display: flex; justify-content: center; gap: 16px; margin-top: 32px; }
+.slider-btn { width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: transparent; color: var(--color-text-onDark); cursor: pointer; font-size: 16px; }
+.slider-btn:hover { background: rgba(255,255,255,0.1); }
+
+/* band 11 — faq */
+.band-faq { background: var(--color-bg-page); }
+.faq-inner { max-width: 760px; margin: 0 auto; }
+.faq-inner h2 { font-size: var(--fs-title-5); text-align: center; }
+.faq-item { border-top: 1px solid var(--color-bg-light); padding: 14px 0; }
+.faq-item:last-child { border-bottom: 1px solid var(--color-bg-light); }
+.faq-item summary { cursor: pointer; font-weight: 600; font-size: 14px; list-style: none; display: flex; justify-content: space-between; }
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item p { margin: 10px 0 0; font-size: 13px; color: var(--color-text-muted); }
+
+/* band 12 — closing cta */
+.band-closing { background: var(--color-bg-page); text-align: center; }
+.band-closing h2 { font-size: var(--fs-h3); }
+.band-closing p { max-width: 520px; margin: 0 auto 24px; color: var(--color-text-muted); }
+.closing-actions { display: flex; justify-content: center; gap: 16px; }
+
+/* band 13 — footer top */
+.band-footer-top { background: var(--color-bg-navy); color: var(--color-text-onDark); }
+.footer-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; }
+.footer-grid h5 { font-size: var(--fs-h5); letter-spacing: 0.08em; color: var(--color-primary); margin-bottom: 16px; }
+.footer-grid ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; font-size: 13px; }
+.footer-grid ul a { color: rgba(255,255,255,0.75); }
+.footer-social { display: flex; gap: 12px; margin-top: 20px; }
+.footer-social .btn { padding: 8px 14px; font-size: 12px; }
+
+/* band 14 — footer bottom */
+.band-footer-bottom { background: var(--color-bg-charcoal); color: rgba(255,255,255,0.6); font-size: 12px; }
+.footer-bottom-grid { display: grid; grid-template-columns: 1fr; gap: 16px; align-items: start; }
+.footer-bottom-grid h3 { font-size: var(--fs-title-6); color: var(--color-text-onDark); margin-bottom: 10px; }
+.footer-legal { display: flex; gap: 16px; flex-wrap: wrap; }
+.footer-social-mini { display: flex; gap: 10px; }
+.footer-social-mini a { width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 12px; }
+
+/* placeholders standing in for un-capturable media (see BUILD-NOTES) */
+.media-placeholder {
+  background: linear-gradient(135deg, rgba(244,168,37,0.15), rgba(27,42,74,0.15));
+  border: 1px dashed rgba(0,0,0,0.15);
+}
+
+/* reveal-on-scroll
+   Default state is always visible — a page that is loaded and captured
+   (e.g. a full-page screenshot that never scrolls) must show every band's
+   real content. Hiding is opt-in, applied only by app.js to elements it can
+   guarantee will resolve back to visible without depending on a scroll
+   event ever happening (see app.js for the viewport check). */
+[data-reveal] {
+  opacity: 1;
+  transform: none;
+}
+[data-reveal].pre-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity var(--dur-md) var(--ease-custom), transform var(--dur-md) var(--ease-custom);
+}
+[data-reveal].pre-reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal].pre-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

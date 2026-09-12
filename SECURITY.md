@@ -85,6 +85,17 @@ The shared address policy lives in `src/security/url-safety.js`; the pinning
 proxy is `src/security/safe-proxy.js`, and `src/crawler.js` owns the enforced
 browser launch boundary.
 
+The single opt-in exception to this boundary is `designlang fidelity
+--clone-local`. It accepts exactly one `http://127.0.0.1:<port>` or
+`http://localhost:<port>` origin, performs no DNS lookup for it, and connects
+only to `127.0.0.1` on that one port. It refuses a CONNECT (https) request to
+the same host:port, and re-validates every redirect hop the same way as any
+other target. This allowance is threaded through the fidelity command's
+crawl of the clone side only; it is unreachable from the extraction command,
+`clone`, `pack`, the MCP server, and the website API. The fidelity command's
+screenshot lane (`src/fidelity/run.js`) goes through the same safe browsing
+proxy as the crawl, with `--clone-local` applied to the clone shot only.
+
 ## Reporting a vulnerability
 
 **Please don't open a public issue.** Use GitHub's private vulnerability reporting instead:

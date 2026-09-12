@@ -136,3 +136,122 @@ describe('runFidelityLoop', () => {
     await assert.rejects(() => runFidelityLoop({}), /measure/);
   });
 });
+
+import { measureCloneFidelity, fullPageShot } from '../src/fidelity/run.js';
+
+describe('measureCloneFidelity input guard', () => {
+  it('rejects a missing clone URL before touching a browser', async () => {
+    await assert.rejects(measureCloneFidelity({ originalUrl: 'https://example.com' }), /needs originalUrl and cloneUrl/);
+  });
+});
+
+describe('measureCloneFidelity: allowOrigin threads to the clone-side crawl only', () => {
+  const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
+  const stubDesign = {
+    motion: { runtime: null },
+    blueprint: { bands: [], readingOrder: [], heroIndex: -1, counts: { bands: 0, oversizedDropped: 0, byRole: {} } },
+  };
+
+  it('the original call has no allowOrigin key; the clone call carries the loopback origin', async () => {
+    const calls = [];
+    const extractor = async (url, options) => { calls.push({ url, options }); return stubDesign; };
+    const screenshot = async () => PNG;
+
+    const { report } = await measureCloneFidelity({
+      originalUrl: 'https://example.com',
+      cloneUrl: 'http://127.0.0.1:4173',
+      opts: { extractor, screenshot, allowOrigin: 'http://127.0.0.1:4173' },
+    });
+
+    assert.equal(calls.length, 2);
+    const original = calls.find((c) => c.url === 'https://example.com');
+    const clone = calls.find((c) => c.url === 'http://127.0.0.1:4173');
+    assert.ok(original, JSON.stringify(calls));
+    assert.ok(!('allowOrigin' in original.options), JSON.stringify(original.options));
+    assert.ok(clone, JSON.stringify(calls));
+    assert.equal(clone.options.allowOrigin, 'http://127.0.0.1:4173');
+    assert.ok(report);
+  });
+});
+
+describe('measureCloneFidelity: the screenshot lane is proxied and allowOrigin reaches the clone shot only', () => {
+  const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
+  const stubDesign = { motion: { runtime: null }, blueprint: { bands: [], readingOrder: [], heroIndex: -1, counts: { bands: 0, oversizedDropped: 0, byRole: {} } } };
+  it('records one shot per side with allowOrigin only on the clone', async () => {
+    const shots = [];
+    const screenshot = async (url, o) => { shots.push({ url, o }); return PNG; };
+    await measureCloneFidelity({
+      originalUrl: 'https://example.com', cloneUrl: 'http://127.0.0.1:4173',
+      opts: { extractor: async () => stubDesign, screenshot, allowOrigin: 'http://127.0.0.1:4173' },
+    });
+    assert.equal(shots.length, 2);
+    const original = shots.find((s) => s.url === 'https://example.com');
+    const clone = shots.find((s) => s.url === 'http://127.0.0.1:4173');
+    assert.ok(!('allowOrigin' in original.o), JSON.stringify(original.o));
+    assert.equal(clone.o.allowOrigin, 'http://127.0.0.1:4173');
+  });
+});
+
+describe('fullPageShot: goes through the safe browsing proxy with injectable startProxy/launch', () => {
+  const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
+  const fakePage = () => ({
+    goto: async () => {},
+    waitForLoadState: async () => {},
+    evaluate: async () => {},
+    screenshot: async () => PNG,
+  });
+  const fakeLaunch = (launchCalls) => async (options) => {
+    launchCalls.push(options);
+    return {
+      newContext: async () => ({ newPage: async () => fakePage() }),
+      close: async () => {},
+    };
+  };
+
+  it('starts the proxy with allowOrigin and launches with its url and the egress args', async () => {
+    const proxyCalls = [];
+    const startProxy = async (options) => { proxyCalls.push(options); return { url: 'http://127.0.0.1:9', close: async () => {} }; };
+    const launchCalls = [];
+    const buf = await fullPageShot('http://127.0.0.1:4173', { allowOrigin: 'http://127.0.0.1:4173' }, { startProxy, launch: fakeLaunch(launchCalls) });
+
+    assert.deepEqual(proxyCalls, [{ allowOrigin: 'http://127.0.0.1:4173' }]);
+    assert.equal(launchCalls[0].proxy.server, 'http://127.0.0.1:9');
+    assert.ok(launchCalls[0].args.includes('--disable-quic'), JSON.stringify(launchCalls[0].args));
+    assert.ok(launchCalls[0].args.includes('--force-webrtc-ip-handling-policy=disable_non_proxied_udp'), JSON.stringify(launchCalls[0].args));
+    assert.ok(launchCalls[0].args.includes('--proxy-bypass-list=<-loopback>'), JSON.stringify(launchCalls[0].args));
+    assert.deepEqual(buf, PNG);
+  });
+
+  it('starts the proxy with {} when no allowOrigin is given', async () => {
+    const proxyCalls = [];
+    const startProxy = async (options) => { proxyCalls.push(options); return { url: 'http://127.0.0.1:9', close: async () => {} }; };
+    await fullPageShot('http://127.0.0.1:4173', {}, { startProxy, launch: fakeLaunch([]) });
+    assert.deepEqual(proxyCalls, [{}]);
+  });
+});
+
+describe('measureCloneFidelity: a rejection on one side of a paired launch does not race the other', () => {
+  const stubDesign = { motion: { runtime: null }, blueprint: { bands: [], readingOrder: [], heroIndex: -1, counts: { bands: 0, oversizedDropped: 0, byRole: {} } } };
+
+  it('rejects with the screenshot error once both sides have settled, closing normally', async () => {
+    const cloneError = new Error('clone screenshot failed');
+    let originalClosed = false;
+    const screenshot = async (url) => {
+      if (url === 'http://127.0.0.1:4173') throw cloneError;
+      // The original side resolves slower than the clone rejects, so a plain
+      // Promise.all would already have returned (and rejected) before this
+      // settles; Promise.allSettled must still wait for it.
+      await new Promise((resolve) => setTimeout(resolve, 5));
+      originalClosed = true;
+      return Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
+    };
+    await assert.rejects(
+      measureCloneFidelity({
+        originalUrl: 'https://example.com', cloneUrl: 'http://127.0.0.1:4173',
+        opts: { extractor: async () => stubDesign, screenshot },
+      }),
+      (error) => error === cloneError,
+    );
+    assert.equal(originalClosed, true, 'the original-side promise must be allowed to settle, not abandoned');
+  });
+});

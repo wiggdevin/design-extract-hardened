@@ -1,5 +1,87 @@
 # Changelog
 
+## [Unreleased]
+
+**Blueprint rebuild loop: the extraction now says where things are, not only what they are.**
+
+Round one of a loop whose goal is that an agent can rebuild a page from the
+extraction directory alone. The reference page is odysseycontracting.com; the
+rebuild, its notes and the scored report live under `benchmarks/rebuild/` and
+`benchmarks/rebuild-round-1.md`.
+
+**Added**
+
+- **Scroll pass on every crawl.** Before collection the crawler scrolls the page
+  one viewport at a time (settle plus network idle per step, inner scroll
+  containers included) and waits for lazy images, so below-the-fold sections,
+  lazy media and reveal animations are present when the DOM is read. Runtime
+  animations are sampled early and settled at each step. Pass `scrollPass: false`
+  to the extractor to skip it. Cost: roughly a third more wall time on the
+  16-site semantic benchmark (95 s to 126 s) and about four minutes on a
+  10,000 px page with `--full`. Recorded under `evidence.capture.scroll`.
+- **`motion.stack`.** Motion libraries detected from script URLs, window globals,
+  custom tags and class tokens: Lottie, Swiper, GSAP, ScrollTrigger, Lenis,
+  Locomotive, AOS, Framer Motion, Motion One, and theme reveal classes.
+- **`design.blueprint` and `<host>-blueprint.json`.** The page as an ordered list
+  of horizontal bands: document bounds, background, column count, media kind and
+  share, heading, button and card counts, role and confidence, the reveal
+  observed inside the band, plus `readingOrder`, `heroIndex` and counts. Bands
+  taller than 80% of the page are dropped and counted as `oversizedDropped`.
+- **`fidelity --clone-local`.** Lets the clone side of the fidelity command be a
+  server on `http://127.0.0.1:<port>` or `http://localhost:<port>`. This is the
+  only loopback allowance in the tool and it applies to the fidelity command
+  alone; the original side and every other command keep the public-address
+  policy. The command now also writes `fidelity-blueprint.json` and prints a
+  blueprint score, with a caveat line when the band counts differ.
+- **Two benchmark gates.** The semantic benchmark scorecard adds "hero at top on
+  at least 14 of 16 sites" and "no oversized band on any site".
+- **`benchmarks/serve-static.mjs`.** A loopback-only static server for scoring a
+  local rebuild.
+
+**Changed**
+
+- **`sectionRoles` is blueprint-derived when bands exist.** `sections`,
+  `readingOrder` and `counts` all describe the same band list; `source` says
+  `blueprint` or `landmarks`. The landmark list stays under `design.regions`.
+- **Agent brief names are allowlisted whole.** Font families, CTA verbs, variant
+  and slot names are read from the design before projection and dropped when
+  they do not match a short identifier shape, so a sentence-shaped name never
+  reaches the brief.
+
+**Fixed**
+
+- **Fixed headers landed at the wrong document y** when an interaction pass left
+  the page scrolled before collection.
+- **Band classifier text no longer survives into `rawData`.**
+
+**Round two**
+
+- **Lazy media resolves.** A lazysizes placeholder (a transparent `data:` SVG
+  in `src`) now yields the real URL from `data-orig-src`, `data-src`,
+  `data-lazy-src`, `data-srcset`, `srcset` or a `picture` source; `images[]`
+  marks `lazyUnresolved`, the scroll evidence counts `placeholders`, and
+  `data-bg` backgrounds are read.
+- **Embeds are media.** Iframes, embeds and objects count toward band media as
+  kind `embed` with their URL.
+- **Repeated structure.** Each band records `repeats` (count, size, per row,
+  with image, with button) from its largest same-size sibling group; card and
+  column counts use it, and a grid of four or more cards where half carry a
+  button classifies as `feature-grid` before the testimonial rule.
+- **Inherited backgrounds and video posters.** An unpainted band records the
+  nearest painted ancestor with `inherited: true`; a video band records
+  `media.poster` or null.
+- **Overlay bands.** Pinned, absolutely positioned, or contained bands carry
+  `overlay: true`; the blueprint fidelity scorer aligns without them and its
+  rows keep the original band index.
+- **Section text stripped from `rawData`** after voice, intent and role
+  classification, in both lanes.
+- **Fidelity screenshots go through the safe browsing proxy** with the
+  crawl's egress arguments; `--clone-local` reaches the clone shot only.
+- **Benchmark gate** "No placeholder media source on any site" (an empty
+  non-base64 SVG data URI).
+- **Round-two rebuild and report** under `benchmarks/rebuild/odyssey-round-2/`
+  and `benchmarks/rebuild-round-2.md`.
+
 ## [13.2.0] — 2026-08-31
 
 **Depth pass on extraction: the inventories become systems.**
