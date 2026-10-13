@@ -1,0 +1,752 @@
+{
+  "schemaVersion": 1,
+  "name": "Semantic ground truth v1 - 10 Refero sites + 6 stress sites. Agent-labeled from 1280x800 captures on 2026-09-09, then human-reviewed picture by picture on 2026-09-11.",
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "labelingMethod": "Two independent labelers per site (visual-first and evidence-first) from viewport.png, fullpage.png and probe.json; a reconciler resolved disagreements or set the disputed field to null. Refero annotations were available as context, never as truth.",
+  "humanReview": {
+    "reviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)",
+    "method": "Each site was shown as a set of pictures cut from the live capture (text in each font family, buttons, cards, text fields, the largest images) with a plain-language question per picture. The agent tags were visible as captions but the answer came from the picture.",
+    "derivation": {
+      "fonts": "brand -> accepted; not-brand -> rejected. Can't tell keeps the agent tag and lists the font in unverifiedFields; a font with no agent tag that the human could not judge is in neither list. A font with no visible text sample in the capture was judged by its name, so its answer stands but is also listed in unverifiedFields.",
+      "byRole": "square/rounded/pill -> that value. Mixed has no byRole vocabulary: the role is null (unscored) and global is mixed. Can't tell, or a role with no crop on the page, keeps the agent tag as unverified. Avatars were not asked, so avatar tags are always unverified.",
+      "global": "From the human-judged control roles only (button, card, input): any mixed -> mixed; all agreeing -> that value; disagreeing -> mixed; none judged -> agent tag, unverified.",
+      "mediaTopTwo": "Each labeled crop votes with its visible area; labels are summed and the top two kept. Can't tell crops do not vote."
+    },
+    "unverifiedFields": "Per site, the fields no picture confirmed: an agent tag the human did not judge, or a font the human judged by its name because the capture showed no text in it. A verified-only score nulls these.",
+    "rawAnswers": "benchmarks/semantic-human-review-2026-09-11.json"
+  },
+  "sites": [
+    {
+      "id": "04cc9d9d-a641-4552-b370-0dea414a15db",
+      "title": "Apple - MacBook Neo",
+      "captureUrl": "https://www.apple.com/macbook-neo",
+      "finalUrl": "https://www.apple.com/macbook-neo/",
+      "capturedAt": "2026-09-10T04:17:35.161Z",
+      "captureStatus": "reviewed",
+      "fonts": {
+        "accepted": [
+          "SF Pro Text",
+          "SF Pro Display"
+        ],
+        "rejected": [
+          "SF Pro Icons"
+        ]
+      },
+      "geometry": {
+        "global": "pill",
+        "byRole": {
+          "button": "pill",
+          "input": null,
+          "card": "rounded",
+          "avatar": null
+        }
+      },
+      "mediaTopTwo": [
+        "product-photography"
+      ],
+      "reviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)",
+      "notes": "reconciled | labeler disagreements: media[0] A=product-photography B=photography | A/B agreed on: geometryGlobal/byRoleButton=pill, byRoleInput/byRoleAvatar=absent, byRoleCard=rounded, fontsAccepted, captureStatus=reviewed. Disagreements resolved: (1) fontsRejected - A had [SF Pro Icons, Apple Icons], B had []; kept only SF Pro Icons since documentFonts shows it ':loaded' with 0 occurrences in fontsByText (clear icon-glyph face, no visible text); Apple Icons/Legacy Chevron are ':unloaded' (never rendered at all) so left out of both lists per the conservative rule. (2) mediaTopTwo order - A: [product-photography, photography], B: [photography, product-photography] (B treated ",
+      "evidence": "viewport.png: black \"Buy\" pill CTA (radius=half-height); crop_btn3.png: outline \"Watch the film\" pill. radii.buttons modes 36px:14/28px:10/999px:6/980px:5 (0px:17 = nav text links, not controls) -> pill. crop1.png: highlights tile has ~28px rounded corners, matches radii.cards 28px:55 (0px:210 = non-visual boxes) -> byRoleCard=rounded. radii.inputs=[] and no fields visible -> absent; no avatars anywhere -> absent. fontsByText: SF Pro Text 315, SF Pro Display 111, both documentFonts ':loaded' -> accepted. SF Pro Icons is ':loaded' but 0 count in fontsByText (icon glyphs only, no visible text) -> rejected; Apple Icons*/Legacy Chevron are ':unloaded' (never render) so left out per conservative rule. Media: hero (crop2/crop4, area 765591) and repeated laptop-lid shots are studio product photos with hands as styling prop, plain grey/white ground -> product-photography (dominant, repeated acro",
+      "reviewedAt": "2026-09-11 04:02",
+      "unverifiedFields": [
+        "fonts:SF Pro Icons",
+        "geometry.byRole.card"
+      ],
+      "humanChanges": [],
+      "agentReviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)"
+    },
+    {
+      "id": "568a26f6-3ebb-4bb1-b523-c41c0305d3c1",
+      "title": "Woven",
+      "captureUrl": "https://wovenwhisky.com",
+      "finalUrl": "https://wovenwhisky.com/",
+      "capturedAt": "2026-09-10T04:17:56.457Z",
+      "captureStatus": "reviewed",
+      "fonts": {
+        "accepted": [
+          "Spezia Semi-Mono Regular",
+          "Spezia Medium",
+          "Spezia Semi-Mono Light",
+          "Figtree"
+        ],
+        "rejected": [
+          "Shippori Mincho",
+          "Myriad Pro Regular",
+          "Spezia Narrow Regular",
+          "slick",
+          "Montserrat",
+          "Kanit-Klaviyo-Hosted",
+          "Poppins-Klaviyo-Hosted",
+          "SEZIASEMIMONO"
+        ]
+      },
+      "geometry": {
+        "global": "square",
+        "byRole": {
+          "button": "square",
+          "input": "square",
+          "card": "square",
+          "avatar": null
+        }
+      },
+      "mediaTopTwo": [
+        "iconography"
+      ],
+      "reviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)",
+      "notes": "reconciled | labelers agreed on global geometry and top media | A and B agreed on every scored field (captureStatus=reviewed, geometryGlobal=square, all byRole=square/absent, mediaTopTwo=[product-photography, photography], fontsAccepted identical). The only difference was fontsRejected coverage: B listed 5 names (Montserrat, Shippori Mincho, Kanit-Klaviyo-Hosted, Poppins-Klaviyo-Hosted, slick), A additionally listed Myriad Pro Regular, Spezia Narrow Regular, SEZIASEMIMONO, and \"SPEZIA MEDIUM\". Checked documentFonts: Myriad Pro Regular, Spezia Narrow Regular, and SEZIASEMIMONO are all ':unloaded', and \"SPEZIA MEDIUM\" (all-caps, distinct string from accepted",
+      "evidence": "Verified directly: viewport.png shows age-gate modal (black bg, \"WOVEN\", 21 YEARS slider, rectangular-outline ENTER button) over hero; fullpage.png confirms full real content below (nav, EXPERIENCE WHISKY hero, VISIT US, OUR LATEST RELEASES 3-bottle grid, testimonial, DISCOVER OUR RANGE 4-bottle grid, press logos, journal, footer) -> reviewed, not blocked. probe.json preScroll.radii: buttons [0px,11], inputs [0px,3], cards [0px,14], all single-value 0px -> square globally; matches sharp-cornered ENTER/BOOK YOUR EXPERIENCE/SHOP ALL buttons and sharp product-grid tiles in fullpage.png. No avatars anywhere. fontsByText (all documentFonts:loaded): Spezia Semi-Mono Regular(47), Spezia Medium(26), Spezia Semi-Mono Light(12), Figtree(3) -> accepted. Rejected are all unloaded declarations (Shippori Mincho, Myriad Pro Regular, Spezia Narrow Regular, SEZIASEMIMONO), the slick-carousel lib font, Kl",
+      "reviewedAt": "2026-09-11 03:58",
+      "unverifiedFields": [
+        "fonts:Spezia Semi-Mono Light",
+        "fonts:Figtree",
+        "fonts:Shippori Mincho",
+        "fonts:Myriad Pro Regular",
+        "fonts:Spezia Narrow Regular",
+        "fonts:slick",
+        "fonts:Montserrat",
+        "fonts:Kanit-Klaviyo-Hosted",
+        "fonts:Poppins-Klaviyo-Hosted",
+        "fonts:SEZIASEMIMONO",
+        "geometry.byRole.card",
+        "geometry.byRole.input"
+      ],
+      "humanChanges": [],
+      "agentReviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)"
+    },
+    {
+      "id": "5a88bfbc-5f7e-4d4f-8c7b-a21f32997ddd",
+      "title": "Aevi Wellness",
+      "captureUrl": "https://liveaevi.com",
+      "finalUrl": "https://liveaevi.com/",
+      "capturedAt": "2026-09-10T04:18:10.097Z",
+      "captureStatus": "reviewed",
+      "fonts": {
+        "accepted": [
+          "Primary Font",
+          "Tertiary Font",
+          "Button Font",
+          "Heading Font"
+        ],
+        "rejected": [
+          "Secondary Font",
+          "Quaternary Font",
+          "Canela",
+          "Matter",
+          "IBM Plex Sans",
+          "Manrope",
+          "Plus Jakarta Sans",
+          "Poppins",
+          "oke-widget-icons",
+          "swiper-icons",
+          "Josefin Sans",
+          "Arial"
+        ]
+      },
+      "geometry": {
+        "global": "pill",
+        "byRole": {
+          "button": "pill",
+          "input": "square",
+          "card": "square",
+          "avatar": null
+        }
+      },
+      "mediaTopTwo": [
+        "product-photography",
+        "iconography"
+      ],
+      "reviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)",
+      "notes": "reconciled | labelers agreed on global geometry and top media | A vs B agreed on everything except fontsRejected's tail. A included Canela/Matter but not Josefin Sans/Arial; B included Josefin Sans/Arial but not Canela/Matter. Resolved by union: documentFonts confirms Canela/Matter are ':unloaded' (A's evidence, valid) and Josefin Sans/Arial have zero presence anywhere in this probe -- they exist only in the known-wrong extraction.json typography.families list (counts 33/5), unconfirmed by the actual page's font loading or text rendering (B's caution, valid) -- so all four are rejected. All other fields (fontsAccepted, geometryGlobal=mixed, byRoleButton=pi",
+      "evidence": "probe.json preScroll.fontsByText: Primary Font 126, Tertiary Font 62, Button Font 15, Heading Font 5, all ':loaded' in documentFonts -> accepted. Secondary/Quaternary Font are ':loaded'+':unloaded' mixed entries but 0 in fontsByText (never render as direct-text family); Canela/Matter/IBM Plex Sans/Manrope/Plus Jakarta Sans/Poppins are ':unloaded'; oke-widget-icons/swiper-icons are unloaded 3rd-party icon fonts -> all rejected. Josefin Sans/Arial appear only in extraction.json (task states extraction is known wrong on fonts here), with zero presence in this probe's documentFonts or fontsByText -> rejected as unconfirmed. radii.buttons: 60px(14, pill, matches hero CTA \"VITAMIN C + COLLAGEN SERUM\" in viewport.png) vs 2px/0px/compound(15, square-ish); radii.inputs=0px(1); radii.cards=0px(13, matches sharp-corner Bestsellers/Award-Winners product tiles in fullpage.png) -> byRoleButton=pill, i",
+      "reviewedAt": "2026-09-11 03:59",
+      "unverifiedFields": [
+        "fonts:Primary Font",
+        "fonts:Secondary Font",
+        "fonts:Quaternary Font",
+        "fonts:Canela",
+        "fonts:Matter",
+        "fonts:IBM Plex Sans",
+        "fonts:Manrope",
+        "fonts:Plus Jakarta Sans",
+        "fonts:Poppins",
+        "fonts:oke-widget-icons",
+        "fonts:swiper-icons",
+        "fonts:Josefin Sans",
+        "fonts:Arial",
+        "geometry.byRole.card",
+        "geometry.byRole.input"
+      ],
+      "humanChanges": [],
+      "agentReviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)"
+    },
+    {
+      "id": "58a1f660-e088-4a07-b3b2-2fdeaeec7c47",
+      "title": "SwimClub",
+      "captureUrl": "https://swimclub.co",
+      "finalUrl": "https://swimclub.co/",
+      "capturedAt": "2026-09-10T04:18:32.469Z",
+      "captureStatus": "reviewed",
+      "fonts": {
+        "accepted": [
+          "Apercu Mono Pro",
+          "Px Grotesk",
+          "Swimclub"
+        ],
+        "rejected": []
+      },
+      "geometry": {
+        "global": "square",
+        "byRole": {
+          "button": "square",
+          "input": "square",
+          "card": "square",
+          "avatar": null
+        }
+      },
+      "mediaTopTwo": [
+        "product-photography"
+      ],
+      "reviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)",
+      "notes": "reconciled | labelers agreed on global geometry and top media | No disagreements between Label A and Label B: both gave identical values for every field (fontsAccepted, fontsRejected, geometryGlobal, all byRole fields, mediaTopTwo order, captureStatus). Verified directly against probe.json (fontsByText counts, documentFonts ':loaded' status, radii arrays) and both viewport.png/fullpage.png screenshots — no field required adjustment or an 'unknown' fallback.",
+      "evidence": "probe.json preScroll.fontsByText: Apercu Mono Pro 123, Px Grotesk 95, Swimclub 7 — all three ':loaded' in documentFonts, all render visible text (nav/ticker/buttons mono; headline/body Px Grotesk; wordmark Swimclub). radii.buttons=[0px,12], inputs=[0px,1], cards=[0px,1], confirmed visually on viewport.png (sharp \"SHOP NOW\" button) and fullpage.png (repeated square CTA buttons, square footer email input, square product/testimonial/comparison cards, no rounding anywhere). No circular elements; testimonial tiles are rectangular video thumbnails with play icons, not avatars -> byRoleAvatar absent. Hero image (rect w1280 h720, area 879780, largest element on page) is a studio shot of capsules/softgels on gradient backdrop = product-photography. fullpage.png adds multiple real-person/couple photos (trying-to-expecting testimonial trio, \"More Than Fertility\" embrace spread, expert headshot) = p",
+      "reviewedAt": "2026-09-11 03:59",
+      "unverifiedFields": [
+        "geometry.byRole.card",
+        "geometry.byRole.input"
+      ],
+      "humanChanges": [],
+      "agentReviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)"
+    },
+    {
+      "id": "8569a6d1-3fab-4876-9a3d-b6d95f3f53c7",
+      "title": "Filling Pieces",
+      "captureUrl": "https://www.fillingpieces.com",
+      "finalUrl": "https://www.fillingpieces.com/",
+      "capturedAt": "2026-09-10T04:18:57.945Z",
+      "captureStatus": "reviewed",
+      "fonts": {
+        "accepted": [
+          "favorit",
+          "Favorit",
+          "FavoritMedium",
+          "Reader"
+        ],
+        "rejected": [
+          "atacama",
+          "SUBWT___",
+          "JudgemeStar",
+          "Poppins",
+          "Poppins-Klaviyo-Hosted"
+        ]
+      },
+      "geometry": {
+        "global": "square",
+        "byRole": {
+          "button": "square",
+          "input": "square",
+          "card": null,
+          "avatar": null
+        }
+      },
+      "mediaTopTwo": [
+        "product-photography",
+        "photography"
+      ],
+      "reviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)",
+      "notes": "reconciled | labeler disagreements: geometryGlobal A=rounded B=mixed; media[0] A=product-photography B=photography | A/B disagreements and resolutions: (1) fontsAccepted - A included capital \"Favorit\", B excluded it citing documentFonts Favorit:error; kept per literal merge rule (count=5>=3) but this is a fallback render, not the true loaded face - treat with caution. (2) geometryGlobal - A said rounded, B said mixed; re-judged from a zoomed crop of viewport.png confirming input=square (sharp corner) vs button=rounded (~8px) -> mixed is correct, A's input reading was wrong. (3) byRoleInput - A=rounded, B=square; resolved square (visual + radii evidence). (4) byRoleCard - A=square, B=absent; resolved absent, ",
+      "evidence": "fontsByText: favorit=565 (favorit:loaded, FavoritBook:loaded) = dominant body/heading face. Favorit(cap)=5, count>=3 but documentFonts marks Favorit:error (renders via fallback, not the real face) - included per merge rule, flagged as caveat. Rejected names all unloaded/error or 3rd-party widget fonts. Zoomed crop of viewport.png (crop_input_corner.png/crop_button_corner.png) shows sharp 90deg corners on email input (matches radii.inputs 0px) vs visible ~8px rounding on buttons (radii.buttons dominant 8px x241) -> button=rounded, input=square -> geometryGlobal=mixed, not A's uniform rounded. crop_teegrid.png: product tiles are flush image+text, no border/shadow/container -> card=absent, not A's square. No avatar UI. Area tally over fullpage.png crops: product-photography (Loafers&DressShoes, Sneakers, Unity closeup, Quality closeup, 3x5-up grids) ~4.5M px2 > photography (Rarri Jackson, C",
+      "reviewedAt": "2026-09-11 04:00",
+      "unverifiedFields": [
+        "fonts:FavoritMedium",
+        "fonts:atacama",
+        "fonts:SUBWT___",
+        "fonts:JudgemeStar",
+        "fonts:Poppins",
+        "fonts:Poppins-Klaviyo-Hosted"
+      ],
+      "humanChanges": [],
+      "agentReviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)"
+    },
+    {
+      "id": "4a0f3826-2db5-4029-9051-4b20626be38b",
+      "title": "Emma Lewisham",
+      "captureUrl": "https://emmalewisham.co.uk",
+      "finalUrl": "https://emmalewisham.co.uk/",
+      "capturedAt": "2026-09-10T04:19:18.362Z",
+      "captureStatus": "reviewed",
+      "fonts": {
+        "accepted": [
+          "Martina Plantijn",
+          "Regola Pro Book"
+        ],
+        "rejected": [
+          "GTStandard-M",
+          "Open Sans",
+          "JudgemeStar",
+          "Roboto Mono",
+          "Font Awesome 5 Free",
+          "Font Awesome 5 Brands",
+          "Darby Sans"
+        ]
+      },
+      "geometry": {
+        "global": "mixed",
+        "byRole": {
+          "button": null,
+          "input": "square",
+          "card": "square",
+          "avatar": null
+        }
+      },
+      "mediaTopTwo": [
+        "product-photography"
+      ],
+      "reviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)",
+      "notes": "reconciled | labelers agreed on global geometry and top media | A and B agreed on captureStatus (reviewed), geometryGlobal (square), all byRole fields, mediaTopTwo order, and fontsAccepted. Sole disagreement: fontsRejected — A listed only GTStandard-M; B added Open Sans, JudgemeStar, Roboto Mono, Font Awesome 5 Free/Brands, Darby Sans. Resolved per the merge rule (union of rejected names, minus anything accepted): all of B's additions show ':unloaded' in probe.json documentFonts (never applied/rendering on this capture) or are non-brand widget/icon fonts (JudgemeStar = Judge.me reviews widget star glyphs, Font Awesome = icon font, not text) — none appear i",
+      "evidence": "preScroll/postScroll identical (docHeight=800 both) — cookie modal blocks scroll, only first screen captured. fontsByText: Martina Plantijn=104 (serif hero \"A world first in beauty.\", wordmark), Regola Pro Book=6 (nav: Shop/Routines/Gifts/Skin Academy); both ':loaded'. GTStandard-M ':loaded' but count=0 in fontsByText -> renders only the OneTrust cookie-banner text, not brand. Darby Sans, Regola Pro/Bold/Reg, Roboto Mono, Open Sans, JudgemeStar, Font Awesome 5 Free/Brands all ':unloaded' -> declared but not rendering visible text on this page. radii.buttons dominant 0px:14 vs 2px:3/3px:2/50%:1(badge); inputs 0px:1; cards 0px:11 -> matches sharp-cornered \"Customize/Reject All/Accept All\" buttons and square nav/logo lockup in viewport.png; no rounded chrome visible. No avatar element (account icon is a line-art SVG glyph). Hero: left = pink-backed Emma Lewisham product jars (product-photog",
+      "reviewedAt": "2026-09-11 04:00",
+      "unverifiedFields": [
+        "fonts:Regola Pro Book",
+        "fonts:GTStandard-M",
+        "fonts:Open Sans",
+        "fonts:JudgemeStar",
+        "fonts:Roboto Mono",
+        "fonts:Font Awesome 5 Free",
+        "fonts:Font Awesome 5 Brands",
+        "fonts:Darby Sans",
+        "geometry.byRole.card",
+        "geometry.byRole.input"
+      ],
+      "humanChanges": [],
+      "agentReviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)"
+    },
+    {
+      "id": "59911817-9d14-445a-9f1b-617418001061",
+      "title": "N26",
+      "captureUrl": "https://n26.com",
+      "finalUrl": "https://n26.com/en-eu",
+      "capturedAt": "2026-09-10T04:19:28.373Z",
+      "captureStatus": "reviewed",
+      "fonts": {
+        "accepted": [
+          "N26",
+          "N26-Extended",
+          "N26-Fallback",
+          "N26-Extended-Fallback"
+        ],
+        "rejected": []
+      },
+      "geometry": {
+        "global": "pill",
+        "byRole": {
+          "button": "pill",
+          "input": null,
+          "card": null,
+          "avatar": null
+        }
+      },
+      "mediaTopTwo": [
+        "photography"
+      ],
+      "reviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)",
+      "notes": "reconciled | labelers agreed on global geometry and top media | Disagreements and resolution: (1) byRoleCard -- A=unknown, B=absent. Resolved to absent: radii.cards=[] is an actual empty scan result (not missing data), which the reconciliation rule says to prefer over 'unknown'. (2) mediaTopTwo -- A=[photography] only, B=[photography,ui-screenshot]. Resolved to [photography] only: the candidate ui-screenshot images (LP1b-LP5, alt 'smartphone screen displays a mobile banking application interface') have viewportArea=0 in both preScroll and postScroll -- they exist in the DOM/topMedia list but were never actually rendered into viewport.png or fullpage.png, s",
+      "evidence": "viewport.png and fullpage.png are byte-identical; docHeight=800 in pre and post scroll -> capture stalled behind the cookie-consent modal, never reaching below-fold content. fontsByText: N26=103, N26-Extended=12, both documentFonts ':loaded'; Fallback variants ':unloaded', 0 text hits -> rejected. radii.buttons: pill-class x6 (5x 3.35544e7px + 1x 50%) vs small-radius x15 (0px x7, 24px x3, 4px x3, 8px x2). Zoomed crops confirm nav 'Log in', nav 'Open bank account', hero 'Open bank account' are true pill shapes; small-radius bucket matches the cookie banner's Cookie Preferences/Reject All/Accept All buttons (~6-8px corners, 3rd-party widget) -> geometryGlobal/byRoleButton=pill. radii.inputs/cards both empty arrays and neither visible -> absent. No avatar seen. Hero img (viewportArea=930560, near full screen) is real photography; the alt='mobile banking application interface' images (LP1b-L",
+      "reviewedAt": "2026-09-11 04:00",
+      "unverifiedFields": [
+        "fonts:N26-Fallback",
+        "fonts:N26-Extended-Fallback"
+      ],
+      "humanChanges": [],
+      "agentReviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)"
+    },
+    {
+      "id": "54511793-579d-4406-a389-4d83b7ade0f9",
+      "title": "Hyper Foundation",
+      "captureUrl": "https://hyperliquid.xyz",
+      "finalUrl": "https://hyperliquid.xyz/",
+      "capturedAt": "2026-09-10T04:19:50.367Z",
+      "captureStatus": "reviewed",
+      "fonts": {
+        "accepted": [
+          "ABC Diatype Regular",
+          "Teodor Light"
+        ],
+        "rejected": [
+          "ABC Diatype Medium",
+          "Teodor Regular",
+          "Inter"
+        ]
+      },
+      "geometry": {
+        "global": "rounded",
+        "byRole": {
+          "button": "rounded",
+          "input": null,
+          "card": "square",
+          "avatar": null
+        }
+      },
+      "mediaTopTwo": [
+        "ui-screenshot"
+      ],
+      "reviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)",
+      "notes": "reconciled | labeler disagreements: geometryGlobal A=rounded B=mixed | Disagreements between A and B and how each was resolved:\n1. geometryGlobal (A:rounded vs B:mixed) -> resolved MIXED. A misread probe.json radii.cards = [[\"0px\",20]] as two radius buckets (0px and 20px). It is actually ONE bucket: radius value \"0px\" with count 20 -- i.e. all 20 probe-detected card elements are square-cornered. Direct visual check confirms no bordered/shadowed card component exists anywhere on the page (stat row, builder-codes block, app list are all flush page-background sections with divider lines, not cards). So cards=square while buttons=rounded -> a genuine split, matching ",
+      "evidence": "fontsByText: ABC Diatype Medium(89), ABC Diatype Regular(58), Teodor Light(5), all :loaded; Teodor Regular/Inter :unloaded, 0 count -> rejected. viewport.png TRADE button: ~45px tall, corner radius ~10-12px (measured on 4x crop) -> rounded, not pill. radii.cards = [[\"0px\",20]] is ONE bucket (radius \"0px\", count 20), not two radius values -> all 20 probe-detected card elements are square-cornered. Confirmed visually: stat row (10.1B/14.7B/2.5M/11.8k) uses plain text + straight divider lines, no card boundary; \"Integrate Hyperliquid\" and app-list rows are flush page-background blocks, no bordered/shadowed card anywhere on the page. Buttons(rounded) vs cards(square) is a real split -> geometryGlobal mixed. No text inputs (radii.inputs=[]) -> absent. No user-profile avatars; only token/logo icons (HYPE, SOL, Ripple, Circle) -> avatar absent. mediaTopTwo: full-width trading-dashboard mockup s",
+      "reviewedAt": "2026-09-11 04:00",
+      "unverifiedFields": [
+        "fonts:Teodor Regular",
+        "fonts:Inter",
+        "geometry.byRole.card"
+      ],
+      "humanChanges": [],
+      "agentReviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)"
+    },
+    {
+      "id": "466f6aa2-a9f6-4dcd-9626-73806a01d00e",
+      "title": "Origin Financial",
+      "captureUrl": "https://www.useorigin.com",
+      "finalUrl": "https://useorigin.com/",
+      "capturedAt": "2026-09-10T04:20:05.338Z",
+      "captureStatus": "reviewed",
+      "fonts": {
+        "accepted": [
+          "Lyondisplay App",
+          "Suisseintl",
+          "Roboto Mono",
+          "Suisseintltrial",
+          "Lyondisplay Trial",
+          "Lyondisplay"
+        ],
+        "rejected": [
+          "Inter",
+          "Suisseintl Book",
+          "webflow-icons"
+        ]
+      },
+      "geometry": {
+        "global": "rounded",
+        "byRole": {
+          "button": "rounded",
+          "input": "rounded",
+          "card": "rounded",
+          "avatar": "circle"
+        }
+      },
+      "mediaTopTwo": [
+        "photography",
+        "ui-screenshot"
+      ],
+      "reviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)",
+      "notes": "reconciled | labeler disagreements: media[0] A=ui-screenshot B=photography | Disagreements and resolutions: (1) byRoleAvatar: A=absent, B=circle. Resolved circle — verified circular NS/JS initial badges exist in a couples-feature section A did not cite. (2) mediaTopTwo order: A=[ui-screenshot,photography], B=[photography,ui-screenshot]. Resolved to B's order by area: full-bleed photography sections outweigh UI-screenshot area page-wide. (3) fontsRejected: A listed 3 names, B listed none. Resolved to A's 3 (union) — documentFonts marks them ':unloaded' with 0 fontsByText occurrences. All other fields (captureStatus, geometryGlobal, byRoleButton/Input/Card, fontsAccepted",
+      "evidence": "radii.buttons 8px:12/0px:1, inputs 8px:1; viewport.png crop confirms \"GET STARTED\" is an ~8px rounded rect, not pill (contra Refero manifest's \"pill buttons\") -> rounded for global/button/input, agreed by A+B. fontsByText (Inter 90, Lyondisplay App 33, Suisseintl 24, Roboto Mono 22, Suisseintltrial 17), all ':loaded' -> accepted. Suisseintl Book, Lyondisplay Trial, webflow-icons are ':unloaded' with 0 fontsByText -> rejected (A caught, B missed). Testimonial names (Fei Y./Miya C./Kourtney K.) have no avatar images, but a \"couples\" section (fullpage.png ~y5620-5730) shows two overlapping circular \"NS\"/\"JS\" initial badges in a pill -> byRoleAvatar=circle (B right, A missed by not scrolling there). Photography (hero sky bg ~1,024,000px full viewport, full-bleed daisy field ~780,800, green hills footer ~1,007,360, poppy/dune photo-cards) exceeds total UI-screenshot area (hero phone ~819,630,",
+      "reviewedAt": "2026-09-11 04:01",
+      "unverifiedFields": [
+        "fonts:Suisseintl",
+        "fonts:Suisseintltrial",
+        "fonts:Lyondisplay Trial",
+        "fonts:Suisseintl Book",
+        "fonts:webflow-icons",
+        "geometry.byRole.input",
+        "geometry.byRole.avatar"
+      ],
+      "humanChanges": [],
+      "agentReviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)"
+    },
+    {
+      "id": "95fd135a-64bd-4f9d-9a02-cac6422266c8",
+      "title": "Mercury",
+      "captureUrl": "https://mercury.com",
+      "finalUrl": "https://mercury.com/",
+      "capturedAt": "2026-09-10T04:20:21.342Z",
+      "captureStatus": "reviewed",
+      "fonts": {
+        "accepted": [
+          "arcadia",
+          "arcadiaDisplay"
+        ],
+        "rejected": [
+          "tiemposHeadline"
+        ]
+      },
+      "geometry": {
+        "global": "pill",
+        "byRole": {
+          "button": "pill",
+          "input": "pill",
+          "card": "square",
+          "avatar": null
+        }
+      },
+      "mediaTopTwo": [
+        "photography"
+      ],
+      "reviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)",
+      "notes": "reconciled | labelers agreed on global geometry and top media | A and B agreed on every field — no conflicts to arbitrate. I re-checked probe.json and both screenshots directly and confirmed each value independently. geometryGlobal=mixed is correct: buttons and the hero input are pill-shaped, but the four visible cards (feature grid, dashboard mockups) have hard square corners, so no single geometry covers controls and containers. byRoleAvatar=absent is correct: the testimonial section uses a large rectangular portrait photo, not a circular avatar. No disagreements existed to resolve.",
+      "evidence": "probe.json preScroll.fontsByText: arcadia(183), arcadiaDisplay(26); documentFonts confirms both ':loaded' while tiemposHeadline is ':unloaded' (0 count in fontsByText) -> rejected. radii.buttons: dominant 4px x18 (nav/small links) but visible primary CTAs 'Open account'/'Launch demo' in viewport.png are full capsule pills, matching radii samples 40px x4, 32px x1, and postScroll 3.36e7px x4 (absurd value = pill). radii.inputs '32px 0 0 32px' on hero email field, fused visually into the CTA pill bar. radii.cards = 0px x2, confirmed in fullpage.png: 2x2 feature-card grid and dashboard/UI screenshot tiles all have sharp square corners -> geometryGlobal=mixed. No circular avatar anywhere; testimonial uses a large rectangular photo -> byRoleAvatar=absent. Media: viewport.png hero is a large photoreal mountain/desk scene (photography); fullpage.png shows repeated app/dashboard mockup panels (ca",
+      "reviewedAt": "2026-09-11 04:01",
+      "unverifiedFields": [
+        "fonts:tiemposHeadline",
+        "geometry.byRole.card"
+      ],
+      "humanChanges": [],
+      "agentReviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)"
+    },
+    {
+      "id": "stress-opusone",
+      "title": "Opus One Winery",
+      "captureUrl": "https://www.opusonewinery.com/",
+      "finalUrl": "https://www.opusonewinery.com/",
+      "capturedAt": "2026-09-09T00:00:00.000Z",
+      "captureStatus": "reviewed",
+      "fonts": {
+        "accepted": [
+          "fira_sans-book",
+          "SchussSerifPro",
+          "fira_sans-book_italic",
+          "fira_sans-ultralight"
+        ],
+        "rejected": [
+          "Avenir",
+          "Bressay-Regular",
+          "fontello"
+        ]
+      },
+      "geometry": {
+        "global": "square",
+        "byRole": {
+          "button": "square",
+          "input": "square",
+          "card": null,
+          "avatar": null
+        }
+      },
+      "mediaTopTwo": [
+        "photography"
+      ],
+      "reviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)",
+      "notes": "reconciled | labelers agreed on global geometry and top media | A and B agreed on every field except fontsRejected's exact members. A included fira_sans-book_italic (documentFonts ':unloaded') but not fontello; B included fontello (documentFonts ':loaded' but an icon font, count absent from fontsByText — no visible brand text) but not fira_sans-book_italic or fira_sans-ultralight. Resolved per the reconciliation rule (union of both rejected sets, minus accepted): final list is Avenir, Bressay-Regular, fira_sans-book_italic, fira_sans-ultralight, fontello — none of these render >=3 counted visible-text runs or are the brand face. No disagreement on captureS",
+      "evidence": "viewport.png: OneTrust cookie banner covers only the lower ~1/5 of the 800px viewport; nav, logo, and full aerial-estate hero photo are visible above it -> reviewed, not blocked. fullpage.png: banner still overlays part of scrolled content but underlying quotes/photo-grid/newsletter footer are fully legible. fontsByText: fira_sans-book 59 (nav/body, ':loaded'), SchussSerifPro 5 (italic pull-quotes, ':loaded') both clear brand faces; fira_sans-ultralight count=1 (<3) excluded from accepted. radii.buttons [0px x7, 2px x4] (majority 0px, confirmed square-cornered cookie-banner and footer Submit buttons in screenshots) -> square; radii.inputs [0px x3] -> square; radii.cards [] and no card chrome visible in fullpage.png -> absent. No avatar photography, only a line-icon account glyph -> absent. topMedia[0] is a css-background hero photo (1280x688, area 880640) of the estate; fullpage.png show",
+      "reviewedAt": "2026-09-11 04:01",
+      "unverifiedFields": [
+        "fonts:fira_sans-book_italic",
+        "fonts:Avenir",
+        "fonts:Bressay-Regular",
+        "fonts:fontello",
+        "geometry.byRole.input"
+      ],
+      "humanChanges": [],
+      "agentReviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)"
+    },
+    {
+      "id": "stress-auberge",
+      "title": "Auberge Resorts",
+      "captureUrl": "https://www.aubergeresorts.com/",
+      "finalUrl": "https://auberge.com/",
+      "capturedAt": "2026-09-09T00:00:00.000Z",
+      "captureStatus": "reviewed",
+      "fonts": {
+        "accepted": [
+          "CentraNo1 Book",
+          "Financier Light",
+          "CentraNo1 Bold"
+        ],
+        "rejected": [
+          "Financier Medium",
+          "Lato"
+        ]
+      },
+      "geometry": {
+        "global": "square",
+        "byRole": {
+          "button": "square",
+          "input": "square",
+          "card": "square",
+          "avatar": null
+        }
+      },
+      "mediaTopTwo": [
+        "photography"
+      ],
+      "reviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)",
+      "notes": "reconciled | labelers agreed on global geometry and top media | A and B were in full agreement on every scored field (fontsAccepted, fontsRejected, geometryGlobal, all byRole*, mediaTopTwo, captureStatus) -- no re-judging was needed. The only differences were in framing/notes: A stressed the cookie-consent overlay and the aubergeresorts.com -> auberge.com rebrand redirect (both confirmed, kept as finalUrl); B flagged that the stress category 'css-background-hero' is a slight mislabel for this capture -- the actual first-screen hero is a <video> element with a poster image (kind: video-poster in probe.json), not a CSS background-image (cssBackgroundCount is",
+      "evidence": "preScroll.fontsByText: CentraNo1 Book 152-160, Financier Medium 42, Financier Light 38-39, CentraNo1 Bold 32, all ':loaded' in documentFonts (viewport.png shows serif Financier headings, sans CentraNo1 body/nav). Lato(8) absent from documentFonts -> non-brand (cookie banner), rejected. radii.buttons: 0px x116-124 dominant vs 50%x4 (icon-only circles, excluded per rule) vs 2px x3 -> square, confirmed by sharp-cornered BOOK NOW/CHECK AVAILABILITY/Accept All buttons in viewport.png. radii.inputs 0px x2, radii.cards 0px x8 -> square, matches 8 square destination/category tiles in fullpage.png. No avatar UI anywhere (Instagram grid is post thumbnails, not profiles) -> absent. topMedia: hero is a video-poster (elephants, real-world wildlife) plus destination-grid tiles (US, Mexico/Caribbean, Europe, East Africa, Coming Soon) and Instagram feed, all real-world photography -> single dominant cla",
+      "reviewedAt": "2026-09-11 04:01",
+      "unverifiedFields": [
+        "fonts:CentraNo1 Book",
+        "fonts:Lato",
+        "geometry.byRole.card"
+      ],
+      "humanChanges": [],
+      "agentReviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)"
+    },
+    {
+      "id": "stress-linear",
+      "title": "Linear",
+      "captureUrl": "https://linear.app/",
+      "finalUrl": "https://linear.app/",
+      "capturedAt": "2026-09-09T00:00:00.000Z",
+      "captureStatus": "reviewed",
+      "fonts": {
+        "accepted": [
+          "Inter Variable",
+          "Berkeley Mono"
+        ],
+        "rejected": []
+      },
+      "geometry": {
+        "global": "rounded",
+        "byRole": {
+          "button": "rounded",
+          "input": null,
+          "card": "rounded",
+          "avatar": "rounded"
+        }
+      },
+      "mediaTopTwo": [
+        "ui-screenshot"
+      ],
+      "reviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)",
+      "notes": "reconciled | labelers agreed on global geometry and top media | A vs B disagreed on two fields, both resolved by direct screenshot inspection: (1) byRoleAvatar - A said \"circle\", B said \"absent\"; a zoomed crop of the Slack-thread mockup shows a genuine photo avatar with small-radius rounded-square corners (not circular, not absent), so set to \"rounded\". (2) mediaTopTwo[1] - A said \"3d-render\", B said \"illustration\"; the FIG 0.1-0.3 isometric wireframe cubes show 3D perspective and gradient face-shading typical of rendered icon art, so resolved to \"3d-render\". All other fields agreed and are kept as-is: fontsAccepted/Rejected, geometryGlobal=pill, byRoleBut",
+      "evidence": "preScroll.fontsByText: Inter Variable 457, Berkeley Mono 181 (postScroll 466/184); documentFonts both ':loaded'; Berkeley Mono renders visible code/ticket text (DRV-8852, vehicle_state). radii.buttons: 0px:35 = bare nav text links (Log in/Product/...), 9999px:14 = the real primary CTAs; viewport.png confirms Sign up/Get started/Contact sales are fully pill-shaped -> pill. radii.inputs=[0px:2] with no visible input field in either screenshot -> absent. Testimonial/panel cards show ~8-16px rounded corners in fullpage.png -> rounded. Zoomed crop of Slack-thread mockup (\"lena\", 9:16 PM) shows a real photo avatar with a small rounded-square corner radius, not a full circle -> byRoleAvatar=rounded (not A's circle, not B's absent; B's \"absent\" evidence only checked the Gabriel Peal/OpenAI logo, a company wordmark). topMedia's two largest rects (491520px2, 277120px2) plus 5+ more mockups (integr",
+      "reviewedAt": "2026-09-11 04:01",
+      "unverifiedFields": [
+        "geometry.byRole.avatar"
+      ],
+      "humanChanges": [],
+      "agentReviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)"
+    },
+    {
+      "id": "stress-spline",
+      "title": "Spline",
+      "captureUrl": "https://spline.design/",
+      "finalUrl": "https://spline.design/",
+      "capturedAt": "2026-09-09T00:00:00.000Z",
+      "captureStatus": "reviewed",
+      "fonts": {
+        "accepted": [
+          "Spline Sans",
+          "Spline Sans Mono"
+        ],
+        "rejected": [
+          "ui-monospace",
+          "Brockmann"
+        ]
+      },
+      "geometry": {
+        "global": "mixed",
+        "byRole": {
+          "button": "pill",
+          "input": "rounded",
+          "card": "rounded",
+          "avatar": "circle"
+        }
+      },
+      "mediaTopTwo": [
+        "ui-screenshot"
+      ],
+      "reviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)",
+      "notes": "reconciled | labelers agreed on global geometry and top media | A vs B agreed on every field except byRoleAvatar (A=absent, B=circle). Resolved by direct inspection: fullpage.png at y~3300-3500 shows a circular photo avatar for \"Andrew Pons\" beside the featured Oscilar quote (the later testimonial grid at y~9500-10600 repeats the same three quotes as logo-only cards with no avatar, which is likely what led A to conclude \"absent\"). Since a circular avatar does render on the page, byRoleAvatar=circle. All other fields matched both labels and were confirmed against probe.json (fontsByText/documentFonts, radii.buttons) and both screenshots (nav button crop, mi",
+      "evidence": "preScroll.fontsByText: \"Spline Sans\" 198 (documentFonts loaded, headings+body), \"Spline Sans Mono\" 10 (loaded, code panel) -> accepted; \"ui-monospace\" 20 is a generic UA fallback family, not brand -> rejected; \"Brockmann\" listed ':unloaded' in documentFonts -> never renders -> rejected. viewport.png hero: large abstract 3D blobs/cube/bunny cover ~40% of first screen (dominant 3d-render); fullpage.png later shows template-gallery thumbnails and a code-editor panel (ui-screenshot) as secondary class. Zoomed crop of header (920-1140px) confirms \"Log In\"/\"Get Started\" are true stadium pills (radius = half of ~40px height) -> byRoleButton=pill. Crop at y=9500-10650 shows \"Explore Community\" CTA and testimonial/resource cards with only ~8-12px corner radius (clearly not pill) -> byRoleInput/byRoleCard=rounded, and geometryGlobal=mixed (pill nav CTAs vs rounded secondary buttons/inputs/cards; r",
+      "reviewedAt": "2026-09-11 04:01",
+      "unverifiedFields": [
+        "fonts:Spline Sans Mono",
+        "fonts:ui-monospace",
+        "fonts:Brockmann",
+        "geometry.byRole.card",
+        "geometry.byRole.avatar"
+      ],
+      "humanChanges": [],
+      "agentReviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)"
+    },
+    {
+      "id": "stress-wise",
+      "title": "Wise",
+      "captureUrl": "https://wise.com/",
+      "finalUrl": "https://wise.com/",
+      "capturedAt": "2026-09-09T00:00:00.000Z",
+      "captureStatus": "reviewed",
+      "fonts": {
+        "accepted": [
+          "Inter",
+          "Wise Sans",
+          "Wise Sans JP"
+        ],
+        "rejected": [
+          "Averta"
+        ]
+      },
+      "geometry": {
+        "global": "rounded",
+        "byRole": {
+          "button": "rounded",
+          "input": "square",
+          "card": "rounded",
+          "avatar": "circle"
+        }
+      },
+      "mediaTopTwo": [
+        "photography",
+        "illustration"
+      ],
+      "reviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)",
+      "notes": "reconciled | labelers agreed on global geometry and top media | A vs B disagreements and resolution: (1) fontsRejected — A omitted 'Wise Sans JP', B included it; kept both Averta and Wise Sans JP since Wise Sans JP:unloaded with 0 count in fontsByText on both scrolls, so it renders no visible text. (2) mediaTopTwo[1] — A said 'ui-screenshot' (calculator/pricing comparison cards), B said 'gradient-texture'; re-measured from fullpage.png: the full-width orange/pink duotone CTA panel (~1,075,200px) and the tapestry-textured hero-card background (134294px, largest probe topMedia entry) together outweigh the white, mostly-empty calculator/pricing cards, so grad",
+      "evidence": "radii.buttons: 9999px×41 (dominant) vs 18.359px×28 vs 0px×1; viewport.png shows nav/hero 'Sign up' and the 'Change' chip as full pills -> pill (global + button). radii.inputs: 0px×2 vs 9999px×1 -> square (both labelers agree; the visible amount box looks moderately rounded but the small aggregate sample and both labels support square). radii.cards: only 50%×3 (flag/avatar circles, not content cards); screenshots show hero/pricing/testimonial/CTA cards with visible moderate rounded corners -> rounded. fontsByText: Inter 257/253 + Wise Sans 14 both scrolls, both documentFonts ':loaded' -> accepted. Averta:loaded (0 count in fontsByText) and Wise Sans JP:unloaded (0 count) render no visible text -> rejected. Media: fullpage.png shows 3 large real-scene photos (kitchen/coffee, phone/support, business-team) as the clear top class. Second: the largest single topMedia entry is the tapestry-text",
+      "reviewedAt": "2026-09-11 04:02",
+      "unverifiedFields": [
+        "fonts:Wise Sans JP",
+        "fonts:Averta",
+        "geometry.byRole.input",
+        "geometry.byRole.avatar"
+      ],
+      "humanChanges": [],
+      "agentReviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)"
+    },
+    {
+      "id": "stress-monzo",
+      "title": "Monzo",
+      "captureUrl": "https://monzo.com/",
+      "finalUrl": "https://monzo.com/",
+      "capturedAt": "2026-09-09T00:00:00.000Z",
+      "captureStatus": "reviewed",
+      "fonts": {
+        "accepted": [
+          "MonzoSansText",
+          "MonzoSansDisplay"
+        ],
+        "rejected": [
+          "Oldschool",
+          "Maison Neue Web",
+          "Maison Neue Mono Web"
+        ]
+      },
+      "geometry": {
+        "global": "mixed",
+        "byRole": {
+          "button": "pill",
+          "input": "rounded",
+          "card": "rounded",
+          "avatar": null
+        }
+      },
+      "mediaTopTwo": [
+        "ui-screenshot",
+        "iconography"
+      ],
+      "reviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)",
+      "notes": "reconciled | labeler disagreements: geometryGlobal A=pill B=mixed | A vs B disagreed on 2 fields, both resolved: (1) geometryGlobal — A said pill (led by dominant button radii), B said mixed. Resolved to mixed: buttons are strongly pill (probe radii + many visual pill CTAs/badges) but the one visible input (10px) and all visible cards (~20-24px radii, seen at multiple fullpage crops) are moderately rounded, not pill — foundation controls genuinely split, matching this site's 'pill-led-controls' stress category (pill controls, non-pill containers). (2) mediaTopTwo[1] — A said product-photography, B said ui-screenshot. Resolved to ui-screenshot: none of the tile",
+      "evidence": "preScroll.radii.buttons: 128px x32 + 100px x1 (pill) vs 16px x9, 0px x3 -> pill dominant for buttons; confirmed visually (Sign up, Accept all/Reject all, Personal/Business toggle, \"Open a free Monzo account\", \"Instant Access\"/\"FSCS protected\"/\"Deposit cash and cheques\" badges all fully-rounded pills throughout fullpage). radii.inputs: single 10px sample (country dropdown) -> rounded, not pill. radii.cards empty in probe but fullpage crops (y~1350, 2200, 4300) show category/feature tiles with ~20-24px corners on 320-720px cards -> clearly rounded, not pill/square. Cards+inputs diverge from the pill buttons, so foundation controls genuinely split -> mixed, not uniform pill. fontsByText MonzoSansText(167)/MonzoSansDisplay(61) both ':loaded' -> accepted; Oldschool/Maison Neue(Web/Mono) ':unloaded', 0 count -> rejected. Top media: hero forest photo (774k/79k area) + lifestyle tile photos (cur",
+      "reviewedAt": "2026-09-11 04:02",
+      "unverifiedFields": [
+        "fonts:Oldschool",
+        "fonts:Maison Neue Web",
+        "fonts:Maison Neue Mono Web",
+        "geometry.byRole.card"
+      ],
+      "humanChanges": [],
+      "agentReviewer": "Devin Wiggins (human, picture-based review of the 2026-09-10 captures)"
+    }
+  ]
+}

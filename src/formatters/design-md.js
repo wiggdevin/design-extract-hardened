@@ -328,6 +328,11 @@ function frontMatter(design, version) {
     sans: t.families?.[0]?.name,
     mono: t.families?.find(f => /mono/i.test(f.name))?.name,
     base: t.body?.size,
+    // Semantic evidence: which family the font-provenance system decided is
+    // body vs heading typography, distinct from `sans` above (the raw
+    // most-used family, with no provenance filtering applied).
+    system_body: t.system?.bodyFamily?.value,
+    system_heading: t.system?.headingFamily?.value,
   }, '    '));
   lines.push('  spacing:' + yamlMap({
     base: sp.base,
@@ -336,8 +341,21 @@ function frontMatter(design, version) {
   if (r.length) {
     lines.push('  radii:' + yamlMap(Object.fromEntries(r.slice(0, 6).map(x => [x.label || `r${x.value}`, x.value])), '    '));
   }
+  const geometryGlobal = design.borders?.geometry?.global;
+  if (geometryGlobal?.value) {
+    lines.push('  geometry:' + yamlMap({
+      global: geometryGlobal.value,
+      confidence: geometryGlobal.confidence,
+    }, '    '));
+  }
   if (sh.length) {
     lines.push('  shadows:' + yamlMap(Object.fromEntries(sh.slice(0, 4).map(x => [x.label || 'shadow', x.raw || x.value])), '    '));
+  }
+  const imageryDistribution = design.imageryStyle?.distribution;
+  if (Array.isArray(imageryDistribution) && imageryDistribution.length > 0) {
+    lines.push('  imagery:' + yamlMap({
+      distribution: imageryDistribution.slice(0, 3).map(d => `${d.label}:${Math.round((d.share || 0) * 100)}%`).join(', '),
+    }, '    '));
   }
   lines.push('---');
   return lines.join('\n');

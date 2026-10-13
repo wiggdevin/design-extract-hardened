@@ -1,0 +1,838 @@
+{
+  "name": "Raw answers from the picture-based human review of the 16 benchmark sites, 2026-09-11 (local time), read back from the review page's shared record. Vocabulary: fonts brand|not-brand|unsure; buttons/cards/inputs square|rounded|pill|mixed|unsure or null when the page had no crop for that role; media is one label per captured image index from photography|product-photography|illustration|3d-render|ui-screenshot|iconography|unsure. semantic-ground-truth-v1.json states how these become truth labels.",
+  "reviewer": "Devin Wiggins",
+  "reviews": [
+    {
+      "answers": {
+        "buttons": "square",
+        "cards": null,
+        "fonts": [
+          {
+            "choice": "brand",
+            "name": "Spezia Semi-Mono Regular"
+          },
+          {
+            "choice": "brand",
+            "name": "Spezia Medium"
+          },
+          {
+            "choice": "unsure",
+            "name": "Spezia Semi-Mono Light"
+          },
+          {
+            "choice": "unsure",
+            "name": "Figtree"
+          },
+          {
+            "choice": "unsure",
+            "name": "Shippori Mincho"
+          },
+          {
+            "choice": "unsure",
+            "name": "Myriad Pro Regular"
+          },
+          {
+            "choice": "unsure",
+            "name": "Spezia Narrow Regular"
+          },
+          {
+            "choice": "unsure",
+            "name": "slick"
+          },
+          {
+            "choice": "unsure",
+            "name": "Montserrat"
+          },
+          {
+            "choice": "unsure",
+            "name": "Kanit-Klaviyo-Hosted"
+          },
+          {
+            "choice": "unsure",
+            "name": "Poppins-Klaviyo-Hosted"
+          },
+          {
+            "choice": "unsure",
+            "name": "SEZIASEMIMONO"
+          }
+        ],
+        "inputs": "unsure",
+        "media": [
+          {
+            "choice": "iconography",
+            "index": "0"
+          }
+        ]
+      },
+      "notes": "",
+      "reviewedAt": "2026-09-11 03:58",
+      "siteId": "568a26f6-3ebb-4bb1-b523-c41c0305d3c1",
+      "status": "reviewed",
+      "title": "Woven",
+      "version": 2
+    },
+    {
+      "answers": {
+        "buttons": "square",
+        "cards": null,
+        "fonts": [
+          {
+            "choice": "brand",
+            "name": "Apercu Mono Pro"
+          },
+          {
+            "choice": "brand",
+            "name": "Px Grotesk"
+          },
+          {
+            "choice": "brand",
+            "name": "Swimclub"
+          }
+        ],
+        "inputs": null,
+        "media": [
+          {
+            "choice": "product-photography",
+            "index": "0"
+          }
+        ]
+      },
+      "notes": "",
+      "reviewedAt": "2026-09-11 03:59",
+      "siteId": "58a1f660-e088-4a07-b3b2-2fdeaeec7c47",
+      "status": "reviewed",
+      "title": "SwimClub",
+      "version": 2
+    },
+    {
+      "answers": {
+        "buttons": "pill",
+        "cards": null,
+        "fonts": [
+          {
+            "choice": "brand",
+            "name": "Tertiary Font"
+          },
+          {
+            "choice": "brand",
+            "name": "Button Font"
+          },
+          {
+            "choice": "brand",
+            "name": "Heading Font"
+          },
+          {
+            "choice": "brand",
+            "name": "Primary Font"
+          },
+          {
+            "choice": "not-brand",
+            "name": "Secondary Font"
+          },
+          {
+            "choice": "not-brand",
+            "name": "Quaternary Font"
+          },
+          {
+            "choice": "not-brand",
+            "name": "Canela"
+          },
+          {
+            "choice": "not-brand",
+            "name": "Matter"
+          },
+          {
+            "choice": "not-brand",
+            "name": "IBM Plex Sans"
+          },
+          {
+            "choice": "not-brand",
+            "name": "Manrope"
+          },
+          {
+            "choice": "not-brand",
+            "name": "Plus Jakarta Sans"
+          },
+          {
+            "choice": "not-brand",
+            "name": "Poppins"
+          },
+          {
+            "choice": "not-brand",
+            "name": "oke-widget-icons"
+          },
+          {
+            "choice": "not-brand",
+            "name": "swiper-icons"
+          },
+          {
+            "choice": "unsure",
+            "name": "Josefin Sans"
+          },
+          {
+            "choice": "unsure",
+            "name": "Arial"
+          }
+        ],
+        "inputs": null,
+        "media": [
+          {
+            "choice": "product-photography",
+            "index": "0"
+          },
+          {
+            "choice": "iconography",
+            "index": "1"
+          }
+        ]
+      },
+      "notes": "",
+      "reviewedAt": "2026-09-11 03:59",
+      "siteId": "5a88bfbc-5f7e-4d4f-8c7b-a21f32997ddd",
+      "status": "reviewed",
+      "title": "Aevi Wellness",
+      "version": 2
+    },
+    {
+      "answers": {
+        "buttons": "mixed",
+        "cards": null,
+        "fonts": [
+          {
+            "choice": "brand",
+            "name": "Martina Plantijn"
+          },
+          {
+            "choice": "brand",
+            "name": "Regola Pro Book"
+          },
+          {
+            "choice": "not-brand",
+            "name": "GTStandard-M"
+          },
+          {
+            "choice": "not-brand",
+            "name": "Open Sans"
+          },
+          {
+            "choice": "not-brand",
+            "name": "JudgemeStar"
+          },
+          {
+            "choice": "not-brand",
+            "name": "Roboto Mono"
+          },
+          {
+            "choice": "not-brand",
+            "name": "Font Awesome 5 Free"
+          },
+          {
+            "choice": "not-brand",
+            "name": "Font Awesome 5 Brands"
+          },
+          {
+            "choice": "not-brand",
+            "name": "Darby Sans"
+          }
+        ],
+        "inputs": null,
+        "media": [
+          {
+            "choice": "product-photography",
+            "index": "0"
+          },
+          {
+            "choice": "product-photography",
+            "index": "1"
+          },
+          {
+            "choice": "product-photography",
+            "index": "2"
+          },
+          {
+            "choice": "product-photography",
+            "index": "3"
+          },
+          {
+            "choice": "product-photography",
+            "index": "4"
+          }
+        ]
+      },
+      "notes": "",
+      "reviewedAt": "2026-09-11 04:00",
+      "siteId": "4a0f3826-2db5-4029-9051-4b20626be38b",
+      "status": "reviewed",
+      "title": "Emma Lewisham",
+      "version": 2
+    },
+    {
+      "answers": {
+        "buttons": "rounded",
+        "cards": "unsure",
+        "fonts": [
+          {
+            "choice": "not-brand",
+            "name": "ABC Diatype Medium"
+          },
+          {
+            "choice": "brand",
+            "name": "ABC Diatype Regular"
+          },
+          {
+            "choice": "brand",
+            "name": "Teodor Light"
+          },
+          {
+            "choice": "not-brand",
+            "name": "Teodor Regular"
+          },
+          {
+            "choice": "not-brand",
+            "name": "Inter"
+          }
+        ],
+        "inputs": null,
+        "media": [
+          {
+            "choice": "ui-screenshot",
+            "index": "0"
+          }
+        ]
+      },
+      "notes": "",
+      "reviewedAt": "2026-09-11 04:00",
+      "siteId": "54511793-579d-4406-a389-4d83b7ade0f9",
+      "status": "reviewed",
+      "title": "Hyper Foundation",
+      "version": 2
+    },
+    {
+      "answers": {
+        "buttons": "pill",
+        "cards": null,
+        "fonts": [
+          {
+            "choice": "brand",
+            "name": "N26"
+          },
+          {
+            "choice": "brand",
+            "name": "N26-Fallback"
+          },
+          {
+            "choice": "brand",
+            "name": "N26-Extended"
+          },
+          {
+            "choice": "brand",
+            "name": "N26-Extended-Fallback"
+          }
+        ],
+        "inputs": null,
+        "media": [
+          {
+            "choice": "photography",
+            "index": "0"
+          }
+        ]
+      },
+      "notes": "",
+      "reviewedAt": "2026-09-11 04:00",
+      "siteId": "59911817-9d14-445a-9f1b-617418001061",
+      "status": "reviewed",
+      "title": "N26",
+      "version": 2
+    },
+    {
+      "answers": {
+        "buttons": "square",
+        "cards": null,
+        "fonts": [
+          {
+            "choice": "brand",
+            "name": "favorit"
+          },
+          {
+            "choice": "brand",
+            "name": "Favorit"
+          },
+          {
+            "choice": "brand",
+            "name": "FavoritMedium"
+          },
+          {
+            "choice": "brand",
+            "name": "Reader"
+          },
+          {
+            "choice": "not-brand",
+            "name": "atacama"
+          },
+          {
+            "choice": "not-brand",
+            "name": "SUBWT___"
+          },
+          {
+            "choice": "not-brand",
+            "name": "JudgemeStar"
+          },
+          {
+            "choice": "not-brand",
+            "name": "Poppins"
+          },
+          {
+            "choice": "not-brand",
+            "name": "Poppins-Klaviyo-Hosted"
+          }
+        ],
+        "inputs": "square",
+        "media": [
+          {
+            "choice": "product-photography",
+            "index": "0"
+          },
+          {
+            "choice": "photography",
+            "index": "1"
+          },
+          {
+            "choice": "product-photography",
+            "index": "2"
+          },
+          {
+            "choice": "product-photography",
+            "index": "3"
+          },
+          {
+            "choice": "product-photography",
+            "index": "4"
+          }
+        ]
+      },
+      "notes": "",
+      "reviewedAt": "2026-09-11 04:00",
+      "siteId": "8569a6d1-3fab-4876-9a3d-b6d95f3f53c7",
+      "status": "reviewed",
+      "title": "Filling Pieces",
+      "version": 2
+    },
+    {
+      "answers": {
+        "buttons": "rounded",
+        "cards": "rounded",
+        "fonts": [
+          {
+            "choice": "not-brand",
+            "name": "Inter"
+          },
+          {
+            "choice": "brand",
+            "name": "Lyondisplay App"
+          },
+          {
+            "choice": "brand",
+            "name": "Roboto Mono"
+          },
+          {
+            "choice": "brand",
+            "name": "Lyondisplay Trial"
+          },
+          {
+            "choice": "brand",
+            "name": "Lyondisplay"
+          },
+          {
+            "choice": "brand",
+            "name": "Suisseintl"
+          },
+          {
+            "choice": "brand",
+            "name": "Suisseintltrial"
+          },
+          {
+            "choice": "not-brand",
+            "name": "Suisseintl Book"
+          },
+          {
+            "choice": "not-brand",
+            "name": "webflow-icons"
+          }
+        ],
+        "inputs": null,
+        "media": [
+          {
+            "choice": "photography",
+            "index": "0"
+          },
+          {
+            "choice": "ui-screenshot",
+            "index": "1"
+          }
+        ]
+      },
+      "notes": "",
+      "reviewedAt": "2026-09-11 04:01",
+      "siteId": "466f6aa2-a9f6-4dcd-9626-73806a01d00e",
+      "status": "reviewed",
+      "title": "Origin Financial",
+      "version": 2
+    },
+    {
+      "answers": {
+        "buttons": "pill",
+        "cards": null,
+        "fonts": [
+          {
+            "choice": "brand",
+            "name": "arcadiaDisplay"
+          },
+          {
+            "choice": "brand",
+            "name": "arcadia"
+          },
+          {
+            "choice": "not-brand",
+            "name": "tiemposHeadline"
+          }
+        ],
+        "inputs": "pill",
+        "media": [
+          {
+            "choice": "photography",
+            "index": "0"
+          }
+        ]
+      },
+      "notes": "",
+      "reviewedAt": "2026-09-11 04:01",
+      "siteId": "95fd135a-64bd-4f9d-9a02-cac6422266c8",
+      "status": "reviewed",
+      "title": "Mercury",
+      "version": 2
+    },
+    {
+      "answers": {
+        "buttons": "square",
+        "cards": null,
+        "fonts": [
+          {
+            "choice": "not-brand",
+            "name": "Financier Medium"
+          },
+          {
+            "choice": "brand",
+            "name": "Financier Light"
+          },
+          {
+            "choice": "brand",
+            "name": "CentraNo1 Bold"
+          },
+          {
+            "choice": "brand",
+            "name": "CentraNo1 Book"
+          },
+          {
+            "choice": "not-brand",
+            "name": "Lato"
+          }
+        ],
+        "inputs": "square",
+        "media": [
+          {
+            "choice": "photography",
+            "index": "0"
+          }
+        ]
+      },
+      "notes": "",
+      "reviewedAt": "2026-09-11 04:01",
+      "siteId": "stress-auberge",
+      "status": "reviewed",
+      "title": "Auberge Resorts",
+      "version": 2
+    },
+    {
+      "answers": {
+        "buttons": "rounded",
+        "cards": "rounded",
+        "fonts": [
+          {
+            "choice": "brand",
+            "name": "Inter Variable"
+          },
+          {
+            "choice": "brand",
+            "name": "Berkeley Mono"
+          }
+        ],
+        "inputs": null,
+        "media": [
+          {
+            "choice": "ui-screenshot",
+            "index": "0"
+          },
+          {
+            "choice": "ui-screenshot",
+            "index": "1"
+          },
+          {
+            "choice": "ui-screenshot",
+            "index": "2"
+          }
+        ]
+      },
+      "notes": "",
+      "reviewedAt": "2026-09-11 04:01",
+      "siteId": "stress-linear",
+      "status": "reviewed",
+      "title": "Linear",
+      "version": 2
+    },
+    {
+      "answers": {
+        "buttons": "square",
+        "cards": null,
+        "fonts": [
+          {
+            "choice": "brand",
+            "name": "fira_sans-book"
+          },
+          {
+            "choice": "brand",
+            "name": "SchussSerifPro"
+          },
+          {
+            "choice": "brand",
+            "name": "fira_sans-book_italic"
+          },
+          {
+            "choice": "brand",
+            "name": "fira_sans-ultralight"
+          },
+          {
+            "choice": "not-brand",
+            "name": "Avenir"
+          },
+          {
+            "choice": "not-brand",
+            "name": "Bressay-Regular"
+          },
+          {
+            "choice": "not-brand",
+            "name": "fontello"
+          }
+        ],
+        "inputs": null,
+        "media": [
+          {
+            "choice": "photography",
+            "index": "0"
+          },
+          {
+            "choice": "photography",
+            "index": "1"
+          },
+          {
+            "choice": "photography",
+            "index": "2"
+          },
+          {
+            "choice": "photography",
+            "index": "3"
+          },
+          {
+            "choice": "photography",
+            "index": "4"
+          }
+        ]
+      },
+      "notes": "",
+      "reviewedAt": "2026-09-11 04:01",
+      "siteId": "stress-opusone",
+      "status": "reviewed",
+      "title": "Opus One Winery",
+      "version": 2
+    },
+    {
+      "answers": {
+        "buttons": "pill",
+        "cards": null,
+        "fonts": [
+          {
+            "choice": "brand",
+            "name": "Spline Sans"
+          },
+          {
+            "choice": "brand",
+            "name": "Spline Sans Mono"
+          },
+          {
+            "choice": "not-brand",
+            "name": "ui-monospace"
+          },
+          {
+            "choice": "not-brand",
+            "name": "Brockmann"
+          }
+        ],
+        "inputs": "rounded",
+        "media": [
+          {
+            "choice": "ui-screenshot",
+            "index": "0"
+          }
+        ]
+      },
+      "notes": "",
+      "reviewedAt": "2026-09-11 04:01",
+      "siteId": "stress-spline",
+      "status": "reviewed",
+      "title": "Spline",
+      "version": 2
+    },
+    {
+      "answers": {
+        "buttons": "pill",
+        "cards": null,
+        "fonts": [
+          {
+            "choice": "brand",
+            "name": "SF Pro Text"
+          },
+          {
+            "choice": "brand",
+            "name": "SF Pro Display"
+          },
+          {
+            "choice": "not-brand",
+            "name": "SF Pro Icons"
+          }
+        ],
+        "inputs": null,
+        "media": [
+          {
+            "choice": "product-photography",
+            "index": "1"
+          },
+          {
+            "choice": "product-photography",
+            "index": "2"
+          },
+          {
+            "choice": "product-photography",
+            "index": "3"
+          }
+        ]
+      },
+      "notes": "",
+      "reviewedAt": "2026-09-11 04:02",
+      "siteId": "04cc9d9d-a641-4552-b370-0dea414a15db",
+      "status": "reviewed",
+      "title": "Apple - MacBook Neo",
+      "version": 2
+    },
+    {
+      "answers": {
+        "buttons": "pill",
+        "cards": null,
+        "fonts": [
+          {
+            "choice": "brand",
+            "name": "MonzoSansText"
+          },
+          {
+            "choice": "brand",
+            "name": "MonzoSansDisplay"
+          },
+          {
+            "choice": "not-brand",
+            "name": "Oldschool"
+          },
+          {
+            "choice": "not-brand",
+            "name": "Maison Neue Web"
+          },
+          {
+            "choice": "not-brand",
+            "name": "Maison Neue Mono Web"
+          }
+        ],
+        "inputs": "rounded",
+        "media": [
+          {
+            "choice": "ui-screenshot",
+            "index": "0"
+          },
+          {
+            "choice": "iconography",
+            "index": "1"
+          },
+          {
+            "choice": "iconography",
+            "index": "2"
+          },
+          {
+            "choice": "iconography",
+            "index": "3"
+          }
+        ]
+      },
+      "notes": "",
+      "reviewedAt": "2026-09-11 04:02",
+      "siteId": "stress-monzo",
+      "status": "reviewed",
+      "title": "Monzo",
+      "version": 2
+    },
+    {
+      "answers": {
+        "buttons": "rounded",
+        "cards": "rounded",
+        "fonts": [
+          {
+            "choice": "brand",
+            "name": "Inter"
+          },
+          {
+            "choice": "brand",
+            "name": "Wise Sans"
+          },
+          {
+            "choice": "brand",
+            "name": "Wise Sans JP"
+          },
+          {
+            "choice": "unsure",
+            "name": "Averta"
+          }
+        ],
+        "inputs": "unsure",
+        "media": [
+          {
+            "choice": "illustration",
+            "index": "0"
+          },
+          {
+            "choice": "photography",
+            "index": "1"
+          },
+          {
+            "choice": "photography",
+            "index": "2"
+          },
+          {
+            "choice": "photography",
+            "index": "3"
+          }
+        ]
+      },
+      "notes": "",
+      "reviewedAt": "2026-09-11 04:02",
+      "siteId": "stress-wise",
+      "status": "reviewed",
+      "title": "Wise",
+      "version": 2
+    }
+  ]
+}

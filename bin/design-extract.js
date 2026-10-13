@@ -128,6 +128,7 @@ program
   .option('--insecure', 'ignore HTTPS/SSL certificate errors (self-signed, dev, proxies)')
   .option('--ignore <selectors...>', 'CSS selectors to remove before extraction')
   .option('--ignore-widgets', 'Also ignore a curated list of third-party widgets (Intercom, Drift, HubSpot chat, cookie banners, reCAPTCHA, etc.)  See `designlang widgets`.')
+  .option('--no-dismiss-consent', 'Leave cookie/consent banners in place (by default they are refused or hidden before capture; never accepted)')
   .option('--storybook', 'Emit a runnable Storybook project (stories/, .storybook/, package.json) alongside the extraction')
   .option('--selector <css>', 'only extract design from elements matching this CSS selector (e.g. ".pricing-card")')
   .option('--system-chrome', 'use the system Chrome install instead of the bundled Chromium (skips the 150MB Playwright download)')
@@ -232,6 +233,7 @@ program
         motionRuntime: merged.motionRuntime || merged.full,
         selector: merged.selector,
         channel: merged.systemChrome ? 'chrome' : undefined,
+        dismissConsent: merged.dismissConsent,
       });
 
       // Responsive capture

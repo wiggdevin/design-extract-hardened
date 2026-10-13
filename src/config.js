@@ -42,6 +42,7 @@ export function mergeConfig(cliOpts, config) {
     userAgent: cliOpts.userAgent || config.userAgent,
     selector: cliOpts.selector || config.selector,
     systemChrome: cliOpts.systemChrome || config.systemChrome || false,
+    dismissConsent: cliOpts.dismissConsent !== false && config.dismissConsent !== false,
   };
 }
 

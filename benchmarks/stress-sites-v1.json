@@ -1,0 +1,88 @@
+{
+  "name": "Semantic stress sites v1 - unscored-by-Refero cases that exercise specific extractor failure modes",
+  "schemaVersion": 1,
+  "selectedAt": "2026-09-09",
+  "viewport": { "width": 1280, "height": 800 },
+  "method": "Candidates proposed per category, then every candidate probed live (site-probe.mjs: pre-scroll DOM evidence at 1280x800 plus viewport screenshot) and judged by an independent agent against numeric criteria and the screenshot. Rejected candidates are listed so the search is reproducible.",
+  "references": [
+    {
+      "id": "stress-opusone",
+      "title": "Opus One Winery",
+      "url": "https://www.opusonewinery.com/",
+      "category": "css-background-hero",
+      "why": "First-screen hero is a photograph delivered as a CSS background-image, not an <img>.",
+      "evidence": "preScroll.topMedia[0] = css-background, ext jpg, viewportArea 880640; buttons 0px x7, 2px x4."
+    },
+    {
+      "id": "stress-auberge",
+      "title": "Auberge Resorts",
+      "url": "https://www.aubergeresorts.com/",
+      "category": "css-background-hero",
+      "why": "First-screen hero is a photograph delivered as a <video poster>; redirects to auberge.com.",
+      "evidence": "preScroll.topMedia[0] = video-poster frame_86400.jpg, viewportArea 913920; buttons 0px x116, 50% x4."
+    },
+    {
+      "id": "stress-linear",
+      "title": "Linear",
+      "url": "https://linear.app/",
+      "category": "render-or-screenshot-media",
+      "why": "Product-screenshot-led hero; image URLs are Next.js /_next/image paths with no extension, so extension heuristics see nothing.",
+      "evidence": "preScroll.topMedia: img ext none 491520, css-background png 310503, img ext none 277120; fonts Inter Variable, Berkeley Mono."
+    },
+    {
+      "id": "stress-spline",
+      "title": "Spline",
+      "url": "https://spline.design/",
+      "category": "render-or-screenshot-media",
+      "why": "3D-render hero drawn on WebGL canvases with no raster media on the first screen; the extractor must not report photography.",
+      "evidence": "preScroll bigCanvas 3; largest raster img on screen is a 1024 px2 logo; carousel webps are off-screen (viewportArea 0)."
+    },
+    {
+      "id": "stress-wise",
+      "title": "Wise",
+      "url": "https://wise.com/",
+      "category": "pill-led-controls",
+      "why": "Pill-shaped primary CTA system: 9999px radius on the majority of buttons.",
+      "evidence": "preScroll.radii.buttons = 9999px x41, 18.359px x28, 0px x1 (58.6% pill); screenshot shows stadium CTAs."
+    },
+    {
+      "id": "stress-monzo",
+      "title": "Monzo",
+      "url": "https://monzo.com/",
+      "category": "pill-led-controls",
+      "why": "Pill-shaped primary CTA system plus a photographic avif hero.",
+      "evidence": "preScroll.radii.buttons = 128px x32, 16px x9, 0px x3, 100px x1 (73.3% pill); hero avif viewportArea 774216."
+    }
+  ],
+  "coveredInsideCorpus": {
+    "extensionless-cdn-photography": "n26.com serves 11 of 17 first-screen images through extensionless /_next/image paths; mercury.com's 1023620 px2 hero is extensionless; linear.app above adds a screenshot-led case."
+  },
+  "rejected": [
+    { "url": "https://www.belmond.com", "reason": "hero is an <img>; cookie modal covers the first screen" },
+    { "url": "https://www.singita.com", "reason": "hero is an <img> (video poster second)" },
+    { "url": "https://www.cursor.com", "reason": "only one on-screen raster; rest off-screen" },
+    { "url": "https://www.framer.com", "reason": "hero is a data-URI webp background plus video poster; borderline, dropped for a cleaner case" },
+    { "url": "https://www.webflow.com", "reason": "buttons 0px x27 of 49; not pill-led" },
+    { "url": "https://www.asana.com", "reason": "pill 100px only 6 of 24 buttons" },
+    { "url": "https://www.mailchimp.com", "reason": "buttons 0px x28 of 34" },
+    { "url": "https://www.typeform.com", "reason": "buttons 0px x19 of 39" },
+    { "url": "https://www.nike.com", "reason": "pill by count (20 of 28) but no CTA visible on the first screen" },
+    { "url": "https://stripe.com", "reason": "buttons 4px x40, 0px x14" },
+    { "url": "https://www.spotify.com", "reason": "qualifies (9999px x76 of 135) but 0px x54 makes it a weaker pill exemplar than Wise/Monzo; keep as a reserve" },
+    { "url": "https://www.headspace.com", "reason": "qualifies (69.7% pill) with a wide radius spread; keep as a reserve" },
+    { "url": "https://www.klarna.com", "reason": "HTTP 403 bot block" },
+    { "url": "https://www.revolut.com", "reason": "Cloudflare challenge" },
+    { "url": "https://unsplash.com", "reason": "HTTP 403" },
+    { "url": "https://www.pexels.com", "reason": "Cloudflare challenge" },
+    { "url": "https://www.airbnb.com", "reason": "cookie wall; images are png with extensions" },
+    { "url": "https://www.squarespace.com", "reason": "1 of 48 images extensionless" },
+    { "url": "https://www.warbyparker.com", "reason": "HTTP 403" },
+    { "url": "https://www.hims.com", "reason": "Cloudflare challenge" },
+    { "url": "https://www.aesop.com", "reason": "Cloudflare challenge" },
+    { "url": "https://www.rei.com", "reason": "HTTP2 protocol error" },
+    { "url": "https://www.away.com", "reason": "DNS did not resolve" },
+    { "url": "https://www.everlane.com", "reason": "0 of 23 images extensionless" },
+    { "url": "https://www.glossier.com", "reason": "0 of 23 images extensionless" },
+    { "url": "https://www.allbirds.com", "reason": "0 of 36 images extensionless (Shopify CDN)" }
+  ]
+}
