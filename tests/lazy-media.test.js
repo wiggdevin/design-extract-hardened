@@ -69,5 +69,5 @@ test('a javascript: lazy candidate is never recorded as an image src', () => {
   assert.ok(js, JSON.stringify(data.images));
   assert.equal(js.src, '');
   assert.equal(js.lazyUnresolved, true);
-  assert.ok(!js.src.startsWith('javascript:'), js.src);
+  assert.ok(!/^(?:javascript|data|vbscript):/i.test(js.src), js.src);
 });

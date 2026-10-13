@@ -1,7 +1,7 @@
 // Serve one directory on 127.0.0.1 for the fidelity measurement. No deps.
 //   node benchmarks/serve-static.mjs <dir> [port]
 import { createServer } from 'node:http';
-import { readFile, stat } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { join, normalize, extname, resolve, sep } from 'node:path';
 
 const root = resolve(process.argv[2] || '.');
@@ -13,8 +13,16 @@ createServer(async (req, res) => {
     const pathname = decodeURIComponent(new URL(req.url, 'http://127.0.0.1').pathname);
     let file = normalize(join(root, pathname === '/' ? 'index.html' : pathname));
     if (!file.startsWith(root + sep) && file !== root) { res.writeHead(403); res.end(); return; }
-    if ((await stat(file)).isDirectory()) file = join(file, 'index.html');
-    const body = await readFile(file);
+    // Read directly and fall back to the directory index on EISDIR, so there
+    // is no check-then-use window between a stat and the read.
+    let body;
+    try {
+      body = await readFile(file);
+    } catch (err) {
+      if (err?.code !== 'EISDIR') throw err;
+      file = join(file, 'index.html');
+      body = await readFile(file);
+    }
     res.writeHead(200, { 'content-type': TYPES[extname(file)] || 'application/octet-stream', 'cache-control': 'no-store' });
     res.end(body);
   } catch (err) {
