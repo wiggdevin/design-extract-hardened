@@ -21,7 +21,9 @@ before(async () => {
     throw new Error(`chromium failed to launch — collector-hygiene tests require a local chromium install: ${err.message}`);
   }
   page = await browser.newPage();
-  // setContent never navigates, so this fixture never touches the network.
+  // setContent never navigates. The fixture image URLs are absolute http (the collector only keeps http(s)
+  // image sources), so answer them here and keep the test off the network.
+  await page.route('http://fixture.test/**', (route) => route.abort());
   await page.setContent(fixtureHtml);
   data = await page.evaluate(collectPageData, { maxElements: 5000, ignoreSelectors: [], scopeSelector: null });
 });

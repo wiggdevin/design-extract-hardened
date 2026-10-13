@@ -1,0 +1,37 @@
+<!doctype html>
+<html><head><style>
+  body { margin: 0; background: #ffffff; font-family: sans-serif; }
+  header { height: 80px; background: #111; }
+  section { height: 700px; width: 100%; box-sizing: border-box; padding: 40px; }
+  footer { height: 200px; background: #222; }
+  img { display: block; }
+  .bg { width: 1280px; height: 600px; }
+  video { width: 1280px; height: 600px; display: block; }
+</style></head><body>
+<header></header>
+<section class="lazy-a">
+  <h2>Additions</h2>
+  <img class="lazyload" width="576" height="384"
+       src="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27576%27%20height%3D%27384%27%3E%3C%2Fsvg%3E"
+       data-orig-src="http://fixture.test/img/a.png"
+       data-srcset="http://fixture.test/img/a-2x.png 2x"
+       data-sizes="auto" alt="">
+</section>
+<section class="native-b">
+  <h2>Sunrooms</h2>
+  <img width="576" height="384" srcset="http://fixture.test/img/b.png 1x" alt="">
+</section>
+<section class="bg-c" style="padding:0">
+  <div class="bg" data-bg="http://fixture.test/img/c.png"></div>
+</section>
+<section class="video-d" style="padding:0">
+  <video poster="http://fixture.test/img/poster.png" muted><source src="http://fixture.test/v.webm" type="video/webm"></video>
+</section>
+<section class="js-e">
+  <h2>Roofing</h2>
+  <img class="lazyload" width="576" height="384"
+       src="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27576%27%20height%3D%27384%27%3E%3C%2Fsvg%3E"
+       data-src="javascript:alert(1)" alt="">
+</section>
+<footer></footer>
+</body></html>

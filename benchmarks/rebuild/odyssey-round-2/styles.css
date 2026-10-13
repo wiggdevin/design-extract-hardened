@@ -1,0 +1,600 @@
+/* Odyssey Contracting - static rebuild
+   Tokens sourced from odysseycontracting-com-design-tokens.json,
+   odysseycontracting-com-variables.css and odysseycontracting-com-motion-tokens.json.
+   See BUILD-NOTES.md for every judgment call. */
+
+:root {
+  /* colours - primitive.color.brand / neutral / background */
+  --color-primary: #f4a825;
+  --color-secondary: #d87b52;
+  --color-accent: #e2573d;
+
+  --n100: #4c5161;
+  --n200: #ffffff;
+  --n300: #f2f3f5;
+  --n400: #87919f;
+  --n500: #212934;
+  --n600: #000000;
+  --n700: #bbc7d4;
+  --n800: #2c3142;
+  --n900: #e0e4eb;
+
+  --bg-page: #ffffff;
+  --bg-beige: #ede6dd;
+  --bg-blue-gray: #bbc7d4;
+  --bg-navy: #2c3142;
+  --bg-near-black: #121212;
+
+  --text-on-light: #000000;
+  --text-muted: #4c5161;
+  --text-on-dark: #ffffff;
+
+  /* spacing scale - primitive.spacing */
+  --s0: 4px;
+  --s1: 23px;
+  --s2: 35px;
+  --s3: 45px;
+  --s4: 50px;
+  --s5: 60px;
+  --s6: 64px;
+  --s7: 75px;
+  --s8: 122px;
+
+  /* radius scale - primitive.radius */
+  --r-sm: 5px;
+  --r-md: 10px;
+  --r-xl: 20px;
+  --r-full: 50px;
+
+  /* shadow - primitive.shadow.sh0 */
+  --shadow-elevated: rgba(27, 42, 74, 0.25) 0px 10px 30px 0px;
+
+  /* typography - primitive.fontFamily / fontSize */
+  --font-body: 'Kumbh Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fs-h1: 65px;
+  --fs-title-1: 42px;
+  --fs-h3: 40px;
+  --fs-h2: 36px;
+  --fs-title-2: 35px;
+  --fs-title-3: 29px;
+  --fs-title-4: 28px;
+  --fs-title-5: 24px;
+  --fs-h4: 20px;
+  --fs-title-6: 18px;
+  --fs-h5: 13px;
+  --fs-body: 14px;
+
+  /* motion - odysseycontracting-com-motion-tokens.json */
+  --duration-md: 300ms;
+  --duration-lg: 500ms;
+  --ease-custom: cubic-bezier(0.42, 0.01, 0.58, 1);
+
+  --container-width: 1248px;
+}
+
+* , *::before, *::after { box-sizing: border-box; }
+
+html {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+}
+
+html, body {
+  min-width: 1280px;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-page);
+  color: var(--text-on-light);
+  font-family: var(--font-body);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-body);
+  font-weight: 700;
+  line-height: 1.15;
+  margin: 0 0 var(--s0) 0;
+}
+
+p { margin: 0 0 var(--s0) 0; }
+ul { list-style: none; margin: 0; padding: 0; }
+
+a { color: var(--color-primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+a:focus-visible, button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+img, video { display: block; max-width: 100%; height: auto; }
+
+button { font: inherit; color: inherit; cursor: pointer; background: none; border: 0; padding: 0; }
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--container-width);
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.band { position: relative; width: 100%; }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s0);
+  padding: 14px 28px;
+  border-radius: var(--r-md);
+  font-weight: 700;
+  font-size: var(--fs-body);
+  white-space: nowrap;
+  text-decoration: none !important;
+  border: 2px solid transparent;
+}
+.btn-sm { padding: 8px 18px; font-size: 13px; }
+.btn-primary { background: var(--color-primary); color: #000000; }
+.btn-secondary { background: var(--color-secondary); color: #000000; }
+.btn-accent { background: var(--color-accent); color: #ffffff; }
+.btn-outline { background: transparent; color: var(--color-accent); border-color: var(--color-accent); }
+.btn:hover { filter: brightness(1.08); text-decoration: none; }
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s0);
+}
+
+/* ---------- Band 0: nav ---------- */
+.band-0 {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 50;
+  height: 107px;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(rgba(0,0,0,0.78), rgba(0,0,0,0.35));
+}
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s0);
+  width: 100%;
+}
+.nav-logo img { height: 43px; width: auto; }
+.nav-links { display: flex; gap: 28px; }
+.nav-links a {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.nav-links a:hover { text-decoration: none; color: var(--color-primary); }
+.nav-cta { padding: 10px 22px; }
+
+/* ---------- Bands 1+2: hero ----------
+   Band 2 (content, overlay: false) is the in-flow section that carries the
+   800px hero height. Band 1 (hero video, overlay: true) nests inside it,
+   absolutely filling it behind the copy layer (z-index below). */
+.band-2 {
+  position: relative;
+  width: 100%;
+  height: 800px;
+  background: var(--bg-page);
+  overflow: hidden;
+}
+.band-1 {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  z-index: 0;
+}
+.band-2 > .sr-only { position: absolute; z-index: 1; }
+.slider-track { position: absolute; inset: 0; }
+.slide { position: absolute; inset: 0; opacity: 0; transition: opacity var(--duration-lg) var(--ease-custom); }
+.slide.is-active { opacity: 1; }
+.hero-media { width: 100%; height: 100%; object-fit: cover; }
+.slider-prev, .slider-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.35);
+  color: #ffffff;
+  font-size: 22px;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: auto;
+}
+.slider-prev { left: 16px; }
+.slider-next { right: 16px; }
+.slider-prev[disabled], .slider-next[disabled] { opacity: 0; pointer-events: none; }
+
+/* ---------- Band 3: button row ---------- */
+.band-3 {
+  background: var(--bg-page);
+  padding: 30px 0;
+  min-height: 144px;
+  display: flex;
+  align-items: center;
+}
+.band-3 .button-row { justify-content: center; gap: var(--s0); flex-wrap: wrap; width: 100%; }
+
+/* ---------- Band 4: intro ---------- */
+.band-4 {
+  background: var(--bg-page);
+  padding: var(--s6) 0;
+  min-height: 600px;
+  display: flex;
+  align-items: center;
+}
+.two-col {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--s4);
+  align-items: center;
+}
+.two-col--narrow { grid-template-columns: 1fr 1fr; }
+.col-text h2 { font-size: var(--fs-title-4); max-width: 46ch; }
+.col-text p { color: var(--text-muted); font-size: var(--fs-body); line-height: 1.7; max-width: 62ch; }
+.accent-card {
+  background: var(--bg-beige);
+  border-radius: var(--r-xl);
+  padding: var(--s4);
+  font-weight: 700;
+  font-size: var(--fs-title-5);
+  color: var(--n500);
+  text-align: center;
+  min-height: 180px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ---------- Band 5: comparison ---------- */
+.band-5 {
+  background: var(--bg-beige);
+  padding: var(--s6) 0;
+  min-height: 1450px;
+  display: flex;
+  align-items: center;
+}
+.band-5 > .container { width: 100%; }
+.discover-block { margin-bottom: var(--s6); }
+.discover-media {
+  background-size: cover;
+  background-position: center;
+  border-radius: var(--r-xl);
+  min-height: 260px;
+}
+.discover-copy h3 { font-size: var(--fs-title-4); margin-bottom: var(--s0); }
+.checklist { display: flex; flex-direction: column; gap: 14px; margin: var(--s0) 0 var(--s2); }
+.checklist li {
+  position: relative;
+  padding-left: 28px;
+  color: var(--n500);
+  font-size: var(--fs-body);
+}
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 4px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--color-primary);
+}
+.checklist--compact li { padding-left: 24px; }
+.checklist--compact li::before { width: 12px; height: 12px; top: 5px; }
+
+.section-heading {
+  font-size: var(--fs-title-2);
+  margin-bottom: var(--s4);
+}
+.section-heading.center { text-align: center; }
+.section-heading.light { color: #ffffff; }
+
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s2);
+}
+.compare-card {
+  border-radius: var(--r-xl);
+  padding: var(--s3);
+  box-shadow: var(--shadow-elevated);
+}
+.compare-card--bad { background: var(--n300); color: var(--n500); }
+.compare-card--good { background: #1b2a4a; color: #ffffff; }
+.compare-card h3 { font-size: var(--fs-title-4); margin: var(--s0) 0; }
+.compare-card hr { border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: var(--s0) 0 var(--s2); }
+.compare-card--good hr { border-top-color: rgba(255,255,255,0.15); }
+.badge {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: var(--r-full);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.badge--light { background: var(--n900); color: var(--n100); }
+.badge--dark { background: var(--color-primary); color: var(--n500); }
+.compare-item { margin-bottom: 22px; }
+.compare-item h4 { font-size: var(--fs-h4); margin-bottom: 6px; }
+.compare-card--bad .compare-item h4 { color: #8c1d1d; }
+.compare-card--good .compare-item h4 { color: var(--color-primary); }
+.compare-item p { font-size: var(--fs-body); margin: 0; }
+
+/* ---------- Band 6: certification strip ---------- */
+.band-6 {
+  background: var(--bg-page);
+  padding: var(--s5) 0;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+}
+.band-6 .container { width: 100%; }
+.cert-strip { display: flex; justify-content: center; }
+.cert-logo { max-height: 130px; width: auto; }
+
+/* ---------- Band 7: ratings / reviews ---------- */
+.band-7 {
+  background: var(--bg-blue-gray);
+  padding: var(--s6) 0;
+}
+.band-7 .section-heading { color: var(--n500); }
+.embed-placeholder {
+  background: rgba(255,255,255,0.5);
+  border: 1px dashed var(--n100);
+  border-radius: var(--r-md);
+  min-height: 760px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s0);
+  color: var(--n100);
+  text-align: center;
+  padding: var(--s2);
+}
+.embed-src { font-size: 12px; word-break: break-all; opacity: 0.8; }
+
+/* ---------- Bands 8 + 10: feature grids ---------- */
+.band-8, .band-10 {
+  background: var(--bg-navy);
+  padding: var(--s6) 0;
+}
+.band-10 {
+  min-height: 700px;
+  display: flex;
+  align-items: center;
+}
+.band-10 > .container { width: 100%; }
+.card-grid { display: grid; gap: var(--s2); }
+.card-grid--2col { grid-template-columns: repeat(2, 1fr); }
+.card-grid--3col { grid-template-columns: repeat(3, 1fr); }
+
+.service-card {
+  position: relative;
+  height: 616px;
+  border-radius: var(--r-xl);
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+  box-shadow: var(--shadow-elevated);
+}
+.service-card::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(rgba(0,0,0,0.06), rgba(0,0,0,0.82));
+}
+.service-card-body {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: var(--s3);
+  color: #ffffff;
+}
+.service-card-body h3 { font-size: var(--fs-title-4); margin-bottom: var(--s0); }
+.service-card-body p { font-size: var(--fs-body); color: var(--n900); margin-bottom: var(--s2); max-width: 40ch; }
+
+.project-card {
+  position: relative;
+  height: 426px;
+  border-radius: var(--r-xl);
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+  box-shadow: var(--shadow-elevated);
+}
+.project-card::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(rgba(0,0,0,0.04), rgba(0,0,0,0.77));
+}
+.project-card-body {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: var(--s2);
+  color: #ffffff;
+}
+.project-card-body h3 { font-size: var(--fs-h4); margin-bottom: 6px; }
+.project-card-body a { color: var(--color-primary); font-weight: 700; font-size: 13px; }
+
+/* ---------- Band 9: cta ---------- */
+.band-9 {
+  background-color: var(--bg-page);
+  background-size: cover;
+  background-position: right center;
+  background-repeat: no-repeat;
+  padding: var(--s6) 0;
+  min-height: 690px;
+  display: flex;
+  align-items: center;
+}
+.band-9 > .container { width: 100%; }
+.band-9 .col-text { max-width: 620px; }
+.band-9 h2 { font-size: var(--fs-title-1); }
+.band-9 p { color: var(--text-muted); margin-bottom: var(--s2); }
+
+/* ---------- Band 11: FAQ ----------
+   Measured over blueprint.h (271px): padding and the heading/item spacing
+   below are trimmed from their original values so the band lands inside
+   the 15% tolerance instead of roughly 1.5x too tall. */
+.band-11 {
+  background: var(--bg-page);
+  padding: 16px 0;
+}
+.band-11 .section-heading { margin-bottom: 20px; }
+.faq-list { display: flex; flex-direction: column; gap: 6px; max-width: 860px; margin: 0 auto; }
+.faq-item {
+  border: 1px solid var(--n300);
+  border-radius: var(--r-sm);
+  padding: 6px 16px;
+}
+.faq-item summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: var(--fs-body);
+  padding: 2px 0;
+}
+.faq-item p { color: var(--text-muted); font-size: var(--fs-body); margin: 8px 0 4px; }
+
+/* ---------- Band 12: mid CTA strip ---------- */
+.band-12 {
+  background-color: var(--bg-page);
+  background-size: cover;
+  background-position: center;
+  padding: var(--s4) 0;
+  min-height: 440px;
+  display: flex;
+  align-items: center;
+}
+.band-12 > .container { width: 100%; }
+.cta-strip { text-align: center; }
+.cta-strip h3 { font-size: var(--fs-h3); margin-bottom: var(--s2); }
+.cta-strip .button-row { justify-content: center; }
+
+/* ---------- Band 13: footer columns ---------- */
+.band-13 {
+  background: var(--bg-navy);
+  padding: var(--s4) 0;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+}
+.band-13 > .container { width: 100%; }
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--s2);
+}
+.footer-col { color: #ffffff; min-height: 238px; }
+.footer-col h5 {
+  font-size: var(--fs-h5);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin-bottom: var(--s2);
+}
+.footer-col ul { display: flex; flex-direction: column; gap: 10px; }
+.footer-col a { color: var(--n900); font-size: var(--fs-body); }
+.footer-col a:hover { color: var(--color-primary); }
+
+/* ---------- Band 14: bottom bar ---------- */
+.band-14 {
+  background: var(--bg-near-black);
+  color: #ffffff;
+  padding: var(--s2) 0 var(--s0);
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s2);
+  padding-bottom: var(--s2);
+  position: relative;
+}
+.footer-bottom h3 { font-size: var(--fs-title-6); margin-bottom: 6px; }
+.footer-bottom p { color: var(--n400); font-size: var(--fs-body); max-width: 40ch; }
+.social-row { display: flex; gap: 10px; }
+.social-row a {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--n400);
+  color: #ffffff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+.social-row a:hover { text-decoration: none; border-color: var(--color-primary); color: var(--color-primary); }
+.back-to-top {
+  position: absolute;
+  right: 0; bottom: 0;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #000000;
+  display: flex; align-items: center; justify-content: center;
+}
+.copyright-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 14px 0;
+  font-size: 12px;
+  color: var(--n400);
+}
+.legal-links { display: flex; gap: 18px; }
+.legal-links a { color: var(--n400); }
+.legal-links a:hover { color: var(--color-primary); }
+
+/* ---------- Reveal on scroll ----------
+   Default state: fully visible. JS arms the hidden state only after it has
+   attached IntersectionObserver, so content never depends on scrolling to
+   exist if script fails (see BUILD-NOTES.md). */
+/* Only elements on screen at load are hidden (reveal-pending), then faded
+   in; everything below the fold stays visible so a full-page capture with
+   no scroll shows the whole page. */
+[data-reveal] {
+  transition: opacity var(--duration-lg) var(--ease-custom),
+              transform var(--duration-lg) var(--ease-custom);
+}
+[data-reveal].reveal-pending {
+  opacity: 0;
+  transform: translateY(24px);
+}
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal].reveal-pending {
+    transition-duration: 0.01ms;
+    opacity: 1;
+    transform: none;
+  }
+  .slide { transition-duration: 0.01ms; }
+}

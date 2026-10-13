@@ -1,0 +1,48 @@
+<!doctype html>
+<html><head><style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: sans-serif; }
+  .block { height: 800px; }
+  .b1 { background: #f3efe6; }
+  .b2 { background: #ffffff; }
+  .b3 { background: #eeeeee; }
+  .b4 { background: #dddddd; }
+  .b5 { background: #f3efe6; }
+  .b6 { background: #ffffff; }
+  .b7 { background: #eeeeee; }
+  .b8 { background: #dddddd; }
+  .b9 { background: #f3efe6; }
+  .b10 { background: #ffffff; }
+  .b11 { background: #eeeeee; }
+  .b12 { background: #dddddd; }
+  .reveal { opacity: 0; transform: translateY(24px); }
+  .reveal.in { animation: fadeUp 400ms ease-out both; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style></head><body>
+<section class="block b1"><h2>Block 1</h2></section>
+<section class="block b2"><h2>Block 2</h2></section>
+<section class="block b3"><h2>Block 3</h2></section>
+<section class="block b4"><h2>Block 4</h2></section>
+<section class="block b5"><h2>Block 5</h2></section>
+<section class="block b6"><div class="reveal"><h2>Block 6 reveal</h2></div></section>
+<section class="block b7"><h2>Block 7</h2></section>
+<section class="block b8"><h2>Block 8</h2></section>
+<section class="block b9"><h2>Block 9</h2></section>
+<section class="block b10"><div class="reveal"><h2>Block 10 reveal</h2></div></section>
+<section class="block b11"><h2>Block 11</h2></section>
+<section class="block b12"><h2>Block 12</h2></section>
+<script>
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.01 });
+  document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
+</script>
+</body></html>

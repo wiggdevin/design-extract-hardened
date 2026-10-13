@@ -48,7 +48,7 @@ const INDEX_DESIGN_KEYS = [
   'componentAnatomy', 'voice', 'score', 'warnings', 'evidence', 'pageIntent',
   'sectionRoles', 'componentLibrary', 'materialLanguage', 'imageryStyle',
   'seo', 'iconSystem', 'backgroundPatterns', 'stackIntel', 'formStates',
-  '_raw',
+  'blueprint', '_raw',
 ];
 
 // Builds a design object the same way src/index.js composes the semantic
@@ -133,6 +133,7 @@ function buildDesign({ computedStyles, fontData = {}, images = [], backgroundMed
   design.backgroundPatterns = { labels: ['plain'], counts: {}, gradientTotals: {}, samples: [] };
   design.stackIntel = { cms: [], analytics: [], experimentation: [] };
   design.formStates = { flags: [], forms: { count: 0, families: [] }, modals: [], toastLibraries: [] };
+  design.blueprint = { bands: [], readingOrder: [], heroIndex: -1, counts: { bands: 0, oversizedDropped: 0, byRole: {} } };
   design._raw = { url: design.meta.url };
 
   return design;

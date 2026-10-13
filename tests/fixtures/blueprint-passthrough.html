@@ -1,0 +1,27 @@
+<!doctype html>
+<html><head><style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: sans-serif; }
+  #site { display: contents; }
+  header { width: 100%; height: 80px; background: #0f2a44; color: #fff; }
+  main { width: 100%; }
+  section { width: 100%; height: 600px; }
+  .s1 { background: #f3efe6; }
+  .s2 { background: #ffffff; }
+  .s3 { background: #eeeeee; }
+  .s4 { background: #dddddd; }
+  .zero { width: 100%; height: 0; overflow: visible; }
+  .accordion { width: 100%; height: 0; overflow: hidden; }
+  .accordion section { height: 900px; }
+</style></head><body>
+<div id="site">
+  <header><p>Brand</p></header>
+  <main>
+    <section class="s1"><h2>One</h2></section>
+    <section class="s2"><h2>Two</h2></section>
+    <section class="s3"><h2>Three</h2></section>
+    <div class="zero"><section class="s4" style="position:relative"><h2>Four (zero-height wrapper)</h2></section></div>
+  </main>
+  <div class="accordion"><section><h2>Hidden panel</h2></section></div>
+</div>
+</body></html>

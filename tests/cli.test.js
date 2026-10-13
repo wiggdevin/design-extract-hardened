@@ -57,6 +57,28 @@ describe('CLI', () => {
     }
   });
 
+  it('fidelity exposes --clone-local and refuses a non-loopback clone with it', () => {
+    const help = execFileSync('node', [CLI_PATH, 'fidelity', '--help'], { encoding: 'utf-8' });
+    assert.ok(help.includes('--clone-local'));
+    let failed = false;
+    try {
+      execFileSync('node', [CLI_PATH, 'fidelity', 'https://example.com', '--clone', 'http://10.0.0.5:3000', '--clone-local'], { encoding: 'utf-8', stdio: 'pipe' });
+    } catch (err) {
+      failed = true;
+      assert.match(String(err.stderr) + String(err.stdout), /127\.0\.0\.1:<port>/);
+    }
+    assert.ok(failed, 'expected a non-zero exit');
+  });
+
+  it('the --clone-local loopback allowance is fidelity-only: absent from extraction, clone, and pack', () => {
+    const extraction = execFileSync('node', [CLI_PATH, '--help'], { encoding: 'utf-8' });
+    const clone = execFileSync('node', [CLI_PATH, 'clone', '--help'], { encoding: 'utf-8' });
+    const pack = execFileSync('node', [CLI_PATH, 'pack', '--help'], { encoding: 'utf-8' });
+    assert.ok(!extraction.includes('--clone-local'), extraction);
+    assert.ok(!clone.includes('--clone-local'), clone);
+    assert.ok(!pack.includes('--clone-local'), pack);
+  });
+
   it('registers the gallery command', () => {
     const output = execFileSync('node', [CLI_PATH, 'gallery', '--help'], { encoding: 'utf-8' });
     assert.ok(output.includes('Build a static, shareable gallery'));

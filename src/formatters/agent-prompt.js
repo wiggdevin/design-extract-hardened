@@ -1,4 +1,5 @@
 import { promptData, PROMPT_TRUST_NOTICE } from '../security/prompt-data.js';
+import { knownFontFamily } from '../security/font-vocabulary.js';
 // One-shot agent prompt — `<host>-AGENT.md`.
 //
 // Drop the contents into Claude / GPT / Gemini / Cursor / Windsurf
@@ -41,9 +42,10 @@ function listColors(design) {
 // them straight from the page's own CSS `font-family` declarations, so they
 // are attacker-reachable free text, not a closed vocabulary — its only
 // guardrails are a 128-char cap and a ban on control chars / `:` / `;` (see
-// src/extractors/font-system.js). safeFontName therefore admits only
-// promptData's closed font vocabulary and prints every other family as
-// "(custom face)".
+// src/extractors/font-system.js). safeFontName and the typography.families
+// list below both go through fontNames(), which admits only the closed
+// vocabulary in src/security/font-vocabulary.js; any other name is dropped
+// (families) or printed as "(custom face)" (body/heading).
 function percentEvidence(n) {
   return Math.round((Number(n) || 0) * 100);
 }
@@ -52,16 +54,23 @@ function safeEvidenceName(value, maxLen = 60) {
   const cleaned = value.replace(/[<>\x00-\x1F\x7F]/g, '').trim().slice(0, maxLen);
   return cleaned || '(unnamed)';
 }
-// Font names follow the same rule as every other prompt field: only the
-// closed vocabulary in promptData may reach the prompt. Any other family
-// name is page-authored free text, so it is replaced, not cleaned.
 function safeFontName(value) {
-  const known = typeof value === 'string' ? promptData(value.trim()) : '';
-  return known || '(custom face)';
+  return fontNames([value])[0] || '(custom face)';
+}
+
+// Whole-string allowlists. Anything that does not match is dropped, never trimmed
+// into shape: a value that fails these is not a name, it is page text.
+const TOKEN_RE = /^[a-z][a-z0-9-]{0,23}$/i;
+const VERB_RE = /^[A-Za-z][a-z]{1,15}$/;
+function allowlisted(values, re, map = (v) => v) {
+  return values.map((v) => (typeof v === 'string' ? v.trim() : '')).filter((v) => v.length <= 32 && re.test(v)).map(map);
+}
+function fontNames(values) {
+  return values.map(knownFontFamily).filter(Boolean);
 }
 
 function listType(design, rawDesign) {
-  const fams = topN(design?.typography?.families, 4).map((f) => f?.name || f).filter(Boolean);
+  const fams = fontNames(topN(rawDesign?.typography?.families, 4).map((f) => f?.name ?? f));
   const weights = topN(design?.typography?.weights, 6).map((w) => w?.weight || w?.value || w).filter(Boolean);
   const base = design?.typography?.base || 16;
   const semanticSystem = rawDesign?.typography?.system;
@@ -116,9 +125,9 @@ function listMotion(design) {
   ].filter(Boolean).join('\n');
 }
 
-function listVoice(design) {
+function listVoice(design, rawDesign) {
   const v = design?.voice || {};
-  const ctas = topN(v.ctaVerbs, 6).map((c) => c?.value || c).filter(Boolean);
+  const ctas = allowlisted(topN(rawDesign?.voice?.ctaVerbs, 6).map((c) => c?.value ?? c), VERB_RE, (v) => v.toLowerCase());
   const headings = topN(v.headlines || v.headings, 3).map((h) => h?.text || h).filter(Boolean);
   return [
     v.tone     ? `- tone       ${v.tone}` : null,
@@ -129,13 +138,16 @@ function listVoice(design) {
   ].filter(Boolean).join('\n');
 }
 
-function listAnatomy(design) {
-  const list = design?.componentAnatomy || design?.componentClusters || [];
+function listAnatomy(rawDesign) {
+  const list = rawDesign?.componentAnatomy || rawDesign?.componentClusters || [];
   if (!Array.isArray(list) || list.length === 0) return null;
   return topN(list, 8).map((c) => {
-    const kind = String(c?.kind || c?.name || 'component');
-    const variants = topN(c?.variants, 4).map(String).join(' · ') || '—';
-    const slots    = topN(c?.slots,    4).map(String).join(' · ') || '—';
+    const kind = allowlisted([c?.kind ?? c?.name ?? ''], TOKEN_RE)[0] || 'component';
+    const variants = allowlisted(topN(c?.variants, 4).map((v) => v?.name ?? v), TOKEN_RE).join(' · ') || '—';
+    const slotNames = c?.slots && typeof c.slots === 'object' && !Array.isArray(c.slots)
+      ? Object.entries(c.slots).filter(([, v]) => v === true).map(([k]) => k)
+      : topN(c?.slots, 4);
+    const slots = allowlisted(slotNames.slice(0, 4), TOKEN_RE).join(' · ') || '—';
     return `- ${kind.padEnd(10)} variants: ${variants}  ·  slots: ${slots}`;
   }).join('\n');
 }
@@ -195,10 +207,10 @@ export function formatAgentPrompt(design) {
   const imagery = listImagery(rawDesign);
   if (imagery) blocks.push('## Imagery', '', imagery, '');
 
-  const voice = listVoice(design);
+  const voice = listVoice(design, rawDesign);
   if (voice) blocks.push('## Voice', '', voice, '');
 
-  const anatomy = listAnatomy(design);
+  const anatomy = listAnatomy(rawDesign);
   if (anatomy) blocks.push('## Component anatomy', '', anatomy, '');
 
   blocks.push('## Accessibility', '', listA11y(design), '');

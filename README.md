@@ -138,9 +138,15 @@ don't ship — a **ranked correction plan**: the exact next edits that will rais
 the score, hardest-hitting first. Measure → fix → re-run until it converges.
 
 ```bash
-npx designlang fidelity https://stripe.com --clone http://localhost:3000
-npx designlang fidelity https://stripe.com --clone http://localhost:3000 --min 90   # CI gate
+npx designlang fidelity https://stripe.com --clone http://localhost:3000 --clone-local
+npx designlang fidelity https://stripe.com --clone http://localhost:3000 --clone-local --min 90   # CI gate
 ```
+
+`--clone-local` is required when the clone runs on `http://127.0.0.1:<port>` or
+`http://localhost:<port>`. It is the only loopback allowance in the tool, and
+it applies to the clone side of this command alone. The report also carries a **blueprint**
+score (`fidelity-blueprint.json`): band count, reading order and per-band
+checks of the clone against the original.
 
 Generating the clone with `designlang clone`? Add `--fidelity` and it grades the
 clone's token basis against the live site the moment it's built — writing
@@ -293,6 +299,7 @@ Each run writes 17+ files to `./design-extract-output/`. The headline outputs:
 | `*-variables.css` | CSS custom properties |
 | `*-anatomy.tsx` | Typed React stubs for every detected component + variants |
 | `*-motion-tokens.json` | Durations, easings, springs, scroll-linked flag; with `--motion-runtime` also choreography (stagger) + scroll recipes + observed durations |
+| `*-blueprint.json` | The page as ordered horizontal bands: bounds, background (inherited when the band paints nothing), columns, media (photo, video, svg, canvas, embed), heading, role, reveal, repeats (card grids), overlay flags, reading order and hero index |
 | `*-voice.json` | Brand voice — tone, pronoun posture, CTA verbs |
 | `*-prompts/` | Paste-ready prompts for v0, Lovable, Cursor, Claude Artifacts |
 | `*-mcp.json` | Disk-backed MCP server payload |
@@ -440,7 +447,7 @@ Commands:
   lint <file>                       (v9) Audit a local token file (.json/.css) — CI-ready
   drift <url> --tokens <file>       (v9) Check local tokens for drift against a live site
   visual-diff <before> <after>      (v9) Side-by-side HTML diff of two URLs
-  fidelity <original> --clone <url> Score a clone vs the original — visual pixel-diff + motion fidelity → one grade + ranked correction plan (--min, --motion-runtime)
+  fidelity <original> --clone <url> Score a clone vs the original — visual pixel-diff + motion + blueprint fidelity → one grade + ranked correction plan (--min, --motion-runtime, --clone-local)
   gallery [dir]                     Build a shareable static gallery of measured clones (--title, --base-url)
 ```
 

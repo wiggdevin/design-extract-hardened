@@ -26,12 +26,13 @@ import { extractWideGamut } from './extractors/wide-gamut.js';
 import { extractTokenSources } from './extractors/token-sources.js';
 import { extractInteractionStates } from './extractors/interaction-states.js';
 import { extractMotion } from './extractors/motion.js';
-import { processRuntimeMotion } from './extractors/motion-runtime.js';
+import { processRuntimeMotion, detectMotionStack } from './extractors/motion-runtime.js';
 import { detectChoreography } from './extractors/motion-choreography.js';
 import { extractComponentAnatomy } from './extractors/component-anatomy.js';
 import { extractVoice } from './extractors/voice.js';
 import { extractPageIntent } from './extractors/page-intent.js';
 import { extractSectionRoles } from './extractors/section-roles.js';
+import { extractBlueprint, sectionRolesFromBlueprint, stripBandText } from './extractors/blueprint.js';
 import { extractComponentLibrary } from './extractors/component-library.js';
 import { extractMaterialLanguage } from './extractors/material-language.js';
 import { extractImageryStyle } from './extractors/imagery-style.js';
@@ -127,7 +128,7 @@ export async function extractDesignLanguage(url, options = {}) {
     },
     // What the crawler did to the page before measuring it. consent is null
     // when the step was turned off (dismissConsent: false).
-    capture: { consent: rawData.light.consent ?? null },
+    capture: { consent: rawData.light.consent ?? null, scroll: rawData.light.scroll ?? null },
     warnings: [],
   };
   const promote = (name, fn, ...args) => {
@@ -171,6 +172,8 @@ export async function extractDesignLanguage(url, options = {}) {
     }
   }
 
+  design.motion.stack = safeExtract(detectMotionStack, rawData.light.stack || {}) || [];
+
   if (rawData.dark) {
     const darkColors = safeExtract(extractColors, rawData.dark.computedStyles) || { primary: null, secondary: null, accent: null, neutrals: [], backgrounds: [], text: [], gradients: [], all: [] };
     design.darkMode = {
@@ -207,6 +210,30 @@ export async function extractDesignLanguage(url, options = {}) {
   // imagery style. All additive — no existing field is modified.
   design.pageIntent = safeExtract(extractPageIntent, rawData, { url: rawData.url, title: rawData.title }) || { type: 'unknown', confidence: 0, signals: [] };
   design.sectionRoles = safeExtract(extractSectionRoles, rawData.light?.sections || [], design.regions, design.pageIntent) || { sections: [], counts: {}, readingOrder: [] };
+  // Section blueprint: geometry bands classified with reveals attached. When
+  // it found bands, its order replaces the landmark-only reading order.
+  design.blueprint = safeExtract(extractBlueprint,
+    rawData.light?.bands || [],
+    design.motion?.runtime?.observations || [],
+    design.pageIntent,
+    { pageHeight: rawData.light?.pageHeight || 0, viewportHeight: rawData.light?.viewport?.height || 800 },
+  ) || { bands: [], readingOrder: [], heroIndex: -1, counts: { bands: 0, oversizedDropped: 0, byRole: {} } };
+  // rawData is cached as _raw by the website; page copy must not accumulate
+  // there once the blueprint classifier has consumed it.
+  stripBandText(rawData.light?.bands || []);
+  stripBandText(rawData.dark?.bands || []);
+  stripBandText(rawData.light?.sections || []);
+  stripBandText(rawData.dark?.sections || []);
+  // sectionRoles.readingOrder and sectionRoles.sections must describe the
+  // same thing: when the blueprint found bands, both come from it (see
+  // sectionRolesFromBlueprint); the landmark list stays available separately
+  // as design.regions.
+  const blueprintRoles = sectionRolesFromBlueprint(design.blueprint);
+  if (blueprintRoles) {
+    Object.assign(design.sectionRoles, blueprintRoles);
+  } else {
+    design.sectionRoles.source = 'landmarks';
+  }
   design.componentLibrary = safeExtract(extractComponentLibrary, rawData.light?.stack || {}) || { library: 'unknown', confidence: 0, evidence: [], alternates: [] };
   design.materialLanguage = safeExtract(extractMaterialLanguage, design) || { label: 'flat', confidence: 0, signals: [], metrics: {} };
   design.imageryStyle = promote('media', extractImageryStyle, rawData.light?.images || [], {
@@ -283,6 +310,7 @@ export { visualDiff, formatVisualDiffHtml } from './visual-diff.js';
 // v10
 export { extractPageIntent } from './extractors/page-intent.js';
 export { extractSectionRoles } from './extractors/section-roles.js';
+export { extractBlueprint } from './extractors/blueprint.js';
 export { extractComponentLibrary } from './extractors/component-library.js';
 export { extractMaterialLanguage } from './extractors/material-language.js';
 export { extractImageryStyle } from './extractors/imagery-style.js';
