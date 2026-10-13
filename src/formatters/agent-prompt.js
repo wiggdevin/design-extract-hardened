@@ -41,13 +41,10 @@ function listColors(design) {
 // them straight from the page's own CSS `font-family` declarations, so they
 // are attacker-reachable free text, not a closed vocabulary — its only
 // guardrails are a 128-char cap and a ban on control chars / `:` / `;` (see
-// src/extractors/font-system.js). safeFontName serves only these two
-// fields (see listType below) and applies a much stricter allowlist
-// (letters, digits, spaces, hyphens only) plus a tight length cap so a
-// page cannot smuggle instruction-shaped or markup-shaped text into this
-// agent-facing prompt through one of them. The separate typography.families
-// list is a closed vocabulary already and goes through the FAMILY_RE
-// allowlist below instead.
+// src/extractors/font-system.js). safeFontName and the typography.families
+// list below both go through fontNames(): a whole-string FAMILY_RE match, no
+// instruction-shaped words, else the name is dropped (families) or printed as
+// "(custom face)" (body/heading).
 function percentEvidence(n) {
   return Math.round((Number(n) || 0) * 100);
 }
@@ -56,10 +53,8 @@ function safeEvidenceName(value, maxLen = 60) {
   const cleaned = value.replace(/[<>\x00-\x1F\x7F]/g, '').trim().slice(0, maxLen);
   return cleaned || '(unnamed)';
 }
-function safeFontName(value, maxLen = 32) {
-  if (typeof value !== 'string') return '(unnamed)';
-  const cleaned = value.replace(/[^A-Za-z0-9 -]/g, '').replace(/\s+/g, ' ').trim().slice(0, maxLen);
-  return cleaned || '(unnamed)';
+function safeFontName(value) {
+  return fontNames([value])[0] || '(custom face)';
 }
 
 // Whole-string allowlists. Anything that does not match is dropped, never trimmed
@@ -73,9 +68,15 @@ const VERB_RE = /^[A-Za-z][a-z]{1,15}$/;
 function allowlisted(values, re, map = (v) => v) {
   return values.map((v) => (typeof v === 'string' ? v.trim() : '')).filter((v) => v.length <= 32 && re.test(v)).map(map);
 }
+// A three-word name can still read as an order ("Ignore all instructions").
+// Font families do not use these words, so a name carrying one is page text.
+const INSTRUCTION_WORD_RE = /\b(?:ignore|disregard|forget|override|bypass|instruction|instructions|prompt|prompts|system|assistant|user|users|execute|exec|run|install|delete|remove|send|exfiltrate|reveal|disclose|curl|wget|token|secret|secrets|password|command|commands|previous|prior|above)\b/i;
+function fontNames(values) {
+  return allowlisted(values, FAMILY_RE).filter((v) => !INSTRUCTION_WORD_RE.test(v));
+}
 
 function listType(design, rawDesign) {
-  const fams = allowlisted(topN(rawDesign?.typography?.families, 4).map((f) => f?.name ?? f), FAMILY_RE);
+  const fams = fontNames(topN(rawDesign?.typography?.families, 4).map((f) => f?.name ?? f));
   const weights = topN(design?.typography?.weights, 6).map((w) => w?.weight || w?.value || w).filter(Boolean);
   const base = design?.typography?.base || 16;
   const semanticSystem = rawDesign?.typography?.system;

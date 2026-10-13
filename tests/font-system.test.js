@@ -241,3 +241,13 @@ describe('extractFontSystem — live-site regressions', () => {
     assert.equal(result.rejectedFamilies.find(f => f.name === 'Secondary Font').reason, 'no visible text');
   });
 });
+
+describe('extractFontSystem hidden text', () => {
+  it('does not let hidden text outvote visible text', () => {
+    const hidden = Array.from({ length: 10 }, () => ({ tag: 'p', hasText: true, rendered: false, fontFamily: 'HiddenFace, sans-serif' }));
+    const visible = [{ tag: 'p', hasText: true, rendered: true, fontFamily: 'Arial, sans-serif' }];
+    const font = extractFontSystem({ computedStyles: [...hidden, ...visible], fontData: { documentFonts: [{ family: 'HiddenFace', status: 'loaded' }] } });
+    assert.equal(font.bodyFamily?.value, 'Arial');
+    assert.ok(!font.acceptedFamilies.some(f => f.name === 'HiddenFace'));
+  });
+});

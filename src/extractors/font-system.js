@@ -119,7 +119,7 @@ function decideFamily(acceptedFamilies, computedStyles, tags) {
   const votes = new Map();
   let total = 0;
   for (const el of computedStyles) {
-    if (!el.hasText || !tags.has(el.tag)) continue;
+    if (!el.hasText || el.rendered === false || !tags.has(el.tag)) continue;
     const first = firstRenderedFamily(el.fontFamily);
     if (!first) continue;
     const key = first.name.toLowerCase();
@@ -163,7 +163,10 @@ export function extractFontSystem({ computedStyles = [], fontData = {} } = {}) {
   let textElements = 0;
 
   for (const el of computedStyles) {
-    if (el.hasText) textElements++;
+    // Records without the `rendered` flag (older crawls, fixtures) count as
+    // rendered; an explicit false keeps hidden text out of the vote.
+    const visibleText = Boolean(el.hasText) && el.rendered !== false;
+    if (visibleText) textElements++;
     const raw = el.fontFamily;
     const parsed = parseFontFamilyList(raw);
     const first = parsed.find(f => !f.generic);
@@ -172,7 +175,7 @@ export function extractFontSystem({ computedStyles = [], fontData = {} } = {}) {
       if (!stats.has(key)) stats.set(key, { name: first.name, textCount: 0, totalCount: 0, headingCount: 0 });
       const s = stats.get(key);
       s.totalCount++;
-      if (el.hasText) {
+      if (visibleText) {
         s.textCount++;
         if (HEADING_TAGS.has(el.tag)) s.headingCount++;
       }

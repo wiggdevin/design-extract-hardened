@@ -962,8 +962,14 @@ export function collectPageData({ maxElements, ignoreSelectors, scopeSelector })
         if (node.nodeType === 3 && node.textContent && node.textContent.trim()) { hasText = true; break; }
       }
 
+      // rendered: the element paints at all. Hidden text (display:none,
+      // visibility:hidden, zero-size or fully transparent boxes, such as a
+      // consent banner hidden before capture) must not vote on typography.
+      const rendered = rect.width > 0 && rect.height > 0 && cs.display !== 'none' &&
+        cs.visibility !== 'hidden' && cs.visibility !== 'collapse' && Number(cs.opacity) !== 0;
+
       results.computedStyles.push({
-        tag, classList, role, area, hasText, lineWidth,
+        tag, classList, role, area, hasText, rendered, lineWidth,
         // Box geometry — measure (chars per line), container ladders and
         // section rhythm all need the rendered width, not just the area.
         width: Math.round(rect.width),

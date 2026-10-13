@@ -10,33 +10,45 @@
 import { pixelFeatures, classifyPixels, isTransparentLayer, loadSharp, MIN_DECISIVE_SIDE } from './extractors/pixel-features.js';
 
 export const LEDGER_LIMITS = { maxEntries: 300, maxItemBytes: 8 * 1024 * 1024, maxTotalBytes: 64 * 1024 * 1024 };
+// Length at which the page collector truncates image sources.
+const SOURCE_CAP = 500;
 export const PIXEL_LIMITS = { maxCandidates: 8, maxScreenshots: 3, screenshotTimeoutMs: 5000, totalBudgetMs: 10000 };
 
 // Records raster image bodies the page loads. Call before navigation.
 export function createResponseLedger(page, limits = LEDGER_LIMITS) {
   const entries = new Map();
   let totalBytes = 0;
+  // Bytes promised to in-flight reads by their declared content-length.
+  let reservedBytes = 0;
   let dropped = 0;
   const pending = new Set();
+  // Bodies of chunked responses have no declared size, so the only bound on
+  // their in-flight memory is how many may be read at once.
+  const maxPending = Math.max(1, Math.min(limits.maxPending ?? 16, limits.maxEntries));
   const onResponse = (resp) => {
     let type = '';
     try { type = String(resp.headers()['content-type'] || '').toLowerCase(); } catch { return; }
     if (!type.startsWith('image/') || type.includes('svg')) return;
-    if (entries.size >= limits.maxEntries) { dropped++; return; }
+    // Admission counts in-flight reads as well as finished entries, so a
+    // burst of concurrent responses cannot overrun the entry cap.
+    if (entries.size + pending.size >= limits.maxEntries || pending.size >= maxPending) { dropped++; return; }
     // Content-length is advisory (absent on chunked responses), but when it
     // is present an oversized image is refused before its body is copied
     // into this process.
     let declared;
     try { declared = Number(resp.headers()['content-length']); } catch { declared = NaN; }
-    if (Number.isFinite(declared) && declared > 0 && (declared > limits.maxItemBytes || totalBytes + declared > limits.maxTotalBytes)) { dropped++; return; }
+    const reserve = Number.isFinite(declared) && declared > 0 ? declared : 0;
+    if (reserve && (reserve > limits.maxItemBytes || totalBytes + reservedBytes + reserve > limits.maxTotalBytes)) { dropped++; return; }
+    reservedBytes += reserve;
     const p = resp.body().then((buf) => {
+      reservedBytes -= reserve;
       if (!buf) return;
-      if (buf.length > limits.maxItemBytes || totalBytes + buf.length > limits.maxTotalBytes) { dropped++; return; }
+      if (entries.size >= limits.maxEntries || buf.length > limits.maxItemBytes || totalBytes + reservedBytes + buf.length > limits.maxTotalBytes) { dropped++; return; }
       const url = resp.url();
       if (entries.has(url)) return;
       entries.set(url, { buf, type });
       totalBytes += buf.length;
-    }).catch(() => {}).finally(() => pending.delete(p));
+    }, () => { reservedBytes -= reserve; }).catch(() => {}).finally(() => pending.delete(p));
     pending.add(p);
   };
   page.on('response', onResponse);
@@ -56,12 +68,17 @@ export function createResponseLedger(page, limits = LEDGER_LIMITS) {
     lookup(src) {
       if (!src || src.startsWith('data:')) return null;
       if (entries.has(src)) return { url: src, ...entries.get(src) };
-      // Sources are capped at 500 chars in the collector; match on prefix.
-      // A short prefix (an origin, a directory) would match anything.
-      if (src.length < 40) return null;
-      const prefix = src.slice(0, 120);
-      for (const [url, entry] of entries) if (url.startsWith(prefix)) return { url, ...entry };
-      return null;
+      // The collector caps sources at 500 chars. Only a source that long can
+      // be a truncated URL, so only it may match by prefix, on its whole
+      // length, and only when exactly one recorded URL carries that prefix.
+      if (src.length < SOURCE_CAP) return null;
+      let hit = null;
+      for (const [url, entry] of entries) {
+        if (!url.startsWith(src)) continue;
+        if (hit) return null;
+        hit = { url, ...entry };
+      }
+      return hit;
     },
   };
 }

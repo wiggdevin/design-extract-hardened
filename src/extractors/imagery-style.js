@@ -107,8 +107,23 @@ export function extractImageryStyle(images = [], options = {}) {
   // non-object) must be skipped, not crash the whole extraction -- every
   // preprocessing step below dereferences fields on each element directly.
   const safeImages = Array.isArray(images) ? images.filter(img => img && typeof img === 'object') : [];
+  const backgroundMedia = Array.isArray(options.backgroundMedia) ? options.backgroundMedia : [];
   if (!safeImages.length) {
-    return { label: 'none', confidence: 0, counts: {}, aspectRatios: [], radiusProfile: 'none', signals: [] };
+    const empty = { label: 'none', confidence: 0, counts: {}, aspectRatios: [], radiusProfile: 'none', signals: [] };
+    // A page with no <img> can still be carried by a CSS photograph, a
+    // video poster or a canvas; those go to the weight-based classifier.
+    if (!backgroundMedia.length) return empty;
+    const media = extractMediaSystem({ images: [], backgroundMedia, viewport: options.viewport || null, pixelEvidence: options.pixelEvidence || [] });
+    return {
+      ...empty,
+      label: media.label,
+      confidence: media.confidence,
+      distribution: media.distribution,
+      dominantMedia: media.dominantMedia,
+      coverage: media.coverage,
+      alternatives: media.alternatives,
+      signals: [...new Set(media.signals || [])].slice(0, 10),
+    };
   }
   const { tally, reasons, counts } = scoreLabels(safeImages);
   const ranked = Object.entries(tally).sort((a, b) => b[1] - a[1]);
@@ -139,11 +154,11 @@ export function extractImageryStyle(images = [], options = {}) {
   // (top/naturalWidth/currentSrc); when present, hand label/confidence to
   // the weight-based classifier, which sees far more of the page than a
   // plain <img> count can.
-  const evidenceRich = (Array.isArray(options.backgroundMedia) && options.backgroundMedia.length > 0) ||
+  const evidenceRich = backgroundMedia.length > 0 ||
     safeImages.some(img => typeof img.top === 'number' || typeof img.naturalWidth === 'number' || typeof img.currentSrc === 'string');
   if (!evidenceRich) return result;
 
-  const media = extractMediaSystem({ images: safeImages, backgroundMedia: options.backgroundMedia || [], viewport: options.viewport || null, pixelEvidence: options.pixelEvidence || [] });
+  const media = extractMediaSystem({ images: safeImages, backgroundMedia, viewport: options.viewport || null, pixelEvidence: options.pixelEvidence || [] });
   return {
     ...result,
     label: media.label,
