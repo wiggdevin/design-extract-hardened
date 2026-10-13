@@ -41,10 +41,9 @@ function listColors(design) {
 // them straight from the page's own CSS `font-family` declarations, so they
 // are attacker-reachable free text, not a closed vocabulary — its only
 // guardrails are a 128-char cap and a ban on control chars / `:` / `;` (see
-// src/extractors/font-system.js). safeFontName applies a much stricter
-// allowlist (letters, digits, spaces, hyphens only) plus a tight length cap
-// so a page cannot smuggle instruction-shaped or markup-shaped text into
-// this agent-facing prompt through a font-family declaration.
+// src/extractors/font-system.js). safeFontName therefore admits only
+// promptData's closed font vocabulary and prints every other family as
+// "(custom face)".
 function percentEvidence(n) {
   return Math.round((Number(n) || 0) * 100);
 }
@@ -53,10 +52,12 @@ function safeEvidenceName(value, maxLen = 60) {
   const cleaned = value.replace(/[<>\x00-\x1F\x7F]/g, '').trim().slice(0, maxLen);
   return cleaned || '(unnamed)';
 }
-function safeFontName(value, maxLen = 32) {
-  if (typeof value !== 'string') return '(unnamed)';
-  const cleaned = value.replace(/[^A-Za-z0-9 -]/g, '').replace(/\s+/g, ' ').trim().slice(0, maxLen);
-  return cleaned || '(unnamed)';
+// Font names follow the same rule as every other prompt field: only the
+// closed vocabulary in promptData may reach the prompt. Any other family
+// name is page-authored free text, so it is replaced, not cleaned.
+function safeFontName(value) {
+  const known = typeof value === 'string' ? promptData(value.trim()) : '';
+  return known || '(custom face)';
 }
 
 function listType(design, rawDesign) {

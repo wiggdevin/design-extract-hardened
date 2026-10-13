@@ -39,12 +39,32 @@ describe('createResponseLedger', () => {
   it('matches a collector-truncated source by prefix', async () => {
     const page = new FakePage();
     const ledger = createResponseLedger(page);
-    const long = 'https://images.example.com/transform/0123456789abcdef0123456789abcdef/' + 'x'.repeat(200) + '?w=1280';
+    const long = 'https://images.example.com/transform/0123456789abcdef0123456789abcdef/' + 'x'.repeat(500) + '?w=1280';
     page.emit('response', fakeResponse(long, 'image/webp', Buffer.from('webp')));
     await ledger.settle();
-    assert.ok(ledger.lookup(long.slice(0, 120)));
+    assert.ok(ledger.lookup(long.slice(0, 500)));
+    assert.equal(ledger.lookup(long.slice(0, 120)), null, 'a source shorter than the collector cap was not truncated');
     assert.equal(ledger.lookup('https://images.example.com/other'), null);
     assert.equal(ledger.lookup('data:image/png;base64,AAAA'), null);
+  });
+
+  it('refuses an ambiguous prefix match', async () => {
+    const page = new FakePage();
+    const ledger = createResponseLedger(page);
+    const stem = 'https://images.example.com/' + 'y'.repeat(520);
+    page.emit('response', fakeResponse(stem + '/a.webp', 'image/webp', Buffer.from('a')));
+    page.emit('response', fakeResponse(stem + '/b.webp', 'image/webp', Buffer.from('b')));
+    await ledger.settle();
+    assert.equal(ledger.lookup(stem.slice(0, 500)), null);
+  });
+
+  it('counts in-flight reads against the entry cap', async () => {
+    const page = new FakePage();
+    const ledger = createResponseLedger(page, { maxEntries: 2, maxItemBytes: 100, maxTotalBytes: 1000 });
+    for (let i = 0; i < 8; i++) page.emit('response', fakeResponse(`https://e.com/${i}.png`, 'image/png', Buffer.alloc(4)));
+    await ledger.settle();
+    assert.equal(ledger.entries.size, 2);
+    assert.equal(ledger.dropped, 6);
   });
 
   it('is bounded by entry count, item size, and total size', async () => {

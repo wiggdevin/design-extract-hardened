@@ -355,3 +355,11 @@ describe('extractMediaSystem: pixel evidence resolves DOM unknowns', () => {
     assert.doesNotThrow(() => extractMediaSystem({ images: [pngHero], viewport, pixelEvidence: 'nope' }));
   });
 });
+
+describe('extractImageryStyle without <img> elements', () => {
+  it('classifies a page carried only by background media', () => {
+    const style = extractImageryStyle([], { backgroundMedia: [{ kind: 'css-background', src: 'https://example.com/hero.jpg', width: 1280, height: 800, top: 0 }], viewport: { width: 1280, height: 800 } });
+    assert.equal(style.label, 'photography');
+    assert.equal(extractImageryStyle([], {}).label, 'none');
+  });
+});
