@@ -1,4 +1,5 @@
 import { promptData, PROMPT_TRUST_NOTICE } from '../security/prompt-data.js';
+import { knownFontFamily } from '../security/font-vocabulary.js';
 import { pxToRem } from '../utils.js';
 
 // Semantic-evidence fields (typography.system.bodyFamily/headingFamily,
@@ -15,7 +16,8 @@ import { pxToRem } from '../utils.js';
 // page's own CSS `font-family` declarations, so they are attacker-reachable
 // free text, not a closed vocabulary — its only guardrails are a 128-char cap
 // and a ban on control chars / `:` / `;` (see src/extractors/font-system.js).
-// safeFontName therefore admits only promptData's closed font vocabulary
+// safeFontName therefore admits only the closed vocabulary in
+// src/security/font-vocabulary.js
 // and prints every other family as "(custom face)".
 function percentEvidence(n) {
   return Math.round((Number(n) || 0) * 100);
@@ -29,8 +31,7 @@ function safeEvidenceName(value, maxLen = 80) {
 // closed vocabulary in promptData may reach the prompt. Any other family
 // name is page-authored free text, so it is replaced, not cleaned.
 function safeFontName(value) {
-  const known = typeof value === 'string' ? promptData(value.trim()) : '';
-  return known || '(custom face)';
+  return knownFontFamily(value) || '(custom face)';
 }
 
 export function formatMarkdown(design) {

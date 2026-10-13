@@ -193,3 +193,13 @@ describe('mergeRuntimeObservations', () => {
     assert.equal(mergeRuntimeObservations({ scroll: many }, 4).length, 4);
   });
 });
+
+describe('mergeRuntimeObservations identity', () => {
+  it('keeps a distinct scroll animation on an element that also animated at load', async () => {
+    const { mergeRuntimeObservations } = await import('../src/crawler.js');
+    const fade = { trigger: 'load', selector: '#hero', type: 'animation', name: 'Animation', duration: 600, properties: ['opacity'] };
+    const drift = { trigger: 'scroll', selector: '#hero', type: 'animation', name: 'Animation', duration: 0, properties: ['transform'] };
+    const out = mergeRuntimeObservations({ load: [fade], scroll: [drift] });
+    assert.deepEqual(out.map(o => o.trigger), ['load', 'scroll']);
+  });
+});

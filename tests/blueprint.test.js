@@ -213,3 +213,16 @@ describe('extractBlueprint on a short page', () => {
     assert.equal(bp.bands.length, 3);
   });
 });
+
+describe('extractBlueprint with an overlay header', () => {
+  it('keeps a short-page hero that a fixed header sits over', () => {
+    const bands = [
+      band({ tag: 'header', position: 'fixed', bounds: { x: 0, y: 0, w: 1280, h: 80 }, text: 'Home About', textLength: 10 }),
+      band({ tag: 'section', bounds: { x: 0, y: 0, w: 1280, h: 800 }, heading: { level: 1, fontSize: 56, text: 'Hello' }, text: 'Hello', textLength: 5 }),
+      band({ tag: 'footer', bounds: { x: 0, y: 800, w: 1280, h: 100 }, text: 'Copyright', textLength: 9 }),
+    ];
+    const bp = extractBlueprint(bands, [], null, { pageHeight: 900, viewportHeight: 800 });
+    assert.equal(bp.counts.oversizedDropped, 0);
+    assert.ok(bp.heroIndex >= 0);
+  });
+});

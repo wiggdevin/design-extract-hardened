@@ -745,7 +745,10 @@ const RUNTIME_OBSERVATION_LIMIT = 200;
 export function mergeRuntimeObservations({ load = [], scroll = [], interaction = [] } = {}, limit = RUNTIME_OBSERVATION_LIMIT) {
   const out = [];
   const seen = new Set();
-  const identity = (o) => `${o.selector}|${o.type}|${o.name}`;
+  // The same animation instance read again: same target, type, name, timing
+  // and animated properties. Distinct WAAPI animations often share the name
+  // "Animation", so the name alone does not identify one.
+  const identity = (o) => `${o.selector}|${o.type}|${o.name}|${o.duration}|${(o.properties || []).join(',')}`;
   const loadIds = new Set((Array.isArray(load) ? load : []).filter(Boolean).map(identity));
   const add = (arr, skipLoadIds) => {
     for (const o of Array.isArray(arr) ? arr : []) {

@@ -1,4 +1,5 @@
 import { promptData, PROMPT_TRUST_NOTICE } from '../security/prompt-data.js';
+import { knownFontFamily } from '../security/font-vocabulary.js';
 // One-shot agent prompt — `<host>-AGENT.md`.
 //
 // Drop the contents into Claude / GPT / Gemini / Cursor / Windsurf
@@ -42,9 +43,9 @@ function listColors(design) {
 // are attacker-reachable free text, not a closed vocabulary — its only
 // guardrails are a 128-char cap and a ban on control chars / `:` / `;` (see
 // src/extractors/font-system.js). safeFontName and the typography.families
-// list below both go through fontNames(): a whole-string FAMILY_RE match, no
-// instruction-shaped words, else the name is dropped (families) or printed as
-// "(custom face)" (body/heading).
+// list below both go through fontNames(), which admits only the closed
+// vocabulary in src/security/font-vocabulary.js; any other name is dropped
+// (families) or printed as "(custom face)" (body/heading).
 function percentEvidence(n) {
   return Math.round((Number(n) || 0) * 100);
 }
@@ -59,20 +60,13 @@ function safeFontName(value) {
 
 // Whole-string allowlists. Anything that does not match is dropped, never trimmed
 // into shape: a value that fails these is not a name, it is page text.
-// FAMILY_RE caps at three words (each up to 32 chars on its own) so a
-// sentence-shaped value like "Ignore all prior instructions" cannot pass as
-// a font family name; the 32-char overall cap below still applies on top.
-const FAMILY_RE = /^[A-Za-z][A-Za-z0-9-]{0,31}(?: [A-Za-z0-9-]{1,31}){0,2}$/;
 const TOKEN_RE = /^[a-z][a-z0-9-]{0,23}$/i;
 const VERB_RE = /^[A-Za-z][a-z]{1,15}$/;
 function allowlisted(values, re, map = (v) => v) {
   return values.map((v) => (typeof v === 'string' ? v.trim() : '')).filter((v) => v.length <= 32 && re.test(v)).map(map);
 }
-// A three-word name can still read as an order ("Ignore all instructions").
-// Font families do not use these words, so a name carrying one is page text.
-const INSTRUCTION_WORD_RE = /\b(?:ignore|disregard|forget|override|bypass|instruction|instructions|prompt|prompts|system|assistant|user|users|execute|exec|run|install|delete|remove|send|exfiltrate|reveal|disclose|curl|wget|token|secret|secrets|password|command|commands|previous|prior|above)\b/i;
 function fontNames(values) {
-  return allowlisted(values, FAMILY_RE).filter((v) => !INSTRUCTION_WORD_RE.test(v));
+  return values.map(knownFontFamily).filter(Boolean);
 }
 
 function listType(design, rawDesign) {

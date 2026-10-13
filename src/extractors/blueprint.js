@@ -77,7 +77,10 @@ export function extractBlueprint(bands = [], runtimeObservations = [], pageInten
   // is a wrapper, not a section: another band sits inside its vertical range,
   // or it is taller than WRAPPER_MIN_VIEWPORTS screens. On a short page a
   // real hero can exceed the share on its own and must stay.
-  const contains = (outer) => valid.some(o => o !== outer
+  // Overlays (fixed, absolute or sticky boxes) and nav landmarks sit over a
+  // section without being part of it, so they are no evidence of a wrapper.
+  const flowBand = (b) => !['fixed', 'absolute', 'sticky'].includes(b.position) && !isNavLandmark(b);
+  const contains = (outer) => valid.some(o => o !== outer && flowBand(o)
     && o.bounds.y >= outer.bounds.y && o.bounds.y + o.bounds.h <= outer.bounds.y + outer.bounds.h);
   for (const b of valid) {
     const oversized = totalHeight > 0 && b.bounds.h > totalHeight * OVERSIZED_SHARE;
