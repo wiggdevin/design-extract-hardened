@@ -182,9 +182,11 @@ describe('mergeRuntimeObservations', () => {
 
   it('does not re-tag a load animation still playing during the scroll pass', async () => {
     const { mergeRuntimeObservations } = await import('../src/crawler.js');
-    const entrance = { trigger: 'load', selector: 'h1', type: 'animation', name: 'rise', duration: 800, properties: ['opacity'] };
+    const entrance = { trigger: 'load', selector: 'h1', type: 'animation', name: 'rise', duration: 800, properties: ['opacity'], instanceId: 7 };
     const out = mergeRuntimeObservations({ load: [entrance], scroll: [{ ...entrance, trigger: 'scroll' }] });
     assert.deepEqual(out.map(o => o.trigger), ['load']);
+    const twin = mergeRuntimeObservations({ load: [entrance], scroll: [{ ...entrance, trigger: 'scroll', instanceId: 8 }, { ...entrance, trigger: 'scroll', instanceId: undefined }] });
+    assert.deepEqual(twin.map(o => o.trigger), ['load', 'scroll'], 'a different instance, or one without an id, is kept');
   });
 
   it('honours the limit', async () => {

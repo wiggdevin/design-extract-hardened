@@ -677,6 +677,22 @@ const READ_ANIMATIONS = (mode) => {
     }
     return parts.join(' > ').slice(0, 200);
   };
+  // A stable id per browser Animation object across capture passes, so a
+  // load animation still playing during the scroll pass is recognised as the
+  // same instance rather than guessed from its fields.
+  let ids = null;
+  try {
+    if (!window.__designlangAnimationIds) {
+      Object.defineProperty(window, '__designlangAnimationIds', { value: { map: new WeakMap(), next: 1 }, enumerable: false });
+    }
+    ids = window.__designlangAnimationIds;
+  } catch { ids = null; }
+  const instanceIdOf = (anim) => {
+    if (!ids) return null;
+    let id = ids.map.get(anim);
+    if (!id) { id = ids.next++; ids.map.set(anim, id); }
+    return id;
+  };
   const serialize = (anim) => {
     try {
       const eff = anim.effect;
@@ -711,6 +727,7 @@ const READ_ANIMATIONS = (mode) => {
         properties: [...props],
         top: rect ? Math.round(rect.top + window.scrollY) : null,
         height: rect ? Math.round(rect.height) : null,
+        instanceId: instanceIdOf(anim),
       };
     } catch { return null; }
   };
@@ -745,16 +762,15 @@ const RUNTIME_OBSERVATION_LIMIT = 200;
 export function mergeRuntimeObservations({ load = [], scroll = [], interaction = [] } = {}, limit = RUNTIME_OBSERVATION_LIMIT) {
   const out = [];
   const seen = new Set();
-  // The same animation instance read again: same target, type, name, timing
-  // and animated properties. Distinct WAAPI animations often share the name
-  // "Animation", so the name alone does not identify one.
-  const identity = (o) => `${o.selector}|${o.type}|${o.name}|${o.duration}|${(o.properties || []).join(',')}`;
-  const loadIds = new Set((Array.isArray(load) ? load : []).filter(Boolean).map(identity));
+  // Only the same browser Animation object (matching instanceId, assigned in
+  // READ_ANIMATIONS) counts as a load animation read again. Without an id
+  // the observation is kept.
+  const loadIds = new Set((Array.isArray(load) ? load : []).map((o) => o && o.instanceId).filter((id) => id != null));
   const add = (arr, skipLoadIds) => {
     for (const o of Array.isArray(arr) ? arr : []) {
       if (out.length >= limit) return;
       if (!o || typeof o !== 'object') continue;
-      if (skipLoadIds && loadIds.has(identity(o))) continue;
+      if (skipLoadIds && o.instanceId != null && loadIds.has(o.instanceId)) continue;
       const key = `${o.trigger}|${o.selector}|${o.name}|${o.duration}|${(o.properties || []).join(',')}`;
       if (seen.has(key)) continue;
       seen.add(key);
