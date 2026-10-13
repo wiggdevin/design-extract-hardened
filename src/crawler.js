@@ -172,6 +172,10 @@ export async function crawlPage(url, options = {}) {
     // fire for every band. Runtime motion reads scroll animations per step.
     let scroll = null;
     const scrollObservations = [];
+    // Load-time animations are read before the scroll pass: finite entrance
+    // animations can finish while it runs, and anything still playing at the
+    // first scroll step would otherwise be recorded as a scroll animation.
+    const loadObservations = motionRuntime ? await readRuntimeAnimations(page, 'load') : null;
     if (scrollPass) {
       scroll = await scrollThroughPage(page, {
         // Called twice per step ('early' and 'settled' — see
@@ -195,7 +199,7 @@ export async function crawlPage(url, options = {}) {
     // merged with the scroll observations from the shared pass.
     let motionRuntimeObs = null;
     if (motionRuntime) {
-      motionRuntimeObs = await captureRuntimeMotion(page, { scrollObservations }).catch(() => null);
+      motionRuntimeObs = await captureRuntimeMotion(page, { loadObservations, scrollObservations }).catch(() => null);
     }
 
     // The interaction and runtime-motion passes above scroll elements into
@@ -731,15 +735,44 @@ async function readRuntimeAnimations(page, trigger, selector) {
 // after hovering/focusing a sample of interactive elements. Returns raw
 // observations consumed by src/extractors/motion-runtime.js. Defensive: every
 // step is best-effort and any failure yields fewer observations, not a throw.
-async function captureRuntimeMotion(page, { scrollObservations = [] } = {}) {
+const RUNTIME_OBSERVATION_LIMIT = 200;
+
+// Merges raw runtime observations under the observation limit. Duplicates are
+// dropped while collecting, not after the cap, so a spinner read on every
+// scroll step cannot crowd out later reveals and hover/focus readings. A
+// scroll reading of an animation already seen at load is the same animation
+// still playing, so it is not counted again as scroll motion.
+export function mergeRuntimeObservations({ load = [], scroll = [], interaction = [] } = {}, limit = RUNTIME_OBSERVATION_LIMIT) {
+  const out = [];
+  const seen = new Set();
+  const identity = (o) => `${o.selector}|${o.type}|${o.name}`;
+  const loadIds = new Set((Array.isArray(load) ? load : []).filter(Boolean).map(identity));
+  const add = (arr, skipLoadIds) => {
+    for (const o of Array.isArray(arr) ? arr : []) {
+      if (out.length >= limit) return;
+      if (!o || typeof o !== 'object') continue;
+      if (skipLoadIds && loadIds.has(identity(o))) continue;
+      const key = `${o.trigger}|${o.selector}|${o.name}|${o.duration}|${(o.properties || []).join(',')}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(o);
+    }
+  };
+  add(load, false);
+  add(scroll, true);
+  add(interaction, false);
+  return out;
+}
+
+async function captureRuntimeMotion(page, { loadObservations = null, scrollObservations = [] } = {}) {
+  // 1) Load — entrance + infinite animations still running. Read by crawlPage
+  // before the scroll pass when it runs one; read here otherwise.
+  const load = Array.isArray(loadObservations) ? loadObservations : await readRuntimeAnimations(page, 'load');
+
+  // 2) Scroll — collected during the shared scroll pass in crawlPage and
+  // merged below.
   const obs = [];
   const push = (arr) => { if (Array.isArray(arr)) obs.push(...arr); };
-
-  // 1) Load — entrance + infinite animations still running.
-  push(await readRuntimeAnimations(page, 'load'));
-
-  // 2) Scroll — collected during the shared scroll pass in crawlPage.
-  push(scrollObservations);
 
   // 3) Hover + focus — interaction transitions on a sample of controls.
   let samples = [];
@@ -766,7 +799,7 @@ async function captureRuntimeMotion(page, { scrollObservations = [] } = {}) {
     } catch { /* ignore */ }
   }
 
-  return { observations: obs.slice(0, 200) };
+  return { observations: mergeRuntimeObservations({ load, scroll: scrollObservations, interaction: obs }) };
 }
 
 // Top-level and self-contained (no module-scope references) because

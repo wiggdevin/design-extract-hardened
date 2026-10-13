@@ -169,3 +169,27 @@ describe('detectMotionStack', () => {
     assert.equal(model.observations[1].top, null);
   });
 });
+
+describe('mergeRuntimeObservations', () => {
+  it('dedupes before the cap so later reveals and hovers survive', async () => {
+    const { mergeRuntimeObservations } = await import('../src/crawler.js');
+    const spinner = { trigger: 'scroll', selector: 'div.spin', type: 'animation', name: 'spin', duration: 1000, properties: ['transform'] };
+    const reveal = { trigger: 'scroll', selector: 'section.late', type: 'animation', name: 'fade', duration: 600, properties: ['opacity'] };
+    const hover = { trigger: 'hover', selector: 'a.cta', type: 'transition', name: 'color', duration: 200, properties: ['color'] };
+    const out = mergeRuntimeObservations({ scroll: [...Array(200).fill(spinner), reveal], interaction: [hover] });
+    assert.deepEqual(out.map(o => o.selector), ['div.spin', 'section.late', 'a.cta']);
+  });
+
+  it('does not re-tag a load animation still playing during the scroll pass', async () => {
+    const { mergeRuntimeObservations } = await import('../src/crawler.js');
+    const entrance = { trigger: 'load', selector: 'h1', type: 'animation', name: 'rise', duration: 800, properties: ['opacity'] };
+    const out = mergeRuntimeObservations({ load: [entrance], scroll: [{ ...entrance, trigger: 'scroll' }] });
+    assert.deepEqual(out.map(o => o.trigger), ['load']);
+  });
+
+  it('honours the limit', async () => {
+    const { mergeRuntimeObservations } = await import('../src/crawler.js');
+    const many = Array.from({ length: 10 }, (_, i) => ({ trigger: 'scroll', selector: `#s${i}`, type: 'animation', name: 'a', duration: 1, properties: [] }));
+    assert.equal(mergeRuntimeObservations({ scroll: many }, 4).length, 4);
+  });
+});

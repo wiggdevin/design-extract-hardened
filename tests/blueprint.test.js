@@ -200,3 +200,16 @@ describe('stripBandText also clears landmark section records', () => {
     assert.equal(sections[0].textLength, 9);
   });
 });
+
+describe('extractBlueprint on a short page', () => {
+  it('keeps a hero that is most of the page height when nothing sits inside it', () => {
+    const bands = [
+      band({ tag: 'header', bounds: { x: 0, y: 0, w: 1280, h: 80 }, text: 'Home About', textLength: 10 }),
+      band({ tag: 'section', bounds: { x: 0, y: 80, w: 1280, h: 800 }, heading: { level: 1, fontSize: 56, text: 'Hello' }, text: 'Hello', textLength: 5 }),
+      band({ tag: 'footer', bounds: { x: 0, y: 880, w: 1280, h: 80 }, text: 'Copyright', textLength: 9 }),
+    ];
+    const bp = extractBlueprint(bands, [], null, { pageHeight: 960, viewportHeight: 800 });
+    assert.equal(bp.counts.oversizedDropped, 0);
+    assert.equal(bp.bands.length, 3);
+  });
+});

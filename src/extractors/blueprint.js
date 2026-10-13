@@ -5,6 +5,7 @@
 import { classifyRole } from './section-roles.js';
 
 const OVERSIZED_SHARE = 0.8;
+const WRAPPER_MIN_VIEWPORTS = 2;
 const HERO_MEDIA_SHARE = 0.4;
 const HERO_HEADING_PX = 40;
 const HERO_WITHIN_VIEWPORTS = 1.5;
@@ -72,8 +73,15 @@ export function extractBlueprint(bands = [], runtimeObservations = [], pageInten
   const totalHeight = pageHeight || Math.max(0, ...valid.map(b => b.bounds.y + b.bounds.h));
   const kept = [];
   let oversizedDropped = 0;
+  // A band taller than most of the page is dropped only with evidence that it
+  // is a wrapper, not a section: another band sits inside its vertical range,
+  // or it is taller than WRAPPER_MIN_VIEWPORTS screens. On a short page a
+  // real hero can exceed the share on its own and must stay.
+  const contains = (outer) => valid.some(o => o !== outer
+    && o.bounds.y >= outer.bounds.y && o.bounds.y + o.bounds.h <= outer.bounds.y + outer.bounds.h);
   for (const b of valid) {
-    if (totalHeight > 0 && b.bounds.h > totalHeight * OVERSIZED_SHARE) { oversizedDropped++; continue; }
+    const oversized = totalHeight > 0 && b.bounds.h > totalHeight * OVERSIZED_SHARE;
+    if (oversized && (b.bounds.h > viewportHeight * WRAPPER_MIN_VIEWPORTS || contains(b))) { oversizedDropped++; continue; }
     kept.push(b);
   }
   kept.sort((a, b) => a.bounds.y - b.bounds.y);
