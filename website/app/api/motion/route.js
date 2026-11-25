@@ -8,7 +8,7 @@
 
 import { extractDesignLanguage } from '../../../../src/index.js';
 import { validateResolvedTargetUrl } from '../../../lib/url-safety.js';
-import { checkRate, checkRateBlob } from '../../../lib/rate-limit.js';
+import { checkExtractionRate } from '../../../lib/rate-limit.js';
 import { cacheKey, getCached, putCached } from '../../../lib/cache.js';
 import { getBrowserOptions } from '../../../lib/browser.js';
 import { formatMotionTokens } from '../../../../src/formatters/motion-tokens.js';
@@ -73,8 +73,7 @@ export async function POST(request) {
     `Free demo: 2 extractions per day. Use the CLI for unlimited: npx designlang ${host}`,
     { cli: `npx designlang ${host}` },
   );
-  if (!checkRate(`extract:${ip}`, { limit: 2 }).allowed) return limited();
-  if (!(await checkRateBlob(`extract:${ip}`, { limit: 2 })).allowed) return limited();
+  if (!(await checkExtractionRate(`extract:${ip}`, { limit: 2 })).allowed) return limited();
 
   const browserOpts = await getBrowserOptions();
   let design;

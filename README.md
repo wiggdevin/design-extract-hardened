@@ -65,6 +65,7 @@ npx designlang dna stripe.com                          # place it in the measure
 npx designlang site stripe.com                         # whole-site: one canonical system + consistency grade ← v12.23
 npx designlang fidelity stripe.com --clone localhost:3000  # score a clone vs the original (visual + motion) ← v12.24
 npx designlang gallery                                 # static shareable gallery of measured clones      ← v12.24
+npx designlang benchmark references.json --concurrency 3  # timed, persisted reference-vs-extraction batch
 npx designlang studio                                  # live token editor: edit, preview, export, share ← v12.19
 npx designlang verify stripe.com                       # fidelity score: rebuild from tokens vs live ← v12.18
 npx designlang pair stripe.com linear.app              # fuse two designs (visuals A × voice B)    ← v12.8
@@ -78,6 +79,33 @@ npx designlang battle stripe.com vercel.com            # head-to-head graded fig
 npx designlang clone https://stripe.com                # working Next.js starter
 npx designlang --full https://stripe.com               # screenshots + responsive + interactions
 ```
+
+### Timed reference benchmarks
+
+`designlang benchmark` accepts a JSON manifest, extracts every public URL with bounded
+concurrency, and saves both the evidence and wall-clock timing. A failed site is retained
+in the report without discarding successful sites.
+
+```json
+{
+  "name": "Premium references",
+  "source": "Refero Styles",
+  "references": [
+    {
+      "id": "style-id",
+      "title": "Reference title",
+      "url": "https://example.com",
+      "previewUrl": "https://images.example.com/preview.jpg",
+      "description": "Saved reference description"
+    }
+  ]
+}
+```
+
+The output contains `report.json`, `report.md`, and one directory per site with the
+reference snapshot, public extraction JSON, DTCG tokens, and a side-by-side comparison.
+The comparison's shared signals are lexical navigation aids, not fidelity scores. Raw
+rendered page source is deliberately excluded from persisted benchmark artifacts.
 
 Drop a live design-score badge in any README:
 
@@ -520,4 +548,3 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). PRs welcome!
 ## License
 
 [MIT](LICENSE) - Manav Arya Singh !!
-

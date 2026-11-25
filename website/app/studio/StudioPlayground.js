@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { createStudioAutoRunGate } from '../../lib/studio-auto-run.js';
 
 const EXAMPLES = ['stripe.com', 'linear.app', 'vercel.com', 'notion.so'];
 
@@ -11,6 +12,8 @@ export default function StudioPlayground() {
   const [docUrl, setDocUrl] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const inputRef = useRef(null);
+  const autoRunGateRef = useRef(null);
+  if (!autoRunGateRef.current) autoRunGateRef.current = createStudioAutoRunGate();
 
   // A standalone Blob URL of the studio doc, for "Open full ↗" in a new tab.
   useEffect(() => {
@@ -62,9 +65,10 @@ export default function StudioPlayground() {
   useEffect(() => {
     try {
       const q = new URL(window.location.href).searchParams.get('url');
-      if (q) {
-        if (inputRef.current) inputRef.current.value = q.replace(/^https?:\/\//i, '');
-        run(q);
+      const autoRunUrl = autoRunGateRef.current(q);
+      if (autoRunUrl) {
+        if (inputRef.current) inputRef.current.value = autoRunUrl.replace(/^https?:\/\//i, '');
+        run(autoRunUrl);
       }
     } catch {}
   }, [run]);

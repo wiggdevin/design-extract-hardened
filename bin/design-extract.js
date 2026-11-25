@@ -72,6 +72,7 @@ import { htmlToPdf } from '../src/pdf.js';
 import { fuseDesigns, AXES } from '../src/fuse.js';
 import { formatPair, formatPairMarkdown } from '../src/formatters/pair.js';
 import { nameFromUrl } from '../src/utils.js';
+import { parseBenchmarkConcurrency, runReferenceBenchmark } from '../src/reference-benchmark.js';
 
 function validateUrl(url) {
   try { new URL(url); } catch {
@@ -1160,6 +1161,32 @@ program
       spinner.fail('Scoring failed');
       console.error(chalk.red(`\n  ${err.message}\n`));
       process.exit(1);
+    }
+  });
+
+// ── Reference benchmark — persisted batch extraction + comparison evidence ──
+program
+  .command('benchmark <manifest>')
+  .description('Run and save a timed reference extraction benchmark from a JSON manifest')
+  .option('-o, --out <dir>', 'output directory', './design-benchmark-output')
+  .option('-c, --concurrency <n>', 'parallel extraction workers (1-10)', parseBenchmarkConcurrency, 3)
+  .action(async (manifestPath, opts, command) => {
+    try {
+      const manifest = JSON.parse(readFileSync(resolve(manifestPath), 'utf8'));
+      const outDir = resolveOut(opts, command, './design-benchmark-output');
+      const report = await runReferenceBenchmark({
+        manifest,
+        outDir,
+        concurrency: opts.concurrency,
+        extract: (url) => extractDesignLanguage(url),
+      });
+      console.log(`Benchmark complete in ${(report.durationMs / 1000).toFixed(1)}s`);
+      console.log(`${report.counts.succeeded}/${report.counts.total} extractions succeeded`);
+      console.log(`Report: ${join(outDir, 'report.md')}`);
+      if (report.counts.failed > 0) process.exitCode = 1;
+    } catch (error) {
+      console.error(chalk.red(`Benchmark failed: ${error?.message || String(error)}`));
+      process.exitCode = 1;
     }
   });
 

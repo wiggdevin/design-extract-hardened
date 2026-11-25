@@ -63,6 +63,12 @@ describe('CLI', () => {
     assert.ok(output.includes('--base-url'));
   });
 
+  it('registers the benchmark command for timed reference manifests', () => {
+    const output = execFileSync('node', [CLI_PATH, 'benchmark', '--help'], { encoding: 'utf-8' });
+    assert.ok(output.includes('Run and save a timed reference extraction benchmark'));
+    assert.ok(output.includes('--concurrency'));
+  });
+
   it('clone exposes a --fidelity flag', () => {
     const output = execFileSync('node', [CLI_PATH, 'clone', '--help'], { encoding: 'utf-8' });
     assert.ok(output.includes('--fidelity'));

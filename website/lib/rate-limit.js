@@ -32,8 +32,30 @@ export function _resetRateLimit() {
 // Public Blob counters were neither private nor atomic. Hosted requests fail
 // closed until an authenticated, atomic quota store is implemented.
 export async function checkRateBlob(key, options = {}) {
-  if (process.env.NODE_ENV === 'production') {
+  const nodeEnv = options.nodeEnv ?? process.env.NODE_ENV;
+  if (nodeEnv === 'production') {
     return { allowed: false, remaining: 0, resetAt: Date.now() + 60000, persistent: false };
   }
   return { ...checkRate(`local-quota:${key}`, options), persistent: false };
+}
+
+// The two-per-day budget protects the hosted demo, not an owner's local tool.
+// NODE_ENV is server-owned and cannot be spoofed through request headers, so
+// development remains unlimited without weakening the production fail-closed
+// path while the authenticated atomic quota store is unavailable.
+export async function checkExtractionRate(key, options = {}) {
+  const nodeEnv = options.nodeEnv ?? process.env.NODE_ENV;
+  if (nodeEnv !== 'production') {
+    return {
+      allowed: true,
+      remaining: Number.POSITIVE_INFINITY,
+      resetAt: null,
+      persistent: false,
+      unlimited: true,
+    };
+  }
+
+  const memoryRate = checkRate(key, options);
+  if (!memoryRate.allowed) return memoryRate;
+  return checkRateBlob(key, { ...options, nodeEnv });
 }

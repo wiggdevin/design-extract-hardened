@@ -1,6 +1,8 @@
 import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { checkRate, checkRateBlob, _resetRateLimit } from './rate-limit.js';
+import * as rateLimit from './rate-limit.js';
+
+const { checkRate, checkRateBlob, _resetRateLimit } = rateLimit;
 
 beforeEach(() => _resetRateLimit());
 
@@ -68,4 +70,29 @@ test('local two-stage quota counts each extraction once per limiter', async () =
     if (old === undefined) delete process.env.NODE_ENV;
     else process.env.NODE_ENV = old;
   }
+});
+
+test('local extraction policy allows hundreds of requests', async () => {
+  assert.equal(typeof rateLimit.checkExtractionRate, 'function');
+
+  for (let i = 0; i < 500; i += 1) {
+    const result = await rateLimit.checkExtractionRate('extract:local', {
+      limit: 2,
+      nodeEnv: 'development',
+    });
+    assert.equal(result.allowed, true);
+    assert.equal(result.unlimited, true);
+  }
+});
+
+test('production extraction policy remains fail-closed', async () => {
+  assert.equal(typeof rateLimit.checkExtractionRate, 'function');
+
+  const result = await rateLimit.checkExtractionRate('extract:public', {
+    limit: 2,
+    nodeEnv: 'production',
+  });
+
+  assert.equal(result.allowed, false);
+  assert.equal(result.persistent, false);
 });

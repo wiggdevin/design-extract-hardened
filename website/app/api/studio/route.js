@@ -12,7 +12,7 @@ import { extractDesignLanguage } from '../../../../src/index.js';
 import { formatDtcgTokens } from '../../../../src/formatters/dtcg-tokens.js';
 import { studioHtml } from '../../../../src/studio.js';
 import { validateResolvedTargetUrl } from '../../../../website/lib/url-safety.js';
-import { checkRate, checkRateBlob } from '../../../../website/lib/rate-limit.js';
+import { checkExtractionRate } from '../../../../website/lib/rate-limit.js';
 import { cacheKey, getCached, putCached } from '../../../../website/lib/cache.js';
 import { getBrowserOptions } from '../../../../website/lib/browser.js';
 
@@ -80,11 +80,9 @@ export async function POST(request) {
       design = cached.design;
       wasCached = true;
     } else {
-      // Shared 2/day budget with /api/extract (a studio IS an extraction).
-      const memRate = checkRate(`extract:${ip}`, { limit: 2 });
-      if (!memRate.allowed) return rateLimited(targetUrl, memRate.resetAt);
-      const blobRate = await checkRateBlob(`extract:${ip}`, { limit: 2 });
-      if (!blobRate.allowed) return rateLimited(targetUrl, blobRate.resetAt);
+      // Local use is unlimited; the hosted production path remains fail-closed.
+      const rate = await checkExtractionRate(`extract:${ip}`, { limit: 2 });
+      if (!rate.allowed) return rateLimited(targetUrl, rate.resetAt);
 
       const browserOpts = await getBrowserOptions();
       design = await extractDesignLanguage(targetUrl, browserOpts);

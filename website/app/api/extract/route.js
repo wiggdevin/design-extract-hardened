@@ -10,7 +10,7 @@
 
 import { extractDesignLanguage } from '../../../../src/index.js';
 import { validateResolvedTargetUrl } from '../../../../website/lib/url-safety.js';
-import { checkRate, checkRateBlob } from '../../../../website/lib/rate-limit.js';
+import { checkExtractionRate } from '../../../../website/lib/rate-limit.js';
 import { cacheKey, getCached, putCached } from '../../../../website/lib/cache.js';
 import { buildFiles, buildSummary } from '../../../../website/lib/build-files.js';
 import { wantsTheatre, frameEvent, THEATRE_SCREENCAST_OPTS } from '../../../../website/lib/theatre.js';
@@ -148,28 +148,15 @@ export async function POST(request) {
   }
 
   if (!cached) {
-    // First-line per-instance memory guard (cheap, blunts hammering within an instance).
-    const memRate = checkRate(`extract:${ip}`, { limit: 2 });
-    if (!memRate.allowed) {
+    const rate = await checkExtractionRate(`extract:${ip}`, { limit: 2 });
+    if (!rate.allowed) {
       return Response.json(
         {
           error: 'Free demo: 2 extractions per day. Use the CLI for unlimited: npx designlang ' + new URL(targetUrl).hostname,
-          resetAt: memRate.resetAt,
+          resetAt: rate.resetAt,
           cli: 'npx designlang ' + new URL(targetUrl).hostname,
         },
-        { status: 429, headers: { 'retry-after': String(Math.ceil((memRate.resetAt - Date.now()) / 1000)) } }
-      );
-    }
-    // Persistent Blob-backed limit (survives cold starts, real cross-instance enforcement).
-    const blobRate = await checkRateBlob(`extract:${ip}`, { limit: 2 });
-    if (!blobRate.allowed) {
-      return Response.json(
-        {
-          error: 'Free demo: 2 extractions per day. Use the CLI for unlimited: npx designlang ' + new URL(targetUrl).hostname,
-          resetAt: blobRate.resetAt,
-          cli: 'npx designlang ' + new URL(targetUrl).hostname,
-        },
-        { status: 429, headers: { 'retry-after': String(Math.ceil((blobRate.resetAt - Date.now()) / 1000)) } }
+        { status: 429, headers: { 'retry-after': String(Math.ceil((rate.resetAt - Date.now()) / 1000)) } }
       );
     }
   }
